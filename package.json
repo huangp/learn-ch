@@ -10,12 +10,17 @@
     "data:build": "tsx data/pipeline/build.ts",
     "data:verify": "tsx data/pipeline/verify.ts",
     "data:all": "pnpm data:download && pnpm data:build && pnpm data:verify",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc",
+    "eval": "tsx --env-file=.env evals/runner.ts",
+    "eval:judge": "tsx --env-file=.env evals/judge.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.2",
     "better-sqlite3": "^11.8.1",
     "drizzle-orm": "^0.38.4",
-    "ts-fsrs": "^5.4.1"
+    "ts-fsrs": "^5.4.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",

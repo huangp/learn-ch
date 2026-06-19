@@ -11,5 +11,5 @@
     "resolveJsonModule": true,
     "noEmit": true
   },
-  "include": ["db", "data", "lib", "drizzle.config.ts", "vitest.config.ts"]
+  "include": ["db", "data", "lib", "evals", "drizzle.config.ts", "vitest.config.ts"]
 }

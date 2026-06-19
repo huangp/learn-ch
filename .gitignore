@@ -7,5 +7,7 @@ data/raw/
 
 *.log
 .DS_Store
+.env
+evals/results/
 
 .idea/

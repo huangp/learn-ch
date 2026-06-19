@@ -30,8 +30,9 @@ yet (the four paths are resolver functions; Phase 5 wires UIs to them).
 - `pnpm test` — vitest unit tests (`lib/**/*.test.ts`). Keep green when touching `/lib`.
 
 Tables added (§5.3): `learners`, `learner_chars` (composite PK, FSRS columns, `ON DELETE CASCADE`).
-`stories` + `interactions` are defined but **unused until Phase 3/5** (added now to avoid a migration
-each later phase). `lib/db.ts` is the shared Drizzle handle (`foreign_keys = ON`).
+`stories` + `interactions` are defined but **unused until Phase 5** (Phase 3 generation is pure and
+does not persist; added now to avoid a migration each later phase). `lib/db.ts` is the shared Drizzle
+handle (`foreign_keys = ON`).
 
 Key modules:
 - `lib/grading/curriculum.ts` — `buildCurriculum`/`computeFrontier`. This is the **Phase 6 core**
@@ -56,3 +57,41 @@ word-level vocabulary the generation engine (Phase 3) feeds the LLM. Pure DB rea
 - `allowedWords` — every char ∈ `allowedChars`, sorted by `freqRank` asc (nulls last), capped at
   `DEFAULT_MAX_WORDS = 600`. Target-coverage backfill guarantees each target has ≥1 example word,
   which can push the list slightly past the cap (≤ +1/target).
+
+## Generation engine + evals (Phase 3 — done)
+
+The generate → validate → repair heart (§8). `generateGradedStory(db, llm, learnerId, config)` in
+`lib/generation/generate.ts`: builds the allowlist, runs the LLM loop, returns `{ story, meta }`.
+**Pure** — reads only via `buildAllowlist`; does **not** write `stories` (persistence is Phase 5).
+
+- `pnpm test` — vitest (`lib/**/*.test.ts`); now includes the deterministic `lib/generation` tests.
+- `pnpm typecheck` — `tsc` over `lib` + `evals`. Keep both green when touching `/lib/generation`,
+  `/lib/llm`, or `/prompts`.
+- `pnpm eval` / `pnpm eval:judge` — **real-LLM, on-demand** (need `ANTHROPIC_API_KEY` in `.env`,
+  loaded via `tsx --env-file`). `eval` runs fixtures → metrics + regression gate; `eval:judge` rates
+  coherence. Not part of CI (unit tests cover the deterministic logic with a mock).
+
+Targets/due are **explicit inputs** (`config.targetCharIds`/`dueCharIds`) — the Phase 6 selectors
+`selectNewChars`/`selectDueChars` are deferred; `evals/fixtures.ts` has a thin local stand-in.
+
+Key modules:
+- `lib/generation/validate.ts` — `validateChars(body, allowedChars)`: out-of-vocab Han chars +
+  evasions (latin/pinyin tone marks). Pure, unit-tested (§8.2).
+- `lib/generation/coverage.ts` — `checkCoverage(body, opts)`: target ≥`K`, due present, global +
+  per-sentence coverage floors, target spread. `bootstrap:true` relaxes the coverage gates (§16.4);
+  `validateChars` still enforces the allowed set. Pure, unit-tested (§8.3).
+- `lib/generation/types.ts` — **Zod**-validated §8.5 output contract (`StoryJson`); `parse.ts`
+  tolerates markdown fences and yields repair-friendly errors.
+- `lib/generation/constants.ts` — provisional, eval-tunable: `K=2`, `DEFAULT_LENGTH_CHARS=100`,
+  `MAX_REPAIRS=4`, `KNOWN_COVERAGE_TARGET=0.95`, `KNOWN_COVERAGE_FLOOR=0.90` (hard gate),
+  `MIN_SENTENCE_COVERAGE=0.85`.
+- `lib/llm/` — provider-agnostic `LlmProvider`; `createLlmProvider()` defaults to Anthropic +
+  `claude-haiku-4-5` (override via `LLM_PROVIDER`/`LLM_MODEL`). `MockLlmProvider` drives the loop in
+  tests with no key/network.
+- `/prompts/generate.system.md` + `/prompts/repair.user.md` — the system + targeted-repair templates
+  (the vocab-heavy user prompt is assembled in `lib/generation/prompt.ts`).
+- `/evals/` — `fixtures.ts`, `runner.ts`, `judge.ts`, `thresholds.ts`. The §12 coverage-vs-
+  comprehension regression is a documented stub (needs Phase 5/7 reading data).
+
+Deferred to later phases: story persistence (5), `selectNewChars`/`selectDueChars` (6),
+`repairBySubstitution` synonym fallback, the coverage-band empirical regression (5/7).
