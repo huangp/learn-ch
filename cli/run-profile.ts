@@ -5,15 +5,15 @@ import { fromPastedText, selfDeclareHsk } from '../lib/placement/index.js';
 import { createLearner } from '../lib/learner/crud.js';
 import { BOOTSTRAP_THRESHOLD, seedLearner } from '../lib/learner/seed.js';
 import { buildCurriculum } from '../lib/grading/curriculum.js';
+import { selectDueChars, selectNewChars } from '../lib/grading/select.js';
 import { buildAllowlist } from '../lib/allowlist/index.js';
 import { generateGradedStory } from '../lib/generation/generate.js';
 import type { AttemptDiagnostics, GenerationMeta, StoryJson } from '../lib/generation/types.js';
 import type { LlmProvider } from '../lib/llm/index.js';
-import { selectDue, selectTargets } from '../evals/select.js';
 
 // End-to-end orchestration: a learner profile → a scored, validated story. Pure glue
 // over placement → seed → curriculum/allowlist → generation. Shared by the `pnpm story`
-// CLI and the gated integration test. Targets/due use the Phase-6 stand-in (evals/select.ts).
+// CLI and the gated integration test. Targets/due use the Phase-6 selectors (lib/grading/select.ts).
 
 const NOW = 1_750_000_000_000;
 
@@ -76,10 +76,9 @@ export async function generateForProfile(
   const learnerId = createLearner(db, `cli-${profile.method}`, {}, NOW).id;
   seedLearner(db, learnerId, known, method, NOW);
 
-  const knownSet = new Set(known);
   const bootstrap = known.length < BOOTSTRAP_THRESHOLD;
-  const targetCharIds = selectTargets(db, knownSet, profile.targets);
-  const dueCharIds = selectDue(db, learnerId, profile.due);
+  const targetCharIds = selectNewChars(db, learnerId, profile.targets);
+  const dueCharIds = selectDueChars(db, learnerId, profile.due);
 
   const { allowedChars, targetChars } = buildAllowlist(db, learnerId, targetCharIds, { maxWords: profile.maxWords });
 

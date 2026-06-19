@@ -36,8 +36,7 @@ handle (`foreign_keys = ON`).
 
 Key modules:
 - `lib/grading/curriculum.ts` — `buildCurriculum`/`computeFrontier`. This is the **Phase 6 core**
-  pulled forward (build order says 6 after 1, but the frontier needs it). Phase 6 adds
-  `selectNewChars`/`selectDueChars` on top — extend this file, don't rewrite it.
+  pulled forward (build order says 6 after 1, but the frontier needs it).
 - `lib/placement/index.ts` — `selfDeclareHsk` · `fromPastedText` · `fromToggleGrid` · `fromZero`,
   all returning `charId[]`.
 - `lib/learner/seed.ts` — `seedLearner`: known chars → `review` (never `mastered`), freq-scaled
@@ -73,12 +72,12 @@ The generate → validate → repair heart (§8). `generateGradedStory(db, llm, 
 - `pnpm story` — **end-to-end driver** (`cli/`). Give a profile (`--hsk N` / `--paste "…"` /
   `--bootstrap`), get a validated, graded hanzi story + its SCORE block; `--judge` adds the coherence
   rating. Uses an ephemeral DB copy (no writes to `hanzi.db`). `cli/run-profile.ts` (`generateForProfile`)
-  is the shared glue: placement → seed → `evals/select.ts` targets/due → `generateGradedStory`.
+  is the shared glue: placement → seed → `lib/grading/select.ts` targets/due → `generateGradedStory`.
 - `pnpm test:integration` — the gated `cli/story.integration.test.ts` (real LLM, skipped unless
   `ANTHROPIC_API_KEY` is set); run with the key exported.
 
-Targets/due are **explicit inputs** (`config.targetCharIds`/`dueCharIds`) — the Phase 6 selectors
-`selectNewChars`/`selectDueChars` are deferred; `evals/fixtures.ts` has a thin local stand-in.
+Targets/due are **explicit inputs** (`config.targetCharIds`/`dueCharIds`), now supplied by the
+Phase 6 selectors `selectNewChars`/`selectDueChars` (`lib/grading/select.ts`).
 
 Key modules:
 - `lib/generation/validate.ts` — `validateChars(body, allowedChars)`: out-of-vocab Han chars +
@@ -99,5 +98,21 @@ Key modules:
 - `/evals/` — `fixtures.ts`, `runner.ts`, `judge.ts`, `thresholds.ts`. The §12 coverage-vs-
   comprehension regression is a documented stub (needs Phase 5/7 reading data).
 
-Deferred to later phases: story persistence (5), `selectNewChars`/`selectDueChars` (6),
-`repairBySubstitution` synonym fallback, the coverage-band empirical regression (5/7).
+Deferred to later phases: story persistence (5), `repairBySubstitution` synonym fallback,
+the coverage-band empirical regression (5/7).
+
+## Grading selectors (Phase 6 — done)
+
+`lib/grading/select.ts` — the SRS-aware progression selectors (§6.2, §8.1) that pick what the
+next story teaches and reviews. Both are pure DB reads over `learner_chars`:
+
+- `selectNewChars(db, learnerId, n)` — next `n` curriculum targets: walks `buildCurriculum`
+  order from the learner's frontier, skips already-known chars (status `learning`/`review`/
+  `mastered`), and only offers a char whose every prerequisite component the learner has reached
+  **`review`/`mastered`** on (a `learning` prereq does not unlock it).
+- `selectDueChars(db, learnerId, maxDue)` — soonest-due `review` chars (overdue first via
+  `due ASC`), capped at `maxDue`.
+
+Wired into `cli/run-profile.ts` and `evals/fixtures.ts` (these replaced the old `evals/select.ts`
+stand-in). Promotion of chars between statuses (`new`→`learning`→`review`→`mastered`) is Phase 5/7;
+for a freshly seeded learner (all known = `review`) output matches the prior stand-in.

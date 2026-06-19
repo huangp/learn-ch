@@ -3,10 +3,10 @@ import { buildCurriculum } from '../lib/grading/curriculum.js';
 import { selfDeclareHsk } from '../lib/placement/index.js';
 import { createLearner } from '../lib/learner/crud.js';
 import { seedLearner } from '../lib/learner/seed.js';
-import { selectDue, selectTargets } from './select.js';
+import { selectDueChars, selectNewChars } from '../lib/grading/select.js';
 
 // Eval fixtures (§12): a spread of learner profiles. Each is seeded in an ephemeral
-// DB copy, then given targets/due via the Phase-6 stand-in selectors (evals/select.ts),
+// DB copy, then given targets/due via the Phase-6 selectors (lib/grading/select.ts),
 // good enough to exercise generation.
 
 const NOW = 1_750_000_000_000;
@@ -58,9 +58,8 @@ export function buildFixtures(db: Db): EvalFixture[] {
       method = 'hsk';
     }
     seedLearner(db, learnerId, known, method, NOW);
-    const knownSet = new Set(known);
-    const targetCharIds = selectTargets(db, knownSet, spec.targets);
-    const dueCharIds = spec.maxDue > 0 ? selectDue(db, learnerId, spec.maxDue) : [];
+    const targetCharIds = selectNewChars(db, learnerId, spec.targets);
+    const dueCharIds = spec.maxDue > 0 ? selectDueChars(db, learnerId, spec.maxDue) : [];
     return {
       name: spec.name,
       learnerId,
