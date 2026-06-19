@@ -11,7 +11,9 @@
     "data:verify": "tsx data/pipeline/verify.ts",
     "data:all": "pnpm data:download && pnpm data:build && pnpm data:verify",
     "test": "vitest run",
+    "test:integration": "vitest run cli",
     "typecheck": "tsc",
+    "story": "tsx --env-file=.env cli/story.ts",
     "eval": "tsx --env-file=.env evals/runner.ts",
     "eval:judge": "tsx --env-file=.env evals/judge.ts"
   },

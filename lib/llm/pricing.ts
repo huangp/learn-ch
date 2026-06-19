@@ -8,9 +8,16 @@ const PRICING: Record<string, { inputPer1M: number; outputPer1M: number }> = {
   'claude-opus-4-8': { inputPer1M: 15, outputPer1M: 75 },
 };
 
-/** Estimated USD cost of a generation, by model + token usage. 0 for unknown models. */
+/**
+ * Estimated USD cost of a generation, by model + token usage. The API returns a dated
+ * model id (e.g. `claude-haiku-4-5-20251001`), so match the longest pricing key that is
+ * a prefix of it. 0 for unknown models.
+ */
 export function costUsd(model: string, usage: LlmUsage): number {
-  const p = PRICING[model];
-  if (!p) return 0;
+  const key = Object.keys(PRICING)
+    .filter((k) => model.startsWith(k))
+    .sort((a, b) => b.length - a.length)[0];
+  if (!key) return 0;
+  const p = PRICING[key];
   return (usage.inputTokens * p.inputPer1M + usage.outputTokens * p.outputPer1M) / 1_000_000;
 }

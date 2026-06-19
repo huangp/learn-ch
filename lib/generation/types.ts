@@ -44,11 +44,17 @@ export interface GenerationConfig {
   maxWords?: number;
   maxRepairs?: number;
   k?: number;
+  /** Override the global known-coverage hard gate (default KNOWN_COVERAGE_FLOOR). */
+  coverageBand?: number;
+  /** Override the per-sentence coverage floor (default MIN_SENTENCE_COVERAGE = 0.85). */
+  minSentenceCoverage?: number;
   /** Bootstrap mode (§16.4): relax the global coverage gate (validateChars still enforces the allowed set). */
   bootstrap?: boolean;
   /** Prior story body, for branching continuations (§8 priorStory). */
   priorStory?: string;
   model?: string;
+  /** Per-attempt diagnostics hook (logging/debugging). Called once per LLM turn. */
+  onAttempt?: (info: AttemptDiagnostics) => void;
 }
 
 export interface GenerationMeta {
@@ -68,11 +74,27 @@ export interface GenerationResult {
   meta: GenerationMeta;
 }
 
+/** Diagnostics for one LLM turn — what was wrong (or that it passed). */
+export interface AttemptDiagnostics {
+  phase: 'initial' | 'repair' | 'fallback';
+  attempt: number; // 0-based LLM-call index
+  passed: boolean;
+  /** Human-readable failure reasons (empty when passed). */
+  reasons: string[];
+  parseError?: string;
+  knownCoverage?: number;
+  targetCoverage?: number;
+  perSentenceMin?: number;
+  body?: string;
+}
+
 /** Thrown when no attempt (including fallbacks) produces a passing story. */
 export class GenerationFailed extends Error {
   constructor(
     message: string,
     readonly meta: GenerationMeta,
+    /** Why the best attempt still failed (out-of-vocab chars, low sentence, missing due, …). */
+    readonly reasons: string[] = [],
   ) {
     super(message);
     this.name = 'GenerationFailed';

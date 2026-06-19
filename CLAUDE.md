@@ -65,11 +65,17 @@ The generate → validate → repair heart (§8). `generateGradedStory(db, llm, 
 **Pure** — reads only via `buildAllowlist`; does **not** write `stories` (persistence is Phase 5).
 
 - `pnpm test` — vitest (`lib/**/*.test.ts`); now includes the deterministic `lib/generation` tests.
-- `pnpm typecheck` — `tsc` over `lib` + `evals`. Keep both green when touching `/lib/generation`,
+- `pnpm typecheck` — `tsc` over `lib` + `evals` + `cli`. Keep both green when touching `/lib/generation`,
   `/lib/llm`, or `/prompts`.
 - `pnpm eval` / `pnpm eval:judge` — **real-LLM, on-demand** (need `ANTHROPIC_API_KEY` in `.env`,
   loaded via `tsx --env-file`). `eval` runs fixtures → metrics + regression gate; `eval:judge` rates
   coherence. Not part of CI (unit tests cover the deterministic logic with a mock).
+- `pnpm story` — **end-to-end driver** (`cli/`). Give a profile (`--hsk N` / `--paste "…"` /
+  `--bootstrap`), get a validated, graded hanzi story + its SCORE block; `--judge` adds the coherence
+  rating. Uses an ephemeral DB copy (no writes to `hanzi.db`). `cli/run-profile.ts` (`generateForProfile`)
+  is the shared glue: placement → seed → `evals/select.ts` targets/due → `generateGradedStory`.
+- `pnpm test:integration` — the gated `cli/story.integration.test.ts` (real LLM, skipped unless
+  `ANTHROPIC_API_KEY` is set); run with the key exported.
 
 Targets/due are **explicit inputs** (`config.targetCharIds`/`dueCharIds`) — the Phase 6 selectors
 `selectNewChars`/`selectDueChars` are deferred; `evals/fixtures.ts` has a thin local stand-in.
