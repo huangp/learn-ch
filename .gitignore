@@ -1,0 +1,11 @@
+node_modules/
+data/raw/
+*.db-journal
+*.db
+*.db-shm
+*.db-wal
+
+*.log
+.DS_Store
+
+.idea/

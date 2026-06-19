@@ -1,0 +1,27 @@
+{
+  "name": "hanzi-graded-reader",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "data:download": "tsx data/pipeline/download.ts",
+    "db:generate": "drizzle-kit generate",
+    "data:build": "tsx data/pipeline/build.ts",
+    "data:verify": "tsx data/pipeline/verify.ts",
+    "data:all": "pnpm data:download && pnpm data:build && pnpm data:verify"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "drizzle-orm": "^0.38.4"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.10.7",
+    "drizzle-kit": "^0.30.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["better-sqlite3", "esbuild"]
+  }
+}
