@@ -116,3 +116,26 @@ next story teaches and reviews. Both are pure DB reads over `learner_chars`:
 Wired into `cli/run-profile.ts` and `evals/fixtures.ts` (these replaced the old `evals/select.ts`
 stand-in). Promotion of chars between statuses (`new`→`learning`→`review`→`mastered`) is Phase 5/7;
 for a freshly seeded learner (all known = `review`) output matches the prior stand-in.
+
+## Annotation layer (Phase 4 — done)
+
+`annotate(db, hanzi)` in `lib/annotate/index.ts` (§9) turns a validated hanzi-only body into
+render-ready `AnnotatedSegment[]` (`{ text, pinyin[], gloss, chars[], candidates[][], source[] }`).
+**Pure, synchronous, no network** — writes nothing (persisting to `stories.annotated` is Phase 5).
+Two passes aligned by char offset: `pinyin-pro` per *sentence* for heteronym context (1:1 per Han
+char), and greedy longest-match segmentation against the `words` lexicon (gloss attached). `pnpm test`
+covers it deterministically (no key).
+
+**Pinyin uses a layered fallback chain**, with per-char `candidates` (from pinyin-pro `multiple:true`,
+**not** `characters.pinyin` — the DB stores one reading even for heteronyms) and a `source` tag:
+1. **pinyin-pro** (primary, context-aware).
+2. **CC-CEDICT** (`cedict.ts`) — synchronous/deterministic: matched multi-char words prefer
+   `words.pinyin`, applied only when it diverges *and* the reading ∈ the char's candidates. This is
+   what fixes 还书→`huán` (it's a CC-CEDICT word; no LLM needed).
+3. **LLM** (`lib/annotate/llm.ts` `resolveHeteronyms(llm, hanzi, segments)`) — **OPT-IN, async,
+   SEPARATE entry point**. `annotate()` never calls it. One batched, constrained call for "hard cases"
+   (`heteronym.ts` `isHardCase`); the model only *selects among candidate readings* (out-of-set replies
+   ignored) — preserving "never trust the model for pinyin". Zero calls when there are no hard cases.
+
+> **Phase 5 must call `resolveHeteronyms` explicitly** after `annotate()` to get LLM-grade heteronym
+> accuracy — the default `annotate()` output is purely deterministic (pinyin-pro + CC-CEDICT only).

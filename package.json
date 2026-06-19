@@ -21,6 +21,7 @@
     "@anthropic-ai/sdk": "^0.104.2",
     "better-sqlite3": "^11.8.1",
     "drizzle-orm": "^0.38.4",
+    "pinyin-pro": "^3.28.1",
     "ts-fsrs": "^5.4.1",
     "zod": "^4.4.3"
   },
