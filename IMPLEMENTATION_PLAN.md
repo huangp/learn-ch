@@ -281,7 +281,16 @@ function generateGradedStory(learner, config):
 ### 8.3 `checkCoverage`
 - Every `target` appears **≥ K times** (K≈2–3) → drives varied re-encounter of new chars.
 - Every `due` char appears **≥1** → that's the invisible review.
-- `knownCoverage` = % tokens that are known/target (target ≥ 0.95 for readability).
+- **Global known-coverage gate: a tunable band, not a sacred constant.** Default target `knownCoverage ≥ 0.95`, acceptable floor `0.90`. See §8.3.1 for why these numbers and why they must be eval-tuned, not inherited.
+- **Local floor (this matters more than the global %): no single sentence below `MIN_SENTENCE_COVERAGE`** (start ~0.85), and target chars must be **spread across sentences**, not clustered. A story can pass globally while one sentence sits at 70% and becomes unparseable — the local floor kills that failure mode, which a global average hides. For Chinese this is critical because a single unknown character can be load-bearing in a way one unknown English word in a 20-word sentence often isn't.
+
+### 8.3.1 Evidence note on the coverage numbers (don't treat as gospel)
+The 95%/98% figures come from L2 **word**-coverage research in **English**, measuring **unassisted** reading (random unknowns, no glosses, incidental learning): Hu & Nation (2000) → 98% for fluent unassisted comprehension; Laufer (1989) / Laufer & Ravenhorst-Kalovski (2010) → 95% as the *minimum* adequate threshold. Two reasons our gate sits at/below the minimum end rather than at 98%:
+1. **This app is assisted + deliberate, not unassisted + incidental.** Unknowns here are taught, glossed, tappable, and repeated K times — not random gaps. That tolerates lower coverage than the unassisted studies require. Also, coverage that's *too high* (99–100%) starves acquisition: there's nothing new to learn. The learning sweet spot is deliberately below the pure-comprehension optimum (i+1).
+2. **Effective load < raw coverage.** A target char on its 3rd in-story encounter is barely "unknown," so 0.95 *measured* coverage feels easier than 0.95 random-unknown text.
+3. **The relationship is roughly linear, not a cliff** (Schmitt, Jiang & Grabe 2011) — there's no magic breakpoint at exactly 0.95, which is the whole reason to make this a band the **eval harness tunes empirically** (§12): regress comprehension-question accuracy and reveal-rate against measured coverage across generated stories and find where *this* population's comprehension actually degrades. Do not assume the English-L2 number transfers to scaffolded character-reading by teens.
+
+Bootstrap mode (§16.4) necessarily runs below this band and uses a different gate ("every non-target char is one already introduced").
 
 ### 8.4 Repair prompt (targeted beats regenerate)
 Feed back only what's wrong:
@@ -380,6 +389,7 @@ function annotate(hanzi):
 A generation system without an eval loop drifts blind. `/evals/`:
 - **Fixtures:** ~6 learner profiles spanning early (HSK1, ~150 chars) to mid (HSK4, ~1200 chars).
 - **Metrics per run:** first-pass validation rate, repair-iteration distribution, target-coverage rate, mean `knownCoverage`, fallback rate, latency, cost.
+- **Coverage tuning (owns the §8.3.1 question):** regress comprehension-question accuracy and tap-to-reveal rate against measured `knownCoverage` (and against per-sentence minimum) across real reading sessions, to find where *this* population's comprehension degrades. The global band and `MIN_SENTENCE_COVERAGE` are outputs of this analysis, not hardcoded beliefs.
 - **Coherence:** sample N stories for human/LLM-judge rating (1–5) on narrative sense + age-appropriateness.
 - **Regression gate:** CI fails if first-pass rate or coverage drops below thresholds after a prompt change.
 - Mock-LLM unit tests for `validateChars`/`checkCoverage`/allowlist (deterministic); real-LLM eval suite run on demand.
