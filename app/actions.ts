@@ -7,9 +7,10 @@ import { createLlmProvider } from '@/lib/llm/index';
 import { onboardLearner, type OnboardMethod } from '@/lib/learner/onboard';
 import { generateAndPersistStory } from '@/lib/story/generate';
 import { getStory } from '@/lib/story/persist';
-import { recordInteraction, type InteractionType } from '@/lib/interactions/record';
+import { recordDwell, recordInteraction, type InteractionType } from '@/lib/interactions/record';
 import { gradeStory } from '@/lib/srs/grade';
 import { getCharDetail, type CharDetail } from '@/lib/char/detail';
+import { getStrokeData, type StrokeData } from '@/lib/char/strokes';
 
 // Phase 5 server actions — thin wrappers over the lib service layer. All DB/LLM access
 // is server-side only (better-sqlite3 + the Anthropic key never reach the client).
@@ -71,6 +72,15 @@ export async function recordInteractionAction(input: {
   recordInteraction(db, input);
 }
 
+export async function recordDwellAction(input: {
+  storyId: number;
+  learnerId: number;
+  chars: string[];
+  valueMs: number;
+}): Promise<void> {
+  recordDwell(db, input);
+}
+
 export async function gradeStoryAction(learnerId: number, storyId: number): Promise<void> {
   gradeStory(db, learnerId, storyId);
   revalidatePath(`/learners/${learnerId}`);
@@ -78,4 +88,8 @@ export async function gradeStoryAction(learnerId: number, storyId: number): Prom
 
 export async function getCharDetailAction(char: string): Promise<CharDetail | null> {
   return getCharDetail(db, char);
+}
+
+export async function getStrokeDataAction(char: string): Promise<StrokeData | null> {
+  return getStrokeData(db, char);
 }

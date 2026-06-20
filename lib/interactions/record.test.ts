@@ -1,12 +1,12 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { makeTestDb, type TestDb } from '../test-utils';
 import { characters, interactions } from '../../db/schema';
 import { createLearner } from '../learner/crud';
 import type { AnnotatedSegment } from '../annotate/index';
 import type { GenerationMeta, StoryJson } from '../generation/types';
 import { createStory } from '../story/persist';
-import { recordInteraction, recordQuestionResult, recordReveal } from './record';
+import { recordDwell, recordInteraction, recordQuestionResult, recordReveal } from './record';
 
 const NOW = 1_750_000_000_000;
 
@@ -54,5 +54,25 @@ describe('recordInteraction', () => {
     expect(types).toContain('reveal');
     expect(types).toContain('question_correct');
     expect(types).toContain('question_wrong');
+  });
+});
+
+describe('recordDwell', () => {
+  test('writes one dwell row per resolved char with value=valueMs; skips unknown chars', () => {
+    const before = rows().length;
+    const { count } = recordDwell(t.db, { storyId, learnerId, chars: ['你', '好', '\u{2A700}'], valueMs: 1500, now: NOW });
+    expect(count).toBe(2); // the astral char does not resolve
+    const dwell = rows().filter((r) => r.type === 'dwell' && r.value === 1500);
+    expect(dwell.length).toBe(2);
+    expect(rows().length).toBe(before + 2);
+    const wantIds = new Set(
+      t.db.select({ id: characters.id }).from(characters).where(inArray(characters.char, ['你', '好'])).all().map((r) => r.id),
+    );
+    expect(dwell.every((r) => r.charId != null && wantIds.has(r.charId))).toBe(true);
+  });
+
+  test('dedupes char strings and is a no-op for an empty list', () => {
+    expect(recordDwell(t.db, { storyId, learnerId, chars: [], valueMs: 800, now: NOW }).count).toBe(0);
+    expect(recordDwell(t.db, { storyId, learnerId, chars: ['人', '人'], valueMs: 800, now: NOW }).count).toBe(1);
   });
 });

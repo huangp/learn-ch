@@ -19,6 +19,7 @@ export const characters = sqliteTable('characters', {
   gloss: text('gloss'), // short L2 definition
   radical: text('radical'), // 女
   strokeCount: integer('stroke_count'),
+  strokeData: text('stroke_data'), // JSON {strokes:string[], medians:number[][][]} (hanzi-writer shape); null if absent
   decomposition: text('decomposition'), // IDS: "⿰女马"
   hskLevel: integer('hsk_level'), // 1..7 (7 = HSK 7-9 band), nullable
   freqRank: integer('freq_rank'), // 1 = most frequent (Jun Da), nullable

@@ -387,10 +387,12 @@ function annotate(hanzi):
 The initial Phase 5 build delivered the core reading loop (onboard → generate+persist → read → tap-reveal → questions → branch). These pieces from §11 are **stubbed or not started** and remain open:
 
 - **Branch `seed` is not wired (stub).** `choices[].seed` (§8.5) is collected by `chooseBranchAction` but unused; continuations are themed by the human-readable choice **label** only (label → `theme`, parent body → `priorStory`). Follow-up: thread the structured `seed` into `generateAndPersistStory` for deterministic/templated branch continuation, so branches are reproducible rather than label-driven.
-- **`dwell` interaction is not emitted (stub).** The `dwell` type exists in `lib/interactions/record.ts` but the reader never logs it. Follow-up: capture per-char/per-passage dwell time as the soft "read past without reveal → weak good" signal (§10) feeding Phase 7.
+- **`dwell` interaction — done.** `Reader.tsx` measures per-segment on-screen time (IntersectionObserver + zero-size sentinels) and emits one `dwell` per segment past `DWELL_THRESHOLD_MS` via batched `recordDwell` / `recordDwellAction`. Phase 7 grades it: a target/due char earns the §10 soft `pass` only with dwell evidence (an un-dwelled focus char becomes `unseen` → exposure-only when dwell data is present, legacy `pass` when not). Dwell never expands the SRS `focus` set, so incidental known chars aren't rescheduled.
 - **`learner_chars` counters untouched.** `exposures`/`reveals` are not incremented and no FSRS state changes — Phase 5 is capture-only by design; all `learner_chars` updates belong to **Phase 7** (SRS integration).
 - **Toggle-grid placement — UI not started.** The `fromToggleGrid` resolver exists (`lib/placement/index.ts`, §16.1 path 3), but no onboarding UI wires it; only HSK / paste / zero are exposed.
-- **Not started (§11):** hanzi-writer stroke animation in the char panel, narrator/companion persona, the "characters you can now read" counter, and the progress view + aspirational reward-text unlock.
+- **hanzi-writer stroke animation — done.** `CharPanel.tsx` plays a stroke-order animation on char tap (+ Replay button). Stroke data is stored locally in a new `characters.stroke_data` column (migration 0003), seeded from makemeahanzi `graphics.txt` (`parseGraphics`/`build.ts`); `lib/char/strokes.ts` `getStrokeData` → `getStrokeDataAction` feeds hanzi-writer via a custom `charDataLoader` (no CDN; offline). Animation-only — interactive quiz/trace mode deferred.
+- **Done since this list was written:** toggle-grid placement onboarding, the "characters you can now read" counter, and the progress view + aspirational reward-text unlock.
+- **Not started (§11):** narrator/companion persona.
 
 ---
 

@@ -7,7 +7,7 @@ import { seedLearner } from '../learner/seed';
 import { selfDeclareHsk } from '../placement/index';
 import { selectDueChars, selectNewChars } from '../grading/select';
 import { createStory } from '../story/persist';
-import { recordQuestionResult, recordReveal } from '../interactions/record';
+import { recordDwell, recordQuestionResult, recordReveal } from '../interactions/record';
 import type { GenerationMeta, StoryJson } from '../generation/types';
 import { MASTERY_STABILITY_DAYS, MIN_EXPOSURES_TO_REVIEW } from './constants';
 import { gradeStory, gradeUngradedStories } from './grade';
@@ -202,6 +202,84 @@ describe('gradeStory — counters + idempotency', () => {
 
     expect(gradeUngradedStories(t.db, learner.id, NOW)).toBe(2);
     expect(gradeUngradedStories(t.db, learner.id, NOW)).toBe(0); // nothing left
+  });
+});
+
+describe('gradeStory — dwell gating (§10)', () => {
+  function resetReview(learnerId: number, charId: number) {
+    t.db
+      .update(learnerChars)
+      .set({ status: 'review', stability: 10, difficulty: 5, due: NOW, lastReview: null, exposures: 0 })
+      .where(and(eq(learnerChars.learnerId, learnerId), eq(learnerChars.charId, charId)))
+      .run();
+  }
+
+  test('a dwelled due char gets the soft pass; an un-dwelled due char in the same story is exposure-only', () => {
+    const learner = createLearner(t.db, 'dwell-gate', {}, NOW);
+    seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 2), 'hsk', NOW);
+    const [id1, id2] = t.db
+      .select({ charId: learnerChars.charId })
+      .from(learnerChars)
+      .where(eq(learnerChars.learnerId, learner.id))
+      .limit(2)
+      .all()
+      .map((r) => r.charId);
+    for (const id of [id1, id2]) resetReview(learner.id, id);
+    const c1 = charStr(id1); // dwelled
+    const c2 = charStr(id2); // not dwelled
+    const before1 = row(learner.id, id1)!;
+    const before2 = row(learner.id, id2)!;
+
+    const sid = makeStory(learner.id, `${c1}${c2}`, [], [c1, c2]);
+    recordDwell(t.db, { storyId: sid, learnerId: learner.id, chars: [c1], valueMs: 1500, now: NOW });
+    gradeStory(t.db, learner.id, sid, NOW);
+
+    const after1 = row(learner.id, id1)!;
+    const after2 = row(learner.id, id2)!;
+    // c1: dwell evidence → rescheduled as a soft pass, +1 exposure
+    expect(after1.lastReview).toBe(NOW);
+    expect(after1.due!).toBeGreaterThan(before1.due!);
+    expect(after1.exposures).toBe(before1.exposures + 1);
+    // c2: no evidence it was read this story → exposure-only, NOT rescheduled
+    expect(after2.lastReview).toBeNull();
+    expect(after2.due!).toBe(before2.due!);
+    expect(after2.stability!).toBe(before2.stability!);
+    expect(after2.exposures).toBe(before2.exposures + 1);
+  });
+
+  test('with no dwell data at all, an un-interacted due char still gets the legacy soft pass (back-compat)', () => {
+    const learner = createLearner(t.db, 'dwell-legacy', {}, NOW);
+    seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 2), 'hsk', NOW);
+    const charId = selectNewCharsKnownDue(learner.id);
+    resetReview(learner.id, charId);
+    const c = charStr(charId);
+    const before = row(learner.id, charId)!;
+
+    // due char, no reveal/question AND no dwell anywhere → storyHasDwell is false
+    const sid = makeStory(learner.id, c, [], [c]);
+    gradeStory(t.db, learner.id, sid, NOW);
+
+    const after = row(learner.id, charId)!;
+    expect(after.lastReview).toBe(NOW); // legacy pass still reschedules
+    expect(after.due!).toBeGreaterThan(before.due!);
+  });
+
+  test('a dwelled incidental (non-target/due) char is not pulled into focus', () => {
+    const learner = createLearner(t.db, 'dwell-incidental', {}, NOW);
+    seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 2), 'hsk', NOW);
+    const charId = selectNewCharsKnownDue(learner.id);
+    resetReview(learner.id, charId);
+    const c = charStr(charId);
+    const before = row(learner.id, charId)!;
+
+    const sid = makeStory(learner.id, c, [], []); // in body, but neither target nor due
+    recordDwell(t.db, { storyId: sid, learnerId: learner.id, chars: [c], valueMs: 1500, now: NOW });
+    gradeStory(t.db, learner.id, sid, NOW);
+
+    const after = row(learner.id, charId)!;
+    expect(after.lastReview).toBeNull(); // dwell alone never reschedules
+    expect(after.due!).toBe(before.due!);
+    expect(after.exposures).toBe(before.exposures + 1); // exposure-only
   });
 });
 

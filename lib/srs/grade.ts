@@ -86,9 +86,11 @@ export function gradeStory(db: Db, learnerId: number, storyId: number, now: numb
 
     const interactionsByChar = new Map<number, InteractionType[]>();
     const revealCount = new Map<number, number>();
+    let storyHasDwell = false; // did the reader emit dwell at all? gates the `unseen` fallback below
     for (const row of tx.select({ charId: interactions.charId, type: interactions.type }).from(interactions).where(eq(interactions.storyId, storyId)).all()) {
       if (row.charId == null) continue; // word-level events don't grade a char
       const t = row.type as InteractionType;
+      if (t === 'dwell') storyHasDwell = true;
       const arr = interactionsByChar.get(row.charId);
       if (arr) arr.push(t);
       else interactionsByChar.set(row.charId, [t]);
@@ -101,11 +103,13 @@ export function gradeStory(db: Db, learnerId: number, storyId: number, now: numb
       if (id != null) exposureById.set(id, n);
     }
 
-    // focus set = chars we reschedule this story: targets ∪ due ∪ any interacted char
+    // focus set = chars we reschedule this story: targets ∪ due ∪ any char with a NON-dwell
+    // interaction. Dwell alone must NOT pull a char in — otherwise nearly every read (already-known)
+    // char would join focus and get rescheduled every story. Dwell only refines a focus char's signal.
     const focus = new Set<number>();
     for (const s of targetChars) { const id = idOf(s); if (id != null) focus.add(id); }
     for (const s of dueChars) { const id = idOf(s); if (id != null) focus.add(id); }
-    for (const id of interactionsByChar.keys()) focus.add(id);
+    for (const [id, types] of interactionsByChar) if (types.some((t) => t !== 'dwell')) focus.add(id);
 
     // --- load current rows for everything we'll touch -------------------------------------
     const touch = new Set<number>([...focus, ...exposureById.keys()]);
@@ -117,19 +121,25 @@ export function gradeStory(db: Db, learnerId: number, storyId: number, now: numb
     }
 
     // --- reschedule + promote the focus set -----------------------------------------------
+    const rescheduled = new Set<number>();
     for (const charId of focus) {
-      const row = existing.get(charId) ?? null;
       const signal = signalOfInteractions(interactionsByChar.get(charId) ?? []);
+      // `unseen` = focus char with no interaction. With dwell data present, that means the learner
+      // demonstrably did NOT read it this story → no reschedule (exposure-only, handled below). With
+      // no dwell data (pre-feature stories / JS off) we can't tell, so fall back to the legacy `pass`.
+      if (signal === 'unseen' && storyHasDwell) continue;
+      const effective: CharSignal = signal === 'unseen' ? 'pass' : signal;
+      const row = existing.get(charId) ?? null;
       const sched = schedule(
         row
           ? ({ status: row.status as LearnerCharStatus, stability: row.stability, difficulty: row.difficulty, due: row.due, lastReview: row.lastReview, reps: row.reps, lapses: row.lapses } satisfies CardState)
           : null,
-        signalToRating(signal),
+        signalToRating(effective),
         now,
       );
       const newExposures = (row?.exposures ?? 0) + (exposureById.get(charId) ?? 0);
       const newReveals = (row?.reveals ?? 0) + (revealCount.get(charId) ?? 0);
-      const status = nextStatus((row?.status as LearnerCharStatus) ?? 'new', signal, sched.stability, newExposures);
+      const status = nextStatus((row?.status as LearnerCharStatus) ?? 'new', effective, sched.stability, newExposures);
 
       tx.insert(learnerChars)
         .values({
@@ -160,11 +170,14 @@ export function gradeStory(db: Db, learnerId: number, storyId: number, now: numb
           },
         })
         .run();
+      rescheduled.add(charId);
     }
 
     // --- incidental body chars: bump exposures only (no reschedule) ------------------------
+    // Also covers focus chars we skipped above (unseen + dwell data): they get their exposure bump
+    // here but no FSRS reschedule. Keyed on `rescheduled`, not `focus`, so nothing slips the gap.
     for (const [charId, n] of exposureById) {
-      if (focus.has(charId)) continue;
+      if (rescheduled.has(charId)) continue;
       const row = existing.get(charId);
       if (!row) continue; // only count chars the learner already tracks
       tx.update(learnerChars)

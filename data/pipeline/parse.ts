@@ -29,14 +29,18 @@ export function parseMakemeahanzi(): Map<string, MmahEntry> {
   return map;
 }
 
-/** makemeahanzi graphics.txt → char → stroke count (length of strokes[]). */
-export function parseGraphics(): Map<string, number> {
+/**
+ * makemeahanzi graphics.txt → char → { stroke count, serialized stroke data }. The lines are already
+ * in hanzi-writer's data shape; we keep the count (for `stroke_count`) and the `{strokes, medians}`
+ * JSON (for `stroke_data`, drives the stroke-order animation), dropping the redundant `character` key.
+ */
+export function parseGraphics(): Map<string, { count: number; data: string }> {
   const text = readFileSync(srcPath('makemeahanzi_graphics'), 'utf8');
-  const map = new Map<string, number>();
+  const map = new Map<string, { count: number; data: string }>();
   for (const line of text.split('\n')) {
     if (!line.trim()) continue;
-    const e = JSON.parse(line) as { character: string; strokes: string[] };
-    map.set(e.character, e.strokes.length);
+    const e = JSON.parse(line) as { character: string; strokes: string[]; medians: number[][][] };
+    map.set(e.character, { count: e.strokes.length, data: JSON.stringify({ strokes: e.strokes, medians: e.medians }) });
   }
   return map;
 }

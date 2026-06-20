@@ -53,8 +53,8 @@ async function main() {
   migrate(drizzle(sqlite), { migrationsFolder: MIGRATIONS });
 
   const insChar = sqlite.prepare(
-    `INSERT INTO characters (char, pinyin, gloss, radical, stroke_count, decomposition, hsk_level, freq_rank, is_component)
-     VALUES (@char, @pinyin, @gloss, @radical, @stroke_count, @decomposition, @hsk_level, @freq_rank, 0)`,
+    `INSERT INTO characters (char, pinyin, gloss, radical, stroke_count, stroke_data, decomposition, hsk_level, freq_rank, is_component)
+     VALUES (@char, @pinyin, @gloss, @radical, @stroke_count, @stroke_data, @decomposition, @hsk_level, @freq_rank, 0)`,
   );
   const insEdge = sqlite.prepare(
     `INSERT OR IGNORE INTO char_components (char_id, component_id, role) VALUES (?, ?, ?)`,
@@ -80,7 +80,8 @@ async function main() {
         pinyin: JSON.stringify(pinyin),
         gloss,
         radical: e.radical ?? null,
-        stroke_count: graphics.get(ch) ?? null,
+        stroke_count: graphics.get(ch)?.count ?? null,
+        stroke_data: graphics.get(ch)?.data ?? null,
         decomposition,
         hsk_level: charHsk.get(ch) ?? null,
         freq_rank: junda.get(ch) ?? null,

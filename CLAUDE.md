@@ -179,14 +179,19 @@ state; failures surface in `GenerateStoryForm`.
   continuations are themed by the human-readable choice **label** only (passed as `theme` + the parent
   body as `priorStory`). The structured seed — intended for deterministic/templated branch
   continuation — is not wired into `generateAndPersistStory`.
-- **`dwell` interaction is never emitted.** The type exists in `lib/interactions/record.ts`, but the
-  reader only captures `reveal` and `question_correct`/`question_wrong`. No dwell-time tracking yet.
+- **`dwell` interaction — done.** `Reader.tsx` tracks per-segment on-screen time (IntersectionObserver
+  + zero-size sentinels) and emits one `dwell` per segment past `DWELL_THRESHOLD_MS` via `recordDwell`
+  (batched, `lib/interactions/record.ts`) / `recordDwellAction`. Graded in Phase 7 (see SRS section).
 - **`learner_chars` counters untouched.** `exposures`/`reveals` are not incremented and no FSRS state
   changes — Phase 5 is capture-only; all `learner_chars` updates are Phase 7.
 
-Whole onboarding/feature deferrals (not started): toggle-grid placement (`fromToggleGrid` resolver
-exists in `lib/placement/index.ts`, but no UI), hanzi-writer stroke animation, progress dashboard,
-narrator persona, reward-text unlock.
+Stroke animation — **done**: `CharPanel.tsx` plays a hanzi-writer animation on char tap (+ Replay).
+Data is local (`characters.stroke_data` column, migration 0003, seeded from makemeahanzi graphics.txt
+by `parseGraphics`/`build.ts`); `lib/char/strokes.ts` `getStrokeData` → `getStrokeDataAction` feeds
+hanzi-writer via `charDataLoader`. (Toggle-grid placement, progress view + reward-text unlock, and
+the "characters you can now read" counter also shipped since this list was written.)
+
+Remaining §11 deferral (not started): narrator/companion persona.
 
 ## SRS integration (Phase 7 — done)
 
@@ -219,8 +224,14 @@ reader. Because catch-up advances the curriculum frontier between generations, t
 generations for one learner must rebuild each story body for the **currently** selected target
 (see the rewritten `lib/story/generate.test.ts`).
 
-Still deferred: `dwell` capture/grading (type exists, never emitted), and the empirical coverage-band
-regression (needs accumulated reading data).
+`dwell` grading (added later): a focus char (target/due) earns the soft `pass` only with dwell
+evidence. Constraint — dwell must **not** enter the `focus` set (focus-building skips dwell-only
+chars), so already-known read chars aren't rescheduled every story; dwell only validates the `pass`.
+A focus char with no interaction is `unseen` → skip reschedule when the story has dwell data (exposure
+only), else legacy `pass` (back-compat). New `'unseen'` `CharSignal`; incidental loop keys on a
+`rescheduled` set so skipped focus chars still get their exposure bump.
+
+Still deferred: the empirical coverage-band regression (needs accumulated reading data).
 
 ## App + tooling (read before touching imports or the build)
 

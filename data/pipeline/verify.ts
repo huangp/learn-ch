@@ -64,6 +64,10 @@ function main() {
   const withStrokes = one<{ c: number }>('SELECT count(*) c FROM characters WHERE stroke_count IS NOT NULL').c;
   checks.push({ name: 'stroke counts populated', ok: withStrokes > charCount * 0.9, detail: `${withStrokes}/${charCount}` });
 
+  // strokeData (hanzi-writer paths) populated for most characters
+  const withStrokeData = one<{ c: number }>('SELECT count(*) c FROM characters WHERE stroke_data IS NOT NULL').c;
+  checks.push({ name: 'stroke data populated', ok: withStrokeData > charCount * 0.9, detail: `${withStrokeData}/${charCount}` });
+
   // reproducibility manifest present
   checks.push({ name: 'checksum manifest present', ok: existsSync(MANIFEST), detail: MANIFEST });
 

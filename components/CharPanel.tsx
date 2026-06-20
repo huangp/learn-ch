@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getCharDetailAction, recordInteractionAction } from '@/app/actions';
+import { useEffect, useRef, useState } from 'react';
+import { getCharDetailAction, getStrokeDataAction, recordInteractionAction } from '@/app/actions';
 import type { CharDetail } from '@/lib/char/detail';
+import type { StrokeData } from '@/lib/char/strokes';
+import type HanziWriterInstance from 'hanzi-writer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -17,6 +19,62 @@ const ROLE_LABEL: Record<string, string> = {
   phonetic: 'sound',
   structural: 'form',
 };
+
+/**
+ * Stroke-order animation (hanzi-writer, §11). Fetches the char's stroke data (server action), then
+ * dynamic-imports the browser-only lib and plays it. Renders nothing when the char has no stroke data
+ * (some component glyphs lack graphics). hanzi-writer is fed our makemeahanzi data via charDataLoader.
+ */
+function StrokeAnimation({ char }: { char: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const writerRef = useRef<HanziWriterInstance | null>(null);
+  const [data, setData] = useState<StrokeData | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setData(null);
+    void getStrokeDataAction(char).then((d) => {
+      if (!cancelled) setData(d);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [char]);
+
+  useEffect(() => {
+    if (!data || !ref.current) return;
+    let cancelled = false;
+    const node = ref.current;
+    node.innerHTML = ''; // drop any previous writer's SVG before creating a new one
+    void import('hanzi-writer').then(({ default: HanziWriter }) => {
+      if (cancelled || !ref.current) return;
+      const writer = HanziWriter.create(ref.current, char, {
+        width: 160,
+        height: 160,
+        padding: 8,
+        showOutline: true,
+        charDataLoader: (_c, onComplete) => onComplete(data),
+      });
+      writerRef.current = writer;
+      void writer.animateCharacter();
+    });
+    return () => {
+      cancelled = true;
+      writerRef.current = null;
+      node.innerHTML = '';
+    };
+  }, [data, char]);
+
+  if (!data) return null;
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div ref={ref} style={{ width: 160, height: 160 }} />
+      <Button variant="outline" size="sm" onClick={() => void writerRef.current?.animateCharacter()}>
+        Replay strokes
+      </Button>
+    </div>
+  );
+}
 
 export function CharPanel({
   selected,
@@ -66,6 +124,7 @@ export function CharPanel({
           </Button>
         </CardHeader>
         <CardContent className="grid gap-3">
+          <StrokeAnimation char={selected.char} />
           {gloss && <p className="text-sm">{gloss}</p>}
           {detail && detail.components.length > 0 && (
             <div className="text-sm text-muted-foreground">
