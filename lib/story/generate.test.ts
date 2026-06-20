@@ -5,6 +5,7 @@ import { createLearner } from '../learner/crud';
 import { seedLearner } from '../learner/seed';
 import { selectNewChars } from '../grading/select';
 import { buildAllowlist } from '../allowlist/index';
+import { gradeUngradedStories } from '../srs/grade';
 import { MockLlmProvider } from '../llm/mock';
 import { getStory, listStoriesForLearner } from './persist';
 import { generateAndPersistStory } from './generate';
@@ -12,36 +13,41 @@ import { generateAndPersistStory } from './generate';
 const NOW = 1_750_000_000_000;
 
 let t: TestDb;
-let learnerId: number;
-let cleanJson: string;
-let target: string;
-let body: string;
 
-beforeAll(() => {
-  t = makeTestDb();
-  learnerId = createLearner(t.db, 'gen-persist', {}, NOW).id;
-  seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW);
-
-  // Replicate what the wrapper picks for targets:1 / due:0, then build a passing body
-  // (two known-dense sentences, the single target woven in once per sentence → ≥K spread).
+/**
+ * Build a story body + JSON tuned to whatever target `selectNewChars` currently picks for the
+ * learner (targets:1) — two known-dense sentences, the single target woven in once per sentence
+ * (≥K spread). Because Phase 7 catch-up grading advances the frontier between generations, the
+ * target is recomputed per call rather than fixed.
+ */
+function buildPassingJson(learnerId: number): { json: string; body: string; target: string } {
   const targetCharIds = selectNewChars(t.db, learnerId, 1);
   const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);
-  target = targetChars[0];
+  const target = targetChars[0];
   const [k1, k2] = [...allowedChars].filter((c) => c !== target);
-  body = `${k1.repeat(12)}${target}。${k2.repeat(12)}${target}。`;
-  cleanJson = JSON.stringify({
+  const body = `${k1.repeat(12)}${target}。${k2.repeat(12)}${target}。`;
+  const json = JSON.stringify({
     title: `${k1}${k2}`,
     body,
     targetCharsUsed: [target],
     comprehensionQuestions: [{ q: '?', options: ['a', 'b'], answer: 0, testsChars: [target] }],
     choices: [{ label: '继续', seed: 'go' }],
   });
+  return { json, body, target };
+}
+
+beforeAll(() => {
+  t = makeTestDb();
 });
 afterAll(() => t.cleanup());
 
 describe('generateAndPersistStory', () => {
   test('generates, annotates and persists a readable story', async () => {
-    const llm = new MockLlmProvider([cleanJson]);
+    const learnerId = createLearner(t.db, 'gen-persist', {}, NOW).id;
+    seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW);
+    const { json, body, target } = buildPassingJson(learnerId);
+
+    const llm = new MockLlmProvider([json]);
     const rec = await generateAndPersistStory(t.db, llm, learnerId, { targets: 1, due: 0, now: NOW });
 
     expect(rec.id).toBeGreaterThan(0);
@@ -56,8 +62,20 @@ describe('generateAndPersistStory', () => {
   });
 
   test('records parentStoryId for a branch continuation', async () => {
-    const parent = await generateAndPersistStory(t.db, new MockLlmProvider([cleanJson]), learnerId, { targets: 1, due: 0, now: NOW });
-    const child = await generateAndPersistStory(t.db, new MockLlmProvider([cleanJson]), learnerId, {
+    const learnerId = createLearner(t.db, 'gen-branch', {}, NOW).id;
+    seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW);
+
+    const parent = await generateAndPersistStory(t.db, new MockLlmProvider([buildPassingJson(learnerId).json]), learnerId, {
+      targets: 1,
+      due: 0,
+      now: NOW,
+    });
+
+    // Grade the parent (as the child's internal catch-up will) so its target is promoted and we
+    // can build the child's body for the NEW target the next generation will select.
+    gradeUngradedStories(t.db, learnerId, NOW);
+
+    const child = await generateAndPersistStory(t.db, new MockLlmProvider([buildPassingJson(learnerId).json]), learnerId, {
       targets: 1,
       due: 0,
       parentStoryId: parent.id,

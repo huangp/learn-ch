@@ -112,6 +112,7 @@ export const stories = sqliteTable('stories', {
   parentStoryId: integer('parent_story_id'), // self-ref for branching choices
   meta: text('meta'), // JSON: model, repairIterations, coverage, knownCoverage%
   createdAt: integer('created_at').notNull(), // epoch ms
+  gradedAt: integer('graded_at'), // epoch ms; set once Phase 7 has consumed this story's interactions
 });
 
 // interactions: reading events that drive SRS grading (definitions only in Phase 1)

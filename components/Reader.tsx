@@ -6,6 +6,7 @@ import type { Choice, ComprehensionQuestion } from '@/lib/generation/types';
 import { CharPanel, type SelectedChar } from '@/components/CharPanel';
 import { Questions } from '@/components/Questions';
 import { Choices } from '@/components/Choices';
+import { FinishButton } from '@/components/FinishButton';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -90,6 +91,10 @@ export function Reader({ storyId, learnerId, title, segments, questions, choices
           <Choices storyId={storyId} choices={choices} />
         </div>
       )}
+
+      <div className="mt-10">
+        <FinishButton storyId={storyId} learnerId={learnerId} />
+      </div>
 
       <CharPanel selected={selected} storyId={storyId} learnerId={learnerId} onClose={() => setSelected(null)} />
     </div>

@@ -4,6 +4,7 @@ import { characters } from '../../db/schema';
 import type { LlmProvider } from '../llm/index';
 import { getLearner } from '../learner/crud';
 import { selectDueChars, selectNewChars } from '../grading/select';
+import { gradeUngradedStories } from '../srs/grade';
 import { generateGradedStory } from '../generation/generate';
 import { annotate } from '../annotate/index';
 import { resolveHeteronyms } from '../annotate/llm';
@@ -51,6 +52,10 @@ export async function generateAndPersistStory(
 
   const targets = opts.targets ?? (bootstrap ? 2 : 3);
   const due = opts.due ?? (bootstrap ? 0 : 3);
+
+  // Phase 7: grade anything read-but-ungraded first, so target/due selection reflects the
+  // learner's latest FSRS state (idempotent — stories finished via gradeStoryAction are skipped).
+  gradeUngradedStories(db, learnerId, opts.now);
 
   const targetCharIds = selectNewChars(db, learnerId, targets);
   const dueCharIds = selectDueChars(db, learnerId, due);

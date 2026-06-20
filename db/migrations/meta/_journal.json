@@ -15,6 +15,13 @@
       "when": 1781849858834,
       "tag": "0001_careful_captain_america",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1781933338786,
+      "tag": "0002_flippant_karen_page",
+      "breakpoints": true
     }
   ]
 }

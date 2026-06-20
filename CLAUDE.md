@@ -188,6 +188,40 @@ Whole onboarding/feature deferrals (not started): toggle-grid placement (`fromTo
 exists in `lib/placement/index.ts`, but no UI), hanzi-writer stroke animation, progress dashboard,
 narrator persona, reward-text unlock.
 
+## SRS integration (Phase 7 — done)
+
+Closes the §10 loop: consumes captured `interactions` → runs **FSRS** (`ts-fsrs`) → writes
+`learner_chars` state, so due chars resurface invisibly via the existing `selectDueChars`. New
+module `lib/srs/` (pure DB; unit-tested with `makeTestDb`, no LLM):
+
+- `lib/srs/constants.ts` — eval-tunable: `MASTERY_STABILITY_DAYS=60`, `MIN_EXPOSURES_TO_REVIEW=3`,
+  and the signal→`Rating` map (`reveal`/`question_wrong`→Again, `question_correct`→Good, clean
+  pass→Hard, the §10 "soft good").
+- `lib/srs/fsrs.ts` — scheduling primitives: a module `fsrs()` instance; `schedule(state, grade, now)`
+  rebuilds a `Card` from the stored scalars (status→`State`; FSRS `scheduled_days`/`learning_steps`
+  are NOT stored — `createEmptyCard` defaults them) and returns the new `{stability, difficulty, due,
+  lastReview, reps, lapses}`.
+- `lib/srs/grade.ts` — `gradeStory(db, learnerId, storyId, now?)` (idempotent via `stories.gradedAt`;
+  returns `false` if already graded) and `gradeUngradedStories` (catch-up, oldest first). Per story:
+  bumps `exposures`/`reveals` for body chars; reschedules the **focus set** (targets ∪ due ∪
+  interacted chars) — incidental known chars get exposures only, no reschedule; runs the §10/§16.3
+  status machine (`new→learning` on introduction; `learning→review` at ≥`MIN_EXPOSURES_TO_REVIEW`
+  exposures **and** a correct; `review→mastered` past the stability threshold; **self-correction**: a
+  weak signal demotes an over-claimed `mastered`→`review` and counts an FSRS lapse).
+
+Schema: added nullable `stories.gradedAt` (idempotency flag) — migration `db/migrations/0002_*`,
+applied with `pnpm db:migrate` (NOT `data:build`).
+
+Triggers (both): **catch-up** — `generateAndPersistStory` (`lib/story/generate.ts`) calls
+`gradeUngradedStories` **before** selecting targets/due, so selection reflects everything read so far;
+**explicit** — `gradeStoryAction` (`app/actions.ts`) + the `FinishButton` ("I'm done reading") in the
+reader. Because catch-up advances the curriculum frontier between generations, tests that chain
+generations for one learner must rebuild each story body for the **currently** selected target
+(see the rewritten `lib/story/generate.test.ts`).
+
+Still deferred: `dwell` capture/grading (type exists, never emitted), and the empirical coverage-band
+regression (needs accumulated reading data).
+
 ## App + tooling (read before touching imports or the build)
 
 - **Imports are extension-less; resolution is `Bundler` everywhere.** The project was migrated OFF the
