@@ -18,3 +18,25 @@ describe('buildUserPrompt — branch seed (§11.1 follow-up)', () => {
     expect(prompt).not.toContain('BRANCH:');
   });
 });
+
+describe('buildUserPrompt — companion persona (§11)', () => {
+  const persona = {
+    id: 'xiaolong',
+    name: '小龙',
+    nameEn: 'Little Dragon',
+    emoji: '🐉',
+    blurb: '',
+    tagline: '',
+    promptInstruction: 'Feature a recurring companion named 小龙.',
+  };
+
+  test('renders a COMPANION directive naming the persona', () => {
+    const prompt = buildUserPrompt({ ...base, persona });
+    expect(prompt).toContain('COMPANION:');
+    expect(prompt).toContain('小龙');
+  });
+
+  test('omits the COMPANION directive when no persona is given', () => {
+    expect(buildUserPrompt(base)).not.toContain('COMPANION:');
+  });
+});

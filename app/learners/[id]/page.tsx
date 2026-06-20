@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { getLearner } from '@/lib/learner/crud';
+import { getPersona } from '@/lib/persona/presets';
 import { listStoriesForLearner } from '@/lib/story/persist';
 import { GenerateStoryForm } from '@/components/GenerateStoryForm';
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
   if (!learner) notFound();
 
   const stories = listStoriesForLearner(db, learnerId);
+  const persona = getPersona(learner.settings.personaId);
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -25,6 +27,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
           <p className="text-sm text-muted-foreground">
             {learner.settings.placementMethod ?? 'unplaced'}
             {learner.settings.bootstrap ? ' · bootstrap' : ''}
+            {persona ? ` · ${persona.emoji} ${persona.name}` : ''}
           </p>
         </div>
         <div className="flex items-center gap-1">

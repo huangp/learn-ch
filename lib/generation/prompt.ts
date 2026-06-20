@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import type { AllowedWord } from '../allowlist/index';
+import type { Persona } from '../persona/presets';
 import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K } from './constants';
 import type { CoverageResult } from './coverage';
 import type { ValidationResult } from './validate';
@@ -26,6 +27,7 @@ export interface UserPromptInput {
   k?: number;
   priorStory?: string;
   seed?: string;
+  persona?: Persona;
 }
 
 /** First allowed word containing `char`, for the "use this new char" example (§7). */
@@ -45,6 +47,9 @@ export function buildUserPrompt(input: UserPromptInput): string {
 
   const parts: string[] = [];
   parts.push(`THEME: ${input.theme ?? 'anything age-appropriate and engaging'}`);
+  if (input.persona) {
+    parts.push(`COMPANION: ${input.persona.promptInstruction} Use the name 「${input.persona.name}」 exactly; it is allowed vocabulary.`);
+  }
   parts.push(`LENGTH: about ${lengthChars} characters.`);
   parts.push('');
   parts.push('VOCABULARY (use ONLY these words):');

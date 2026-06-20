@@ -35,8 +35,9 @@ export async function onboardLearnerAction(formData: FormData): Promise<void> {
   const cutoffFreqRank = typeof cutoffRaw === 'string' && cutoffRaw !== '' ? Number(cutoffRaw) : undefined;
   const gridKnown = parseJsonStringArray(formData.get('gridKnown'));
   const gridUnknown = parseJsonStringArray(formData.get('gridUnknown'));
+  const personaId = String(formData.get('personaId') ?? '') || undefined;
 
-  const learner = onboardLearner(db, { name, method, hsk, paste, cutoffFreqRank, gridKnown, gridUnknown });
+  const learner = onboardLearner(db, { name, method, hsk, paste, cutoffFreqRank, gridKnown, gridUnknown, personaId });
   revalidatePath('/');
   redirect(`/learners/${learner.id}`);
 }

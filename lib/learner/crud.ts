@@ -10,6 +10,8 @@ export interface LearnerSettings {
   placementMethod?: string;
   frontierCharId?: number | null;
   bootstrap?: boolean;
+  /** Chosen companion persona (§11) — see lib/persona/presets.ts. */
+  personaId?: string;
   [key: string]: unknown;
 }
 

@@ -6,6 +6,7 @@ import { createLearner } from '../learner/crud';
 import { seedLearner } from '../learner/seed';
 import { buildAllowlist } from '../allowlist/index';
 import { MockLlmProvider } from '../llm/mock';
+import { PERSONAS } from '../persona/presets';
 import { generateGradedStory } from './generate';
 import { GenerationFailed } from './types';
 
@@ -77,5 +78,22 @@ describe('generateGradedStory — generate → validate → repair (§8.1)', () 
     await generateGradedStory(t.db, llm, learnerId, { targetCharIds });
     const repairTurn = llm.calls[1].messages.at(-1)!.content;
     expect(repairTurn).toContain('龘');
+  });
+
+  test('a companion name passes validation and is recorded in meta (§11)', async () => {
+    const persona = PERSONAS[0]; // 小龙
+    const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);
+    const target = targetChars[0];
+    const [k1, k2] = [...allowedChars].filter((c) => c !== target);
+    // body uses the companion name (chars not otherwise in the allowlist) — only the persona
+    // injection makes this pass validateChars.
+    const body = `${k1.repeat(10)}${persona.name}${target}。${k2.repeat(10)}${persona.name}${target}。`;
+    const json = JSON.stringify({ title: `${k1}${k2}`, body, targetCharsUsed: [target], comprehensionQuestions: [], choices: [] });
+
+    const res = await generateGradedStory(t.db, new MockLlmProvider([json]), learnerId, { targetCharIds, persona });
+    expect(res.meta.repairIterations).toBe(0);
+    expect(res.meta.personaId).toBe(persona.id);
+    // the companion directive reached the prompt
+    expect(res.story.body).toContain(persona.name);
   });
 });

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { getLearner } from '@/lib/learner/crud';
+import { getPersona } from '@/lib/persona/presets';
 import { getStory } from '@/lib/story/persist';
 import { Reader } from '@/components/Reader';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,8 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
   const learner = getLearner(db, learnerId);
   const story = getStory(db, Number(storyId));
   if (!learner || !story || story.learnerId !== learnerId) notFound();
+
+  const persona = getPersona(learner.settings.personaId) ?? null;
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -28,6 +31,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
         questions={story.questions}
         choices={story.choices}
         bootstrap={learner.settings.bootstrap === true}
+        persona={persona}
       />
     </main>
   );

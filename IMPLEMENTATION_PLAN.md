@@ -391,8 +391,8 @@ The initial Phase 5 build delivered the core reading loop (onboard → generate+
 - **`learner_chars` counters untouched.** `exposures`/`reveals` are not incremented and no FSRS state changes — Phase 5 is capture-only by design; all `learner_chars` updates belong to **Phase 7** (SRS integration).
 - **Toggle-grid placement — UI not started.** The `fromToggleGrid` resolver exists (`lib/placement/index.ts`, §16.1 path 3), but no onboarding UI wires it; only HSK / paste / zero are exposed.
 - **hanzi-writer stroke animation — done.** `CharPanel.tsx` plays a stroke-order animation on char tap (+ Replay button). Stroke data is stored locally in a new `characters.stroke_data` column (migration 0003), seeded from makemeahanzi `graphics.txt` (`parseGraphics`/`build.ts`); `lib/char/strokes.ts` `getStrokeData` → `getStrokeDataAction` feeds hanzi-writer via a custom `charDataLoader` (no CDN; offline). Animation-only — interactive quiz/trace mode deferred.
-- **Done since this list was written:** toggle-grid placement onboarding, the "characters you can now read" counter, and the progress view + aspirational reward-text unlock.
-- **Not started (§11):** narrator/companion persona.
+- **Done since this list was written:** toggle-grid placement onboarding, the "characters you can now read" counter, the progress view + aspirational reward-text unlock, and the narrator/companion persona.
+- **Narrator/companion persona — done.** A recurring companion (presets in `lib/persona/presets.ts`, no DB table) chosen at onboarding and stored as `learners.settings.personaId`. It threads into generation (`GenerationConfig.persona` → a COMPANION directive in `lib/generation/prompt.ts`; the name is force-added to the allowed set + vocab in `lib/generation/generate.ts` so it always validates) and recurs in every story incl. branches (resolved from settings in `lib/story/generate.ts`). Shown as chrome in the reader header (`components/Reader.tsx`) and a dashboard badge. `--persona <id>` exposes it in `pnpm story`.
 
 ---
 

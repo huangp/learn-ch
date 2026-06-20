@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import { onboardLearnerAction } from '@/app/actions';
 import type { FreqRankedChar } from '@/lib/placement/index';
+import { PERSONAS, DEFAULT_PERSONA_ID } from '@/lib/persona/presets';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,6 +20,7 @@ export function OnboardForm({ gridChars }: { gridChars: FreqRankedChar[] }) {
   const [method, setMethod] = useState<Method>('hsk');
   const [hsk, setHsk] = useState('3');
   const [paste, setPaste] = useState('');
+  const [personaId, setPersonaId] = useState(DEFAULT_PERSONA_ID);
   const [pending, startTransition] = useTransition();
 
   // Toggle-grid state (§16.1 path 3): a bulk "know down to here" cutoff plus fine per-char
@@ -52,6 +54,7 @@ export function OnboardForm({ gridChars }: { gridChars: FreqRankedChar[] }) {
       fd.set('method', method);
       fd.set('hsk', hsk);
       fd.set('paste', paste);
+      fd.set('personaId', personaId);
 
       if (method === 'grid') {
         // Derive the exact ToggleGridInput shape: cutoff ∪ known − unknown.
@@ -80,6 +83,27 @@ export function OnboardForm({ gridChars }: { gridChars: FreqRankedChar[] }) {
       <div className="grid gap-2">
         <Label htmlFor="name">Name</Label>
         <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Mei" />
+      </div>
+
+      <div className="grid gap-2">
+        <Label>Reading companion</Label>
+        <p className="text-sm text-muted-foreground">A friend who joins you across your stories.</p>
+        <RadioGroup value={personaId} onValueChange={setPersonaId} className="gap-2">
+          {PERSONAS.map((p) => (
+            <label key={p.id} className="flex items-center gap-3 rounded-md border p-3 text-sm hover:bg-muted">
+              <RadioGroupItem value={p.id} />
+              <span className="text-2xl" aria-hidden>
+                {p.emoji}
+              </span>
+              <span className="grid">
+                <span className="font-medium text-foreground">
+                  {p.name} <span className="text-muted-foreground">· {p.nameEn}</span>
+                </span>
+                <span className="text-muted-foreground">{p.blurb}</span>
+              </span>
+            </label>
+          ))}
+        </RadioGroup>
       </div>
 
       <div className="grid gap-2">

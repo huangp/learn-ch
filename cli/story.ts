@@ -21,6 +21,7 @@ Options:
   --targets <n>         new target chars to introduce (default 3; bootstrap 2)
   --due <n>             review (due) chars to weave in (default 3; bootstrap 0)
   --theme "<text>"      story theme (e.g. mystery, adventure, history)
+--persona <id>        companion persona (xiaolong | xiaoyue | afu)
   --length <n>          approx story length in characters
   --max-words <n>       cap on the vocabulary list given to the model
   --min-sentence-coverage <0-1>  per-sentence known-coverage floor (default 0.85; lower = more lenient)
@@ -50,6 +51,7 @@ function buildProfile(values: Record<string, string | boolean | undefined>): Pro
     targets: num(values.targets as string | undefined) ?? (isBootstrap ? 2 : 3),
     due: num(values.due as string | undefined) ?? (isBootstrap ? 0 : 3),
     theme: values.theme as string | undefined,
+    personaId: values.persona as string | undefined,
     lengthChars: num(values.length as string | undefined),
     maxWords: num(values['max-words'] as string | undefined),
     minSentenceCoverage: num(values['min-sentence-coverage'] as string | undefined),
@@ -72,6 +74,7 @@ async function main() {
       targets: { type: 'string' },
       due: { type: 'string' },
       theme: { type: 'string' },
+      persona: { type: 'string' },
       length: { type: 'string' },
       'max-words': { type: 'string' },
       'min-sentence-coverage': { type: 'string' },

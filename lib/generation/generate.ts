@@ -76,6 +76,16 @@ export async function generateGradedStory(
   });
   const due = resolveChars(db, config.dueCharIds ?? []);
 
+  // Companion (§11): the persona recurs in the prose, so its name must pass validateChars and be
+  // offered as vocab. The name is a proper noun the learner absorbs by repetition (not an SRS
+  // target), so it joins the allowed/known set rather than the target list.
+  if (config.persona) {
+    for (const c of config.persona.name) allowedChars.add(c);
+    if (!allowedWords.some((w) => w.word === config.persona!.name)) {
+      allowedWords.push({ word: config.persona.name, pinyin: null, gloss: config.persona.nameEn, freqRank: null, hskLevel: null });
+    }
+  }
+
   // "known" = everything the learner can already read = allowedChars minus the new targets.
   const known = new Set(allowedChars);
   for (const t of targetChars) known.delete(t);
@@ -141,12 +151,13 @@ export async function generateGradedStory(
     costUsd: costUsd(model, usage),
     latencyMs: Date.now() - start,
     branchSeed: config.seed,
+    personaId: config.persona?.id,
   });
 
   // --- Main loop: initial generation + up to maxRepairs targeted repairs. ---
   const system = buildSystemPrompt({ k, lengthChars });
   const messages: LlmMessage[] = [
-    { role: 'user', content: buildUserPrompt({ allowedWords, targets: targetChars, due, theme: config.theme, lengthChars, k, priorStory: config.priorStory, seed: config.seed }) },
+    { role: 'user', content: buildUserPrompt({ allowedWords, targets: targetChars, due, theme: config.theme, lengthChars, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona }) },
   ];
 
   let best: Attempt | null = null;
@@ -167,7 +178,7 @@ export async function generateGradedStory(
   const fbLength = Math.max(40, Math.round(lengthChars * 0.7));
   const fbSystem = buildSystemPrompt({ k, lengthChars: fbLength });
   const fbMessages: LlmMessage[] = [
-    { role: 'user', content: buildUserPrompt({ allowedWords, targets: fbTargets, due, theme: config.theme, lengthChars: fbLength, k, priorStory: config.priorStory, seed: config.seed }) },
+    { role: 'user', content: buildUserPrompt({ allowedWords, targets: fbTargets, due, theme: config.theme, lengthChars: fbLength, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona }) },
   ];
   const fb = await runAttempt(fbMessages, fbSystem, fbTargets, 'fallback');
   best = pickBest(best, fb);

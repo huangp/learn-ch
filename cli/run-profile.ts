@@ -8,6 +8,7 @@ import { buildCurriculum } from '../lib/grading/curriculum';
 import { selectDueChars, selectNewChars } from '../lib/grading/select';
 import { buildAllowlist } from '../lib/allowlist/index';
 import { generateGradedStory } from '../lib/generation/generate';
+import { getPersona } from '../lib/persona/presets';
 import type { AttemptDiagnostics, GenerationMeta, StoryJson } from '../lib/generation/types';
 import type { LlmProvider } from '../lib/llm/index';
 
@@ -29,6 +30,8 @@ export interface Profile {
   maxWords?: number;
   minSentenceCoverage?: number;
   coverageBand?: number;
+  /** Companion persona id (§11) — see lib/persona/presets.ts. */
+  personaId?: string;
   model?: string;
 }
 
@@ -91,6 +94,7 @@ export async function generateForProfile(
     minSentenceCoverage: profile.minSentenceCoverage,
     coverageBand: profile.coverageBand,
     bootstrap,
+    persona: getPersona(profile.personaId),
     model: profile.model,
     onAttempt: opts.onAttempt,
   });

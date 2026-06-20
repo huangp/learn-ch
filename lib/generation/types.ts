@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { LlmUsage } from '../llm/provider';
+import type { Persona } from '../persona/presets';
 
 // The §8.5 output contract the LLM must emit: hanzi-only prose + questions + choices,
 // NO pinyin (pinyin/gloss are added deterministically in Phase 4). Zod both validates
@@ -54,6 +55,8 @@ export interface GenerationConfig {
   priorStory?: string;
   /** Stable branch identity (choices[].seed) — a model-independent plot anchor for continuations. */
   seed?: string;
+  /** Recurring companion (§11): woven into the prose + its name forced into the allowed set. */
+  persona?: Persona;
   model?: string;
   /** Per-attempt diagnostics hook (logging/debugging). Called once per LLM turn. */
   onAttempt?: (info: AttemptDiagnostics) => void;
@@ -71,6 +74,8 @@ export interface GenerationMeta {
   latencyMs: number;
   /** Branch seed this story continued (choices[].seed), when generated from a branch. */
   branchSeed?: string;
+  /** Companion persona this story featured (§11), when one was active. */
+  personaId?: string;
 }
 
 export interface GenerationResult {

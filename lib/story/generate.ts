@@ -3,6 +3,7 @@ import type { Db } from '../db';
 import { characters } from '../../db/schema';
 import type { LlmProvider } from '../llm/index';
 import { getLearner } from '../learner/crud';
+import { getPersona } from '../persona/presets';
 import { selectDueChars, selectNewChars } from '../grading/select';
 import { gradeUngradedStories } from '../srs/grade';
 import { generateGradedStory } from '../generation/generate';
@@ -28,6 +29,8 @@ export interface GenerateStoryOptions {
   parentStoryId?: number;
   /** Stable branch identity (chosen choices[].seed) — threaded into the prompt + persisted in meta. */
   seed?: string;
+  /** Override the learner's saved companion (§11); defaults to learner.settings.personaId. */
+  personaId?: string;
   model?: string;
   now?: number;
 }
@@ -59,6 +62,7 @@ export async function generateAndPersistStory(
 
   const targetCharIds = selectNewChars(db, learnerId, targets);
   const dueCharIds = selectDueChars(db, learnerId, due);
+  const persona = getPersona(opts.personaId ?? (learner.settings.personaId as string | undefined));
 
   const { story, meta } = await generateGradedStory(db, llm, learnerId, {
     targetCharIds,
@@ -69,6 +73,7 @@ export async function generateAndPersistStory(
     bootstrap,
     priorStory: opts.priorStory,
     seed: opts.seed,
+    persona,
     model: opts.model,
   });
 

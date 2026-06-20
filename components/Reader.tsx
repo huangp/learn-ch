@@ -4,6 +4,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { recordDwellAction } from '@/app/actions';
 import type { AnnotatedSegment } from '@/lib/annotate/index';
 import type { Choice, ComprehensionQuestion } from '@/lib/generation/types';
+import type { Persona } from '@/lib/persona/presets';
 import { CharPanel, type SelectedChar } from '@/components/CharPanel';
 import { Questions } from '@/components/Questions';
 import { Choices } from '@/components/Choices';
@@ -101,6 +102,7 @@ interface ReaderProps {
   questions: ComprehensionQuestion[];
   choices: Choice[];
   bootstrap: boolean;
+  persona?: Pick<Persona, 'emoji' | 'name' | 'nameEn' | 'tagline'> | null;
 }
 
 function SegmentView({
@@ -141,13 +143,24 @@ function SegmentView({
   );
 }
 
-export function Reader({ storyId, learnerId, title, segments, questions, choices, bootstrap }: ReaderProps) {
+export function Reader({ storyId, learnerId, title, segments, questions, choices, bootstrap, persona }: ReaderProps) {
   const [showPinyin, setShowPinyin] = useState(bootstrap); // off by default; on in bootstrap (§16.4)
   const [selected, setSelected] = useState<SelectedChar | null>(null);
   const setDwellRef = useSegmentDwell(storyId, learnerId, segments);
 
   return (
     <div className="pb-48">
+      {persona && (
+        <div className="mb-4 flex items-center gap-3 rounded-md border bg-muted/40 p-3">
+          <span className="text-2xl" aria-hidden>
+            {persona.emoji}
+          </span>
+          <div className="text-sm">
+            <span className="font-medium">{persona.name}</span>
+            <span className="text-muted-foreground"> · {persona.tagline}</span>
+          </div>
+        </div>
+      )}
       <div className="mb-4 flex items-center justify-between">
         {title && <h1 className="text-xl font-semibold">{title}</h1>}
         <label className="flex items-center gap-2 text-sm">
