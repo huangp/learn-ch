@@ -1,10 +1,10 @@
 import { parseArgs } from 'node:util';
-import { makeTestDb } from '../lib/test-utils.js';
-import { createLlmProvider } from '../lib/llm/index.js';
-import { KNOWN_COVERAGE_TARGET } from '../lib/generation/constants.js';
-import { GenerationFailed, type AttemptDiagnostics } from '../lib/generation/types.js';
-import { judgeStory, JUDGE_MODEL } from '../evals/judge.js';
-import { generateForProfile, type Profile } from './run-profile.js';
+import { makeTestDb } from '../lib/test-utils';
+import { createLlmProvider } from '../lib/llm/index';
+import { KNOWN_COVERAGE_TARGET } from '../lib/generation/constants';
+import { GenerationFailed, type AttemptDiagnostics } from '../lib/generation/types';
+import { judgeStory, JUDGE_MODEL } from '../evals/judge';
+import { generateForProfile, type Profile } from './run-profile';
 
 // `pnpm story` — end-to-end driver. Give a learner profile, get back a validated, graded
 // hanzi story plus its eval-harness score. Uses an ephemeral DB copy (no writes to hanzi.db).

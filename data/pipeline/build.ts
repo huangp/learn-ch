@@ -2,14 +2,14 @@ import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { existsSync, rmSync } from 'node:fs';
-import { DB_PATH, MIGRATIONS, ensureRaw, idsComponents, isHan } from './lib.js';
+import { DB_PATH, MIGRATIONS, ensureRaw, idsComponents, isHan } from './lib';
 import {
   parseMakemeahanzi,
   parseGraphics,
   parseCedict,
   parseHsk,
   parseJunda,
-} from './parse.js';
+} from './parse';
 
 async function main() {
   await ensureRaw();

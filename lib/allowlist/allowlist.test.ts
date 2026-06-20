@@ -1,12 +1,12 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { makeTestDb, type TestDb } from '../test-utils.js';
-import { characters, words } from '../../db/schema.js';
-import { buildCurriculum, computeFrontier } from '../grading/curriculum.js';
-import { selfDeclareHsk } from '../placement/index.js';
-import { createLearner } from '../learner/crud.js';
-import { seedLearner } from '../learner/seed.js';
-import { buildAllowlist, DEFAULT_MAX_WORDS } from './index.js';
+import { makeTestDb, type TestDb } from '../test-utils';
+import { characters, words } from '../../db/schema';
+import { buildCurriculum, computeFrontier } from '../grading/curriculum';
+import { selfDeclareHsk } from '../placement/index';
+import { createLearner } from '../learner/crud';
+import { seedLearner } from '../learner/seed';
+import { buildAllowlist, DEFAULT_MAX_WORDS } from './index';
 
 const NOW = 1_750_000_000_000;
 

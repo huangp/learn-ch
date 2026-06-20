@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { makeTestDb, type TestDb } from '../lib/test-utils.js';
-import { createLlmProvider } from '../lib/llm/index.js';
-import { validateChars } from '../lib/generation/validate.js';
-import { checkCoverage } from '../lib/generation/coverage.js';
-import { KNOWN_COVERAGE_FLOOR } from '../lib/generation/constants.js';
-import { generateForProfile, type ProfileRun } from './run-profile.js';
+import { makeTestDb, type TestDb } from '../lib/test-utils';
+import { createLlmProvider } from '../lib/llm/index';
+import { validateChars } from '../lib/generation/validate';
+import { checkCoverage } from '../lib/generation/coverage';
+import { KNOWN_COVERAGE_FLOOR } from '../lib/generation/constants';
+import { generateForProfile, type ProfileRun } from './run-profile';
 
 // End-to-end integration test against the REAL LLM. Gated on ANTHROPIC_API_KEY so the
 // default offline `pnpm test` stays green; run with the key exported (`pnpm test:integration`).

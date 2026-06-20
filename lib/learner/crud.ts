@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
-import type { Db } from '../db.js';
-import { learners } from '../../db/schema.js';
+import type { Db } from '../db';
+import { learners } from '../../db/schema';
 
 // Learner CRUD. A typical onboard is: createLearner → placement resolver → seedLearner.
 // Placement is re-runnable; the no-downgrade guarantee for already-promoted chars

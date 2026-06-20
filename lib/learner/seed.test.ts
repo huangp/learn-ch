@@ -1,11 +1,11 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { and, eq, lte, isNotNull } from 'drizzle-orm';
-import { makeTestDb, type TestDb } from '../test-utils.js';
-import { characters, learnerChars } from '../../db/schema.js';
-import { buildCurriculum, computeFrontier } from '../grading/curriculum.js';
-import { selfDeclareHsk } from '../placement/index.js';
-import { createLearner, getLearner, listLearners, updateLearner, deleteLearner } from './crud.js';
-import { seedLearner, initialStabilityDays, BOOTSTRAP_THRESHOLD } from './seed.js';
+import { makeTestDb, type TestDb } from '../test-utils';
+import { characters, learnerChars } from '../../db/schema';
+import { buildCurriculum, computeFrontier } from '../grading/curriculum';
+import { selfDeclareHsk } from '../placement/index';
+import { createLearner, getLearner, listLearners, updateLearner, deleteLearner } from './crud';
+import { seedLearner, initialStabilityDays, BOOTSTRAP_THRESHOLD } from './seed';
 
 const NOW = 1_750_000_000_000; // fixed epoch for deterministic due dates
 const DAY_MS = 86_400_000;

@@ -382,6 +382,16 @@ function annotate(hanzi):
 
 **Acceptance:** reader renders annotated story; reveals + answers persist as interactions; choosing a branch produces a coherent continuation constrained to the same learner.
 
+### 11.1 Phase 5 follow-ups (deferred during the initial build)
+
+The initial Phase 5 build delivered the core reading loop (onboard → generate+persist → read → tap-reveal → questions → branch). These pieces from §11 are **stubbed or not started** and remain open:
+
+- **Branch `seed` is not wired (stub).** `choices[].seed` (§8.5) is collected by `chooseBranchAction` but unused; continuations are themed by the human-readable choice **label** only (label → `theme`, parent body → `priorStory`). Follow-up: thread the structured `seed` into `generateAndPersistStory` for deterministic/templated branch continuation, so branches are reproducible rather than label-driven.
+- **`dwell` interaction is not emitted (stub).** The `dwell` type exists in `lib/interactions/record.ts` but the reader never logs it. Follow-up: capture per-char/per-passage dwell time as the soft "read past without reveal → weak good" signal (§10) feeding Phase 7.
+- **`learner_chars` counters untouched.** `exposures`/`reveals` are not incremented and no FSRS state changes — Phase 5 is capture-only by design; all `learner_chars` updates belong to **Phase 7** (SRS integration).
+- **Toggle-grid placement — UI not started.** The `fromToggleGrid` resolver exists (`lib/placement/index.ts`, §16.1 path 3), but no onboarding UI wires it; only HSK / paste / zero are exposed.
+- **Not started (§11):** hanzi-writer stroke animation in the char panel, narrator/companion persona, the "characters you can now read" counter, and the progress view + aspirational reward-text unlock.
+
 ---
 
 ## 12. Eval harness (build alongside Phase 3 — non-negotiable)

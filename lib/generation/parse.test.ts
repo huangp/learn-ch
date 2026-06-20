@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { parseStoryJson, StoryParseError } from './parse.js';
+import { parseStoryJson, StoryParseError } from './parse';
 
 const valid = {
   title: '木兰',

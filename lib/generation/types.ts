@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { LlmUsage } from '../llm/provider.js';
+import type { LlmUsage } from '../llm/provider';
 
 // The §8.5 output contract the LLM must emit: hanzi-only prose + questions + choices,
 // NO pinyin (pinyin/gloss are added deterministically in Phase 4). Zod both validates

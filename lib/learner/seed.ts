@@ -1,9 +1,9 @@
 import { eq, inArray } from 'drizzle-orm';
 import { default_w, clamp, Rating } from 'ts-fsrs';
-import type { Db } from '../db.js';
-import { characters, learnerChars, learners } from '../../db/schema.js';
-import { buildCurriculum, computeFrontier } from '../grading/curriculum.js';
-import type { PlacementMethod } from '../placement/index.js';
+import type { Db } from '../db';
+import { characters, learnerChars, learners } from '../../db/schema';
+import { buildCurriculum, computeFrontier } from '../grading/curriculum';
+import type { PlacementMethod } from '../placement/index';
 
 // §16.2/§16.4 seeding. Declared-known chars have NO review history, so we:
 //  - seed them as `review` (never `mastered` — self-report is unverified; reading

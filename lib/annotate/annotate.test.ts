@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { makeTestDb, type TestDb } from '../test-utils.js';
-import { annotate } from './index.js';
-import { perCharPinyin } from './pinyin.js';
-import { type Lexicon, segmentText, splitSentences } from './segment.js';
+import { makeTestDb, type TestDb } from '../test-utils';
+import { annotate } from './index';
+import { perCharPinyin } from './pinyin';
+import { type Lexicon, segmentText, splitSentences } from './segment';
 
 const HAN = /\p{Script=Han}/u;
 

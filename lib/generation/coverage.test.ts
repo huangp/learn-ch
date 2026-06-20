@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { checkCoverage } from './coverage.js';
+import { checkCoverage } from './coverage';
 
 // A generous known set so global/per-sentence coverage is high unless we deliberately break it.
 const known = new Set([...'我你他是的有一个人去了在这那好朋友和很大小天天天看见说话来回家学校书']);

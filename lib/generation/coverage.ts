@@ -1,4 +1,4 @@
-import { K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MIN_SENTENCE_COVERAGE } from './constants.js';
+import { K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MIN_SENTENCE_COVERAGE } from './constants';
 
 // §8.3 checkCoverage — pure, no LLM. Verifies the pedagogical contract: targets
 // re-encountered ≥K times, due chars present, enough known context globally AND

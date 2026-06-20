@@ -7,9 +7,9 @@
 // outside the candidate set are ignored. One batched call per body; zero calls if there
 // are no hard cases. annotate() itself stays pure — this is a separate entry point.
 
-import type { LlmProvider } from '../llm/index.js';
-import { isHardCase } from './heteronym.js';
-import type { AnnotatedSegment } from './index.js';
+import type { LlmProvider } from '../llm/index';
+import { isHardCase } from './heteronym';
+import type { AnnotatedSegment } from './index';
 
 const HAN = /\p{Script=Han}/u;
 

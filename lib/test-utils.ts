@@ -3,9 +3,9 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { copyFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { DB_PATH } from '../data/pipeline/lib.js';
-import * as schema from '../db/schema.js';
-import type { Db } from './db.js';
+import { DB_PATH } from '../data/pipeline/lib';
+import * as schema from '../db/schema';
+import type { Db } from './db';
 
 let counter = 0;
 

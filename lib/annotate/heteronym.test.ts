@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { candidatesFor, isHardCase, SAFE_PARTICLES } from './heteronym.js';
+import { candidatesFor, isHardCase, SAFE_PARTICLES } from './heteronym';
 
 describe('candidatesFor', () => {
   test('polyphonic chars return multiple readings', () => {

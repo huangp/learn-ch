@@ -1,4 +1,4 @@
-import type { LlmGenerateOptions, LlmProvider, LlmResult } from './provider.js';
+import type { LlmGenerateOptions, LlmProvider, LlmResult } from './provider';
 
 type Responder = string | ((opts: LlmGenerateOptions, call: number) => string);
 

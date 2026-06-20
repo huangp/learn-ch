@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
-import type { AllowedWord } from '../allowlist/index.js';
-import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K } from './constants.js';
-import type { CoverageResult } from './coverage.js';
-import type { ValidationResult } from './validate.js';
+import type { AllowedWord } from '../allowlist/index';
+import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K } from './constants';
+import type { CoverageResult } from './coverage';
+import type { ValidationResult } from './validate';
 
 // Prompt assembly (§8.4/§8.6). The system prompt + repair shell live as templates in
 // /prompts; the vocab-heavy user prompt is built here because it's fully dynamic.

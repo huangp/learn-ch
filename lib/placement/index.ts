@@ -1,7 +1,7 @@
 import { inArray, lte, isNotNull, and } from 'drizzle-orm';
-import type { Db } from '../db.js';
-import { characters } from '../../db/schema.js';
-import { isHan } from '../../data/pipeline/lib.js';
+import type { Db } from '../db';
+import { characters } from '../../db/schema';
+import { isHan } from '../../data/pipeline/lib';
 
 // The four onboarding paths (§16.1). Each produces a set of known `charId`s that
 // all converge on `seedLearner`. The UIs (Phase 5) are just different ways to

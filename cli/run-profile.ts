@@ -1,15 +1,15 @@
 import { inArray } from 'drizzle-orm';
-import type { Db } from '../lib/db.js';
-import { characters } from '../db/schema.js';
-import { fromPastedText, selfDeclareHsk } from '../lib/placement/index.js';
-import { createLearner } from '../lib/learner/crud.js';
-import { BOOTSTRAP_THRESHOLD, seedLearner } from '../lib/learner/seed.js';
-import { buildCurriculum } from '../lib/grading/curriculum.js';
-import { selectDueChars, selectNewChars } from '../lib/grading/select.js';
-import { buildAllowlist } from '../lib/allowlist/index.js';
-import { generateGradedStory } from '../lib/generation/generate.js';
-import type { AttemptDiagnostics, GenerationMeta, StoryJson } from '../lib/generation/types.js';
-import type { LlmProvider } from '../lib/llm/index.js';
+import type { Db } from '../lib/db';
+import { characters } from '../db/schema';
+import { fromPastedText, selfDeclareHsk } from '../lib/placement/index';
+import { createLearner } from '../lib/learner/crud';
+import { BOOTSTRAP_THRESHOLD, seedLearner } from '../lib/learner/seed';
+import { buildCurriculum } from '../lib/grading/curriculum';
+import { selectDueChars, selectNewChars } from '../lib/grading/select';
+import { buildAllowlist } from '../lib/allowlist/index';
+import { generateGradedStory } from '../lib/generation/generate';
+import type { AttemptDiagnostics, GenerationMeta, StoryJson } from '../lib/generation/types';
+import type { LlmProvider } from '../lib/llm/index';
 
 // End-to-end orchestration: a learner profile → a scored, validated story. Pure glue
 // over placement → seed → curriculum/allowlist → generation. Shared by the `pnpm story`

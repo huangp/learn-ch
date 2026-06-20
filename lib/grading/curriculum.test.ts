@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { eq } from 'drizzle-orm';
-import { makeTestDb, type TestDb } from '../test-utils.js';
-import { characters, charComponents } from '../../db/schema.js';
-import { analyzeCurriculum, buildCurriculum, computeFrontier } from './curriculum.js';
+import { makeTestDb, type TestDb } from '../test-utils';
+import { characters, charComponents } from '../../db/schema';
+import { analyzeCurriculum, buildCurriculum, computeFrontier } from './curriculum';
 
 let t: TestDb;
 beforeAll(() => {

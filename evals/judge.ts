@@ -1,9 +1,9 @@
 import { fileURLToPath } from 'node:url';
-import { makeTestDb } from '../lib/test-utils.js';
-import { createLlmProvider, type LlmProvider } from '../lib/llm/index.js';
-import { generateGradedStory } from '../lib/generation/generate.js';
-import type { StoryJson } from '../lib/generation/types.js';
-import { buildFixtures } from './fixtures.js';
+import { makeTestDb } from '../lib/test-utils';
+import { createLlmProvider, type LlmProvider } from '../lib/llm/index';
+import { generateGradedStory } from '../lib/generation/generate';
+import type { StoryJson } from '../lib/generation/types';
+import { buildFixtures } from './fixtures';
 
 // LLM-judge coherence rating (§12). Generates one story per fixture, then asks a
 // (configurable, usually stronger) model to rate narrative sense + age-appropriateness

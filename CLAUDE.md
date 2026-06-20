@@ -30,8 +30,8 @@ yet (the four paths are resolver functions; Phase 5 wires UIs to them).
 - `pnpm test` — vitest unit tests (`lib/**/*.test.ts`). Keep green when touching `/lib`.
 
 Tables added (§5.3): `learners`, `learner_chars` (composite PK, FSRS columns, `ON DELETE CASCADE`).
-`stories` + `interactions` are defined but **unused until Phase 5** (Phase 3 generation is pure and
-does not persist; added now to avoid a migration each later phase). `lib/db.ts` is the shared Drizzle
+`stories` + `interactions` are written by **Phase 5** (story persistence + interaction capture);
+defined here early to avoid a migration each later phase. `lib/db.ts` is the shared Drizzle
 handle (`foreign_keys = ON`).
 
 Key modules:
@@ -64,8 +64,9 @@ The generate → validate → repair heart (§8). `generateGradedStory(db, llm, 
 **Pure** — reads only via `buildAllowlist`; does **not** write `stories` (persistence is Phase 5).
 
 - `pnpm test` — vitest (`lib/**/*.test.ts`); now includes the deterministic `lib/generation` tests.
-- `pnpm typecheck` — `tsc` over `lib` + `evals` + `cli`. Keep both green when touching `/lib/generation`,
-  `/lib/llm`, or `/prompts`.
+- `pnpm typecheck` — `tsc -p tsconfig.node.json` over `lib` + `evals` + `cli` + `db` + `data`. Keep
+  both green when touching `/lib/generation`, `/lib/llm`, or `/prompts`. (The Next app is type-checked
+  separately by `pnpm build`; see "App + tooling".)
 - `pnpm eval` / `pnpm eval:judge` — **real-LLM, on-demand** (need `ANTHROPIC_API_KEY` in `.env`,
   loaded via `tsx --env-file`). `eval` runs fixtures → metrics + regression gate; `eval:judge` rates
   coherence. Not part of CI (unit tests cover the deterministic logic with a mock).
@@ -98,8 +99,8 @@ Key modules:
 - `/evals/` — `fixtures.ts`, `runner.ts`, `judge.ts`, `thresholds.ts`. The §12 coverage-vs-
   comprehension regression is a documented stub (needs Phase 5/7 reading data).
 
-Deferred to later phases: story persistence (5), `repairBySubstitution` synonym fallback,
-the coverage-band empirical regression (5/7).
+Deferred to later phases: `repairBySubstitution` synonym fallback, the coverage-band empirical
+regression (5/7). (Story persistence landed in Phase 5 — see "App + tooling".)
 
 ## Grading selectors (Phase 6 — done)
 
@@ -113,9 +114,10 @@ next story teaches and reviews. Both are pure DB reads over `learner_chars`:
 - `selectDueChars(db, learnerId, maxDue)` — soonest-due `review` chars (overdue first via
   `due ASC`), capped at `maxDue`.
 
-Wired into `cli/run-profile.ts` and `evals/fixtures.ts` (these replaced the old `evals/select.ts`
-stand-in). Promotion of chars between statuses (`new`→`learning`→`review`→`mastered`) is Phase 5/7;
-for a freshly seeded learner (all known = `review`) output matches the prior stand-in.
+Wired into `cli/run-profile.ts`, `evals/fixtures.ts`, and Phase 5's `lib/story/generate.ts` (these
+replaced the old `evals/select.ts` stand-in). Promotion of chars between statuses
+(`new`→`learning`→`review`→`mastered`) is **Phase 7** (Phase 5 only captures interactions); for a
+freshly seeded learner (all known = `review`) output matches the prior stand-in.
 
 ## Annotation layer (Phase 4 — done)
 
@@ -137,5 +139,69 @@ covers it deterministically (no key).
    (`heteronym.ts` `isHardCase`); the model only *selects among candidate readings* (out-of-set replies
    ignored) — preserving "never trust the model for pinyin". Zero calls when there are no hard cases.
 
-> **Phase 5 must call `resolveHeteronyms` explicitly** after `annotate()` to get LLM-grade heteronym
-> accuracy — the default `annotate()` output is purely deterministic (pinyin-pro + CC-CEDICT only).
+> **Phase 5 does this:** `lib/story/generate.ts` calls `resolveHeteronyms` after `annotate()` before
+> persisting, for LLM-grade heteronym accuracy. Bare `annotate()` stays purely deterministic
+> (pinyin-pro + CC-CEDICT only); any new caller that wants heteronym resolution must opt in the same way.
+
+## Reader UI + interaction capture (Phase 5 — done)
+
+The first UI phase (§11): **Next.js (App Router) + React + Tailwind v4 + shadcn/ui**. Scope is the
+**core reading loop** — onboard a learner, generate & **persist** a story, read it (characters first,
+pinyin off by default), tap a char for pinyin/gloss/components, answer comprehension questions, pick a
+branch to continue. (Stubs + deferrals are listed at the end of this section.)
+
+- `pnpm dev` / `pnpm build` / `pnpm start` — the Next app (Turbopack). `.env` is auto-loaded
+  server-side, so `ANTHROPIC_API_KEY` works with no `--env-file`.
+
+New **framework-agnostic** service layer (server-side, unit-tested with `makeTestDb` + `MockLlmProvider`):
+- `lib/story/persist.ts` — first writer of `stories`. `createStory`/`getStory`/`listStoriesForLearner`.
+  Segments + comprehension questions + choices are stored together in the `annotated` JSON column.
+- `lib/story/generate.ts` — `generateAndPersistStory(db, llm, learnerId, opts)`: persistent analog of
+  `cli/run-profile.ts`. Selects targets/due → `generateGradedStory` → `annotate` → `resolveHeteronyms`
+  → `createStory`. For branches, pass `priorStory` (parent body) + `parentStoryId`.
+- `lib/interactions/record.ts` — `recordInteraction` (+ `recordReveal`/`recordQuestionResult`). **Writes
+  `interactions` rows ONLY; never mutates `learner_chars`.** FSRS grading from these rows is Phase 7.
+- `lib/learner/onboard.ts` — `onboardLearner` (HSK / paste / zero paths; toggle-grid deferred).
+- `lib/char/detail.ts` — `getCharDetail` (pinyin + gloss + component breakdown for the tap panel).
+
+UI: server actions in `app/actions.ts` wrap the lib layer (DB + the Anthropic key stay server-side);
+pages under `app/` (server components for data); client components in `components/` (`Reader`,
+`CharPanel`, `Questions`, `Choices`, `OnboardForm`, `GenerateStoryForm`). shadcn primitives in
+`components/ui/` (they use **`@base-ui/react`**, not Radix). Generation is **on-demand** with a loading
+state; failures surface in `GenerateStoryForm`.
+
+> **Generation can legitimately fail** (`GenerationFailed`) under the default `claude-haiku-4-5` when a
+> sentence dips below `MIN_SENTENCE_COVERAGE`. The UI shows the error; retry or a stronger model
+> (`LLM_MODEL=claude-sonnet-4-6`) passes. This is generation tuning, not a UI bug.
+
+**Stubbed within Phase 5 (collected/defined but not yet acted on — finish before relying on them):**
+- **Branch `choices[].seed` (§8.5) is unused.** `chooseBranchAction` receives `seed` but `void`s it;
+  continuations are themed by the human-readable choice **label** only (passed as `theme` + the parent
+  body as `priorStory`). The structured seed — intended for deterministic/templated branch
+  continuation — is not wired into `generateAndPersistStory`.
+- **`dwell` interaction is never emitted.** The type exists in `lib/interactions/record.ts`, but the
+  reader only captures `reveal` and `question_correct`/`question_wrong`. No dwell-time tracking yet.
+- **`learner_chars` counters untouched.** `exposures`/`reveals` are not incremented and no FSRS state
+  changes — Phase 5 is capture-only; all `learner_chars` updates are Phase 7.
+
+Whole onboarding/feature deferrals (not started): toggle-grid placement (`fromToggleGrid` resolver
+exists in `lib/placement/index.ts`, but no UI), hanzi-writer stroke animation, progress dashboard,
+narrator persona, reward-text unlock.
+
+## App + tooling (read before touching imports or the build)
+
+- **Imports are extension-less; resolution is `Bundler` everywhere.** The project was migrated OFF the
+  NodeNext `.js`-extension convention so **Turbopack** (the default `next dev`/`build` engine) can
+  resolve the shared lib. **Do NOT add `.js` (or `.ts`) extensions to relative imports** — extensionless
+  only (`import { x } from '../db/schema'`). Turbopack cannot remap `.js`→`.ts` (webpack's
+  `extensionAlias` is unsupported there), so reintroducing extensions breaks the build.
+- **Two tsconfigs, both Bundler:** root `tsconfig.json` = the Next app (jsx, `lib: dom`, `next` plugin —
+  needed for shadcn); `tsconfig.node.json` = node code (`lib`/`cli`/`evals`/`data`/`db`), used by
+  `pnpm typecheck`. `tsx` (CLI/data scripts) and `vitest` resolve extensionless fine; nothing runs via
+  bare `node`.
+- **`better-sqlite3` is server-only.** `next.config.ts` lists it under `serverExternalPackages`. Only
+  import `lib/db` (and anything that transitively pulls it) from server components / server actions /
+  route handlers — never a client component.
+- **pnpm 11 build-script approval lives in `pnpm-workspace.yaml` `allowBuilds:`** (NOT package.json). A
+  new native dep that lands there as `name: set this to true or false` will hard-fail every
+  `pnpm install`/`pnpm <script>` with `ERR_PNPM_IGNORED_BUILDS` until set to `true`/`false`.

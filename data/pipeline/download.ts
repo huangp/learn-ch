@@ -1,4 +1,4 @@
-import { download } from './lib.js';
+import { download } from './lib';
 
 download().catch((err) => {
   console.error(err);

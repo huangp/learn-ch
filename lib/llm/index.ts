@@ -1,10 +1,10 @@
-import { AnthropicProvider } from './anthropic.js';
-import type { LlmProvider } from './provider.js';
+import { AnthropicProvider } from './anthropic';
+import type { LlmProvider } from './provider';
 
-export type { LlmProvider, LlmMessage, LlmGenerateOptions, LlmResult, LlmUsage } from './provider.js';
-export { AnthropicProvider, DEFAULT_MODEL } from './anthropic.js';
-export { MockLlmProvider } from './mock.js';
-export { costUsd } from './pricing.js';
+export type { LlmProvider, LlmMessage, LlmGenerateOptions, LlmResult, LlmUsage } from './provider';
+export { AnthropicProvider, DEFAULT_MODEL } from './anthropic';
+export { MockLlmProvider } from './mock';
+export { costUsd } from './pricing';
 
 export interface LlmConfig {
   provider?: string;

@@ -1,6 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm';
-import type { Db } from '../db.js';
-import { characters, learnerChars, words } from '../../db/schema.js';
+import type { Db } from '../db';
+import { characters, learnerChars, words } from '../../db/schema';
 
 // Phase 2 — Allowlist builder (§7). The generation engine is constrained by a
 // word-level allowlist, not a char list (§2.1): LLMs follow "use only these words"

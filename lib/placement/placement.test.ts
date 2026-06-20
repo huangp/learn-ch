@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { and, eq, lte, isNotNull, gt, inArray } from 'drizzle-orm';
-import { makeTestDb, type TestDb } from '../test-utils.js';
-import { characters } from '../../db/schema.js';
-import { selfDeclareHsk, fromPastedText, fromToggleGrid, fromZero } from './index.js';
+import { makeTestDb, type TestDb } from '../test-utils';
+import { characters } from '../../db/schema';
+import { selfDeclareHsk, fromPastedText, fromToggleGrid, fromZero } from './index';
 
 let t: TestDb;
 beforeAll(() => {

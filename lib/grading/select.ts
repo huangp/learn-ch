@@ -1,7 +1,7 @@
 import { and, asc, eq, isNotNull } from 'drizzle-orm';
-import type { Db } from '../db.js';
-import { charComponents, learnerChars } from '../../db/schema.js';
-import { buildCurriculum, computeFrontier } from './curriculum.js';
+import type { Db } from '../db';
+import { charComponents, learnerChars } from '../../db/schema';
+import { buildCurriculum, computeFrontier } from './curriculum';
 
 // Phase 6 progression selectors (§6.2, §8.1). Both derive learner state from
 // `learner_chars` — they pick what the next story teaches (new targets) and what it

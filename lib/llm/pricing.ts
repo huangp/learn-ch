@@ -1,4 +1,4 @@
-import type { LlmUsage } from './provider.js';
+import type { LlmUsage } from './provider';
 
 // USD per 1M tokens, by model. Used only for the eval cost metric (§12) — not on
 // the hot path. Update when prices change; unknown models fall back to 0 cost.

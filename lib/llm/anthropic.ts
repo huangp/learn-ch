@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { LlmGenerateOptions, LlmProvider, LlmResult } from './provider.js';
+import type { LlmGenerateOptions, LlmProvider, LlmResult } from './provider';
 
 export const DEFAULT_MODEL = 'claude-haiku-4-5';
 const DEFAULT_MAX_TOKENS = 2048;

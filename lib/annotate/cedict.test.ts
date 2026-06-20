@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { cedictToToned } from './cedict.js';
+import { cedictToToned } from './cedict';
 
 describe('cedictToToned', () => {
   test('numbered tone → toned per char', () => {

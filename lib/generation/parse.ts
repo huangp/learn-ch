@@ -1,4 +1,4 @@
-import { StoryJsonSchema, type StoryJson } from './types.js';
+import { StoryJsonSchema, type StoryJson } from './types';
 
 /** Thrown when raw LLM output can't be parsed into a valid StoryJson. The message
  *  is repair-friendly (cites the JSON or schema problem) so it can be fed back. */

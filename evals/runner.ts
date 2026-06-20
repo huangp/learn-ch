@@ -1,10 +1,10 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { makeTestDb } from '../lib/test-utils.js';
-import { createLlmProvider } from '../lib/llm/index.js';
-import { generateGradedStory } from '../lib/generation/generate.js';
-import { GenerationFailed } from '../lib/generation/types.js';
-import { buildFixtures } from './fixtures.js';
-import { checkGate, type Aggregate } from './thresholds.js';
+import { makeTestDb } from '../lib/test-utils';
+import { createLlmProvider } from '../lib/llm/index';
+import { generateGradedStory } from '../lib/generation/generate';
+import { GenerationFailed } from '../lib/generation/types';
+import { buildFixtures } from './fixtures';
+import { checkGate, type Aggregate } from './thresholds';
 
 // Real-LLM eval runner (§12). Run on demand: `pnpm eval` (needs ANTHROPIC_API_KEY).
 // Writes a timestamped metrics file and exits non-zero if the regression gate fails.

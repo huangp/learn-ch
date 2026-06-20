@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { validateChars } from './validate.js';
+import { validateChars } from './validate';
 
 const allowed = new Set([...'我你好他是的木兰女马口']);
 

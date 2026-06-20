@@ -1,15 +1,15 @@
 import { inArray } from 'drizzle-orm';
-import { buildAllowlist } from '../allowlist/index.js';
-import type { Db } from '../db.js';
-import { characters } from '../../db/schema.js';
-import { costUsd } from '../llm/pricing.js';
-import type { LlmMessage, LlmProvider, LlmUsage } from '../llm/provider.js';
-import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MAX_REPAIRS } from './constants.js';
-import { checkCoverage, type CoverageResult } from './coverage.js';
-import { buildRepairPrompt, buildSystemPrompt, buildUserPrompt } from './prompt.js';
-import { parseStoryJson, StoryParseError } from './parse.js';
-import { GenerationFailed, type GenerationConfig, type GenerationMeta, type GenerationResult, type StoryJson } from './types.js';
-import { validateChars, type ValidationResult } from './validate.js';
+import { buildAllowlist } from '../allowlist/index';
+import type { Db } from '../db';
+import { characters } from '../../db/schema';
+import { costUsd } from '../llm/pricing';
+import type { LlmMessage, LlmProvider, LlmUsage } from '../llm/provider';
+import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MAX_REPAIRS } from './constants';
+import { checkCoverage, type CoverageResult } from './coverage';
+import { buildRepairPrompt, buildSystemPrompt, buildUserPrompt } from './prompt';
+import { parseStoryJson, StoryParseError } from './parse';
+import { GenerationFailed, type GenerationConfig, type GenerationMeta, type GenerationResult, type StoryJson } from './types';
+import { validateChars, type ValidationResult } from './validate';
 
 // §8.1 the heart — generate → validate → repair. Pure functions do the checking;
 // this orchestrates the LLM loop, targeted repair, and the reduced-ambition fallback.

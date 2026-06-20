@@ -1,9 +1,9 @@
-import type { Db } from '../lib/db.js';
-import { buildCurriculum } from '../lib/grading/curriculum.js';
-import { selfDeclareHsk } from '../lib/placement/index.js';
-import { createLearner } from '../lib/learner/crud.js';
-import { seedLearner } from '../lib/learner/seed.js';
-import { selectDueChars, selectNewChars } from '../lib/grading/select.js';
+import type { Db } from '../lib/db';
+import { buildCurriculum } from '../lib/grading/curriculum';
+import { selfDeclareHsk } from '../lib/placement/index';
+import { createLearner } from '../lib/learner/crud';
+import { seedLearner } from '../lib/learner/seed';
+import { selectDueChars, selectNewChars } from '../lib/grading/select';
 
 // Eval fixtures (§12): a spread of learner profiles. Each is seeded in an ephemeral
 // DB copy, then given targets/due via the Phase-6 selectors (lib/grading/select.ts),

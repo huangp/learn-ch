@@ -1,4 +1,4 @@
-import { KNOWN_COVERAGE_TARGET } from '../lib/generation/constants.js';
+import { KNOWN_COVERAGE_TARGET } from '../lib/generation/constants';
 
 // Regression gate (§12). PROVISIONAL — these are the §8 acceptance numbers; tune as
 // the eval corpus grows. The runner exits non-zero if an aggregate falls below these.

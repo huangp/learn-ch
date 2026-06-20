@@ -12,3 +12,5 @@ evals/results/
 
 .idea/
 .codegraph/
+
+.next/

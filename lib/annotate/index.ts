@@ -8,12 +8,12 @@
 //   2. cedict      — for a matched multi-char word, prefer curated words.pinyin
 // Each char also carries its candidate readings (heteronym detection) + provenance.
 
-import type { Db } from '../db.js';
-import { cedictToToned } from './cedict.js';
-import { candidatesFor } from './heteronym.js';
-import { loadLexicon } from './lexicon.js';
-import { perCharPinyin } from './pinyin.js';
-import { segmentText, splitSentences } from './segment.js';
+import type { Db } from '../db';
+import { cedictToToned } from './cedict';
+import { candidatesFor } from './heteronym';
+import { loadLexicon } from './lexicon';
+import { perCharPinyin } from './pinyin';
+import { segmentText, splitSentences } from './segment';
 
 export type PinyinSource = 'pinyin-pro' | 'cedict' | 'llm';
 

@@ -1,13 +1,13 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { makeTestDb, type TestDb } from '../test-utils.js';
-import { buildCurriculum } from '../grading/curriculum.js';
-import { selfDeclareHsk } from '../placement/index.js';
-import { createLearner } from '../learner/crud.js';
-import { seedLearner } from '../learner/seed.js';
-import { buildAllowlist } from '../allowlist/index.js';
-import { MockLlmProvider } from '../llm/mock.js';
-import { generateGradedStory } from './generate.js';
-import { GenerationFailed } from './types.js';
+import { makeTestDb, type TestDb } from '../test-utils';
+import { buildCurriculum } from '../grading/curriculum';
+import { selfDeclareHsk } from '../placement/index';
+import { createLearner } from '../learner/crud';
+import { seedLearner } from '../learner/seed';
+import { buildAllowlist } from '../allowlist/index';
+import { MockLlmProvider } from '../llm/mock';
+import { generateGradedStory } from './generate';
+import { GenerationFailed } from './types';
 
 const NOW = 1_750_000_000_000;
 

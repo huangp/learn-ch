@@ -1,6 +1,6 @@
 import { gunzipSync } from 'node:zlib';
 import { readFileSync } from 'node:fs';
-import { SOURCES, isHan, decodeGb18030 } from './lib.js';
+import { SOURCES, isHan, decodeGb18030 } from './lib';
 
 function srcPath(key: string): string {
   const s = SOURCES.find((x) => x.key === key);

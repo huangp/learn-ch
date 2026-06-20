@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { existsSync } from 'node:fs';
-import { DB_PATH, MIGRATIONS } from '../data/pipeline/lib.js';
+import { DB_PATH, MIGRATIONS } from '../data/pipeline/lib';
 
 // Apply pending migrations to the EXISTING seeded hanzi.db without reseeding.
 // (data:build wipes + reseeds; this only runs the migrator's pending entries.)

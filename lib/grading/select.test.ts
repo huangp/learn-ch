@@ -1,12 +1,12 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { and, eq, inArray } from 'drizzle-orm';
-import { makeTestDb, type TestDb } from '../test-utils.js';
-import { charComponents, learnerChars } from '../../db/schema.js';
-import { createLearner } from '../learner/crud.js';
-import { seedLearner } from '../learner/seed.js';
-import { selfDeclareHsk } from '../placement/index.js';
-import { buildCurriculum } from './curriculum.js';
-import { selectDueChars, selectNewChars } from './select.js';
+import { makeTestDb, type TestDb } from '../test-utils';
+import { charComponents, learnerChars } from '../../db/schema';
+import { createLearner } from '../learner/crud';
+import { seedLearner } from '../learner/seed';
+import { selfDeclareHsk } from '../placement/index';
+import { buildCurriculum } from './curriculum';
+import { selectDueChars, selectNewChars } from './select';
 
 const NOW = 1_750_000_000_000; // fixed epoch for deterministic due dates
 

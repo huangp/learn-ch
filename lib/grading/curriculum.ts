@@ -1,5 +1,5 @@
-import type { Db } from '../db.js';
-import { characters, charComponents } from '../../db/schema.js';
+import type { Db } from '../db';
+import { characters, charComponents } from '../../db/schema';
 
 // Component-aware curriculum (§6.2). A character is never ordered before its
 // teachable components; ties are broken by frequency (most frequent first).

@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { existsSync } from 'node:fs';
-import { DB_PATH, MANIFEST } from './lib.js';
-import { parseHsk } from './parse.js';
+import { DB_PATH, MANIFEST } from './lib';
+import { parseHsk } from './parse';
 
 interface Check {
   name: string;

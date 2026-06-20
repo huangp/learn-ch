@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
-import { MockLlmProvider } from '../llm/index.js';
-import { candidatesFor } from './heteronym.js';
-import type { AnnotatedSegment } from './index.js';
-import { resolveHeteronyms } from './llm.js';
+import { MockLlmProvider } from '../llm/index';
+import { candidatesFor } from './heteronym';
+import type { AnnotatedSegment } from './index';
+import { resolveHeteronyms } from './llm';
 
 // Build a deterministic segment as annotate() would, with every char on its pinyin-pro
 // default reading. In '我还书' only 还 is a hard case (我/书 are monophonic), so it is id 0.
