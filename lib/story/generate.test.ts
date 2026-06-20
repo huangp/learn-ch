@@ -62,9 +62,13 @@ describe('generateAndPersistStory', () => {
       due: 0,
       parentStoryId: parent.id,
       priorStory: parent.hanzi,
+      seed: 'mulan-goes',
       now: NOW + 1,
     });
     expect(child.parentStoryId).toBe(parent.id);
+    // the chosen branch seed is persisted on the story's meta (no schema migration)
+    expect(child.meta?.branchSeed).toBe('mulan-goes');
+    expect(getStory(t.db, child.id)?.meta?.branchSeed).toBe('mulan-goes');
     expect(listStoriesForLearner(t.db, learnerId).some((s) => s.id === child.id)).toBe(true);
   });
 });

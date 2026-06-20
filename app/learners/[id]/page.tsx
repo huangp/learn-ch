@@ -27,7 +27,10 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
             {learner.settings.bootstrap ? ' · bootstrap' : ''}
           </p>
         </div>
-        <Button variant="ghost" render={<Link href="/">All learners</Link>} />
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" render={<Link href={`/learners/${learnerId}/progress`}>Progress</Link>} />
+          <Button variant="ghost" render={<Link href="/">All learners</Link>} />
+        </div>
       </div>
 
       <div className="mb-8">

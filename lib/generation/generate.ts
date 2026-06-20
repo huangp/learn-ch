@@ -140,12 +140,13 @@ export async function generateGradedStory(
     usage,
     costUsd: costUsd(model, usage),
     latencyMs: Date.now() - start,
+    branchSeed: config.seed,
   });
 
   // --- Main loop: initial generation + up to maxRepairs targeted repairs. ---
   const system = buildSystemPrompt({ k, lengthChars });
   const messages: LlmMessage[] = [
-    { role: 'user', content: buildUserPrompt({ allowedWords, targets: targetChars, due, theme: config.theme, lengthChars, k, priorStory: config.priorStory }) },
+    { role: 'user', content: buildUserPrompt({ allowedWords, targets: targetChars, due, theme: config.theme, lengthChars, k, priorStory: config.priorStory, seed: config.seed }) },
   ];
 
   let best: Attempt | null = null;
@@ -166,7 +167,7 @@ export async function generateGradedStory(
   const fbLength = Math.max(40, Math.round(lengthChars * 0.7));
   const fbSystem = buildSystemPrompt({ k, lengthChars: fbLength });
   const fbMessages: LlmMessage[] = [
-    { role: 'user', content: buildUserPrompt({ allowedWords, targets: fbTargets, due, theme: config.theme, lengthChars: fbLength, k, priorStory: config.priorStory }) },
+    { role: 'user', content: buildUserPrompt({ allowedWords, targets: fbTargets, due, theme: config.theme, lengthChars: fbLength, k, priorStory: config.priorStory, seed: config.seed }) },
   ];
   const fb = await runAttempt(fbMessages, fbSystem, fbTargets, 'fallback');
   best = pickBest(best, fb);

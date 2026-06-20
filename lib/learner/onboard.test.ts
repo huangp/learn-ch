@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { eq } from 'drizzle-orm';
+import { and, eq, gt, isNotNull, lte } from 'drizzle-orm';
 import { makeTestDb, type TestDb } from '../test-utils';
-import { learnerChars } from '../../db/schema';
-import { selfDeclareHsk } from '../placement/index';
+import { characters, learnerChars } from '../../db/schema';
+import { selfDeclareHsk, fromToggleGrid } from '../placement/index';
 import { onboardLearner } from './onboard';
 
 const NOW = 1_750_000_000_000;
@@ -32,6 +32,29 @@ describe('onboardLearner', () => {
     expect(learner.settings.placementMethod).toBe('paste');
     // 4 distinct Han chars, all common → all in the master
     expect(seededCount(learner.id)).toBe(4);
+  });
+
+  test('grid path seeds the cutoff ∪ known − unknown set', () => {
+    // one char above the cutoff (fine "known") and one at/below it (fine "unknown")
+    const above = t.db
+      .select({ char: characters.char })
+      .from(characters)
+      .where(and(isNotNull(characters.freqRank), gt(characters.freqRank, 100)))
+      .limit(1)
+      .get()!;
+    const below = t.db
+      .select({ char: characters.char })
+      .from(characters)
+      .where(and(isNotNull(characters.freqRank), lte(characters.freqRank, 100)))
+      .limit(1)
+      .get()!;
+
+    const grid = { cutoffFreqRank: 100, gridKnown: [above.char], gridUnknown: [below.char] };
+    const expected = fromToggleGrid(t.db, { cutoffFreqRank: 100, known: [above.char], unknown: [below.char] }).length;
+
+    const learner = onboardLearner(t.db, { name: 'grid', method: 'grid', ...grid, now: NOW });
+    expect(learner.settings.placementMethod).toBe('grid');
+    expect(seededCount(learner.id)).toBe(expected);
   });
 
   test('zero path seeds a small bootstrap base and enters bootstrap mode', () => {

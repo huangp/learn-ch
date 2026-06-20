@@ -52,6 +52,8 @@ export interface GenerationConfig {
   bootstrap?: boolean;
   /** Prior story body, for branching continuations (§8 priorStory). */
   priorStory?: string;
+  /** Stable branch identity (choices[].seed) — a model-independent plot anchor for continuations. */
+  seed?: string;
   model?: string;
   /** Per-attempt diagnostics hook (logging/debugging). Called once per LLM turn. */
   onAttempt?: (info: AttemptDiagnostics) => void;
@@ -67,6 +69,8 @@ export interface GenerationMeta {
   usage: LlmUsage;
   costUsd: number;
   latencyMs: number;
+  /** Branch seed this story continued (choices[].seed), when generated from a branch. */
+  branchSeed?: string;
 }
 
 export interface GenerationResult {

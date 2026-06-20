@@ -1,4 +1,4 @@
-import { inArray, lte, isNotNull, and } from 'drizzle-orm';
+import { inArray, lte, isNotNull, and, asc } from 'drizzle-orm';
 import type { Db } from '../db';
 import { characters } from '../../db/schema';
 import { isHan } from '../../data/pipeline/lib';
@@ -81,4 +81,26 @@ export function fromToggleGrid(db: Db, input: ToggleGridInput): number[] {
 /** Path 4 — start from zero. Empty known set → bootstrap mode (§16.4). */
 export function fromZero(): number[] {
   return [];
+}
+
+export interface FreqRankedChar {
+  char: string;
+  freqRank: number;
+  hskLevel: number | null;
+}
+
+/**
+ * Frequency-ranked char list backing the toggle-grid UI (§16.1 path 3). Most frequent
+ * first; chars without a freqRank are excluded (can't be placed in the grid). Capped to
+ * keep the practical depth bounded (§16.1 "cap the practical depth").
+ */
+export function listFrequencyRankedChars(db: Db, limit = 1500): FreqRankedChar[] {
+  return db
+    .select({ char: characters.char, freqRank: characters.freqRank, hskLevel: characters.hskLevel })
+    .from(characters)
+    .where(isNotNull(characters.freqRank))
+    .orderBy(asc(characters.freqRank))
+    .limit(limit)
+    .all()
+    .map((r) => ({ char: r.char, freqRank: r.freqRank as number, hskLevel: r.hskLevel }));
 }

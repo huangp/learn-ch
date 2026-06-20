@@ -1,14 +1,14 @@
 import type { Db } from '../db';
-import { fromPastedText, selfDeclareHsk, type PlacementMethod } from '../placement/index';
+import { fromPastedText, fromToggleGrid, selfDeclareHsk, type PlacementMethod } from '../placement/index';
 import { buildCurriculum } from '../grading/curriculum';
 import { createLearner, getLearner, type Learner } from './crud';
 import { seedLearner } from './seed';
 
 // Phase 5 — onboarding glue: one of the placement resolvers (§16.1) → createLearner →
-// seedLearner. Three of the four paths are wired (HSK / paste / zero); the toggle-grid
-// is deferred. Mirrors `resolveKnown` in cli/run-profile.ts but persists a real learner.
+// seedLearner. All four paths are wired (HSK / paste / grid / zero).
+// Mirrors `resolveKnown` in cli/run-profile.ts but persists a real learner.
 
-export type OnboardMethod = 'hsk' | 'paste' | 'zero';
+export type OnboardMethod = 'hsk' | 'paste' | 'grid' | 'zero';
 
 export interface OnboardInput {
   name: string;
@@ -17,6 +17,12 @@ export interface OnboardInput {
   hsk?: number;
   /** for method 'paste' — free text; its distinct Simplified chars become the known set. */
   paste?: string;
+  /** for method 'grid' — bulk "know down to here" cutoff (freqRank ≤ cutoff). */
+  cutoffFreqRank?: number;
+  /** for method 'grid' — fine per-char additions above the cutoff. */
+  gridKnown?: string[];
+  /** for method 'grid' — fine per-char removals at/below the cutoff. */
+  gridUnknown?: string[];
   /** for method 'zero' — seed the first N curriculum chars so bootstrap has a base (§16.4). */
   bootstrapKnown?: number;
   now?: number;
@@ -28,12 +34,21 @@ function resolveKnown(db: Db, input: OnboardInput): { known: number[]; method: P
       return { known: selfDeclareHsk(db, input.hsk ?? 1), method: 'hsk' };
     case 'paste':
       return { known: fromPastedText(db, input.paste ?? '').knownCharIds, method: 'paste' };
+    case 'grid':
+      return {
+        known: fromToggleGrid(db, {
+          cutoffFreqRank: input.cutoffFreqRank,
+          known: input.gridKnown,
+          unknown: input.gridUnknown,
+        }),
+        method: 'grid',
+      };
     case 'zero':
       return { known: buildCurriculum(db).slice(0, input.bootstrapKnown ?? 30), method: 'zero' };
   }
 }
 
-/** Create + seed a learner from one of the three wired placement paths. */
+/** Create + seed a learner from one of the four wired placement paths. */
 export function onboardLearner(db: Db, input: OnboardInput): Learner {
   const { known, method } = resolveKnown(db, input);
   const learner = createLearner(db, input.name, {}, input.now);

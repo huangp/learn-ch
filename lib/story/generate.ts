@@ -25,6 +25,8 @@ export interface GenerateStoryOptions {
   /** Branch continuation: the parent story body + its id (§8 priorStory / parentStoryId). */
   priorStory?: string;
   parentStoryId?: number;
+  /** Stable branch identity (chosen choices[].seed) — threaded into the prompt + persisted in meta. */
+  seed?: string;
   model?: string;
   now?: number;
 }
@@ -61,6 +63,7 @@ export async function generateAndPersistStory(
     maxWords: opts.maxWords,
     bootstrap,
     priorStory: opts.priorStory,
+    seed: opts.seed,
     model: opts.model,
   });
 

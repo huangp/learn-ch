@@ -13,13 +13,28 @@ import { getCharDetail, type CharDetail } from '@/lib/char/detail';
 // Phase 5 server actions — thin wrappers over the lib service layer. All DB/LLM access
 // is server-side only (better-sqlite3 + the Anthropic key never reach the client).
 
+function parseJsonStringArray(raw: FormDataEntryValue | null): string[] | undefined {
+  if (typeof raw !== 'string' || raw === '') return undefined;
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v.map(String) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export async function onboardLearnerAction(formData: FormData): Promise<void> {
   const name = String(formData.get('name') ?? '').trim() || 'Reader';
   const method = String(formData.get('method') ?? 'hsk') as OnboardMethod;
   const hsk = Number(formData.get('hsk') ?? 3);
   const paste = String(formData.get('paste') ?? '');
 
-  const learner = onboardLearner(db, { name, method, hsk, paste });
+  const cutoffRaw = formData.get('cutoffFreqRank');
+  const cutoffFreqRank = typeof cutoffRaw === 'string' && cutoffRaw !== '' ? Number(cutoffRaw) : undefined;
+  const gridKnown = parseJsonStringArray(formData.get('gridKnown'));
+  const gridUnknown = parseJsonStringArray(formData.get('gridUnknown'));
+
+  const learner = onboardLearner(db, { name, method, hsk, paste, cutoffFreqRank, gridKnown, gridUnknown });
   revalidatePath('/');
   redirect(`/learners/${learner.id}`);
 }
@@ -39,8 +54,8 @@ export async function chooseBranchAction(storyId: number, seed: string, label: s
     theme: label,
     priorStory: parent.hanzi,
     parentStoryId: parent.id,
+    seed,
   });
-  void seed; // the chosen branch label seeds the continuation theme; `seed` is reserved for future templating
   revalidatePath(`/learners/${parent.learnerId}`);
   redirect(`/learners/${parent.learnerId}/read/${next.id}`);
 }

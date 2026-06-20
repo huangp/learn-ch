@@ -2,7 +2,7 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { and, eq, lte, isNotNull, gt, inArray } from 'drizzle-orm';
 import { makeTestDb, type TestDb } from '../test-utils';
 import { characters } from '../../db/schema';
-import { selfDeclareHsk, fromPastedText, fromToggleGrid, fromZero } from './index';
+import { selfDeclareHsk, fromPastedText, fromToggleGrid, fromZero, listFrequencyRankedChars } from './index';
 
 let t: TestDb;
 beforeAll(() => {
@@ -92,4 +92,15 @@ describe('fromToggleGrid', () => {
 
 test('fromZero is empty', () => {
   expect(fromZero()).toEqual([]);
+});
+
+describe('listFrequencyRankedChars', () => {
+  test('returns freq-ranked chars ascending, excludes null freqRank, respects the limit', () => {
+    const rows = listFrequencyRankedChars(t.db, 50);
+    expect(rows.length).toBeLessThanOrEqual(50);
+    expect(rows.length).toBeGreaterThan(0);
+    for (const r of rows) expect(r.freqRank).not.toBeNull();
+    const ranks = rows.map((r) => r.freqRank);
+    expect(ranks).toEqual([...ranks].sort((a, b) => a - b)); // ascending
+  });
 });

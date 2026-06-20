@@ -25,6 +25,7 @@ export interface UserPromptInput {
   lengthChars?: number;
   k?: number;
   priorStory?: string;
+  seed?: string;
 }
 
 /** First allowed word containing `char`, for the "use this new char" example (§7). */
@@ -55,6 +56,10 @@ export function buildUserPrompt(input: UserPromptInput): string {
     parts.push('');
     parts.push('REVIEW CHARACTERS (include each at least once):');
     parts.push(input.due.join(' '));
+  }
+  if (input.seed) {
+    parts.push('');
+    parts.push(`BRANCH: continue the branch "${input.seed}" — keep the same characters and setting.`);
   }
   if (input.priorStory) {
     parts.push('');
