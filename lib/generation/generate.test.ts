@@ -80,6 +80,35 @@ describe('generateGradedStory — generate → validate → repair (§8.1)', () 
     expect(repairTurn).toContain('龘');
   });
 
+  test('a story-seed name passes validation, beats reach the prompt, seedId in meta (§17.2)', async () => {
+    const storySeed = {
+      id: 'test-seed',
+      title: '测试',
+      titleEn: 'Test',
+      blurb: '',
+      setting: 'A test setting.',
+      characters: ['魑魅 (a rare-named hero)'],
+      beats: ['The hero sets out.', 'The hero returns.'],
+      allowNames: ['魑魅'], // rare chars, not in the HSK3 allowlist — only the seed injection allows them
+      source: 'authored' as const,
+    };
+    const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);
+    const target = targetChars[0];
+    const [k1, k2] = [...allowedChars].filter((c) => c !== target);
+    const body = `${k1.repeat(10)}魑魅${target}。${k2.repeat(10)}魑魅${target}。`;
+    const json = JSON.stringify({ title: `${k1}${k2}`, body, targetCharsUsed: [target], comprehensionQuestions: [], choices: [] });
+
+    const llm = new MockLlmProvider([json]);
+    const res = await generateGradedStory(t.db, llm, learnerId, { targetCharIds, storySeed });
+    expect(res.meta.repairIterations).toBe(0);
+    expect(res.meta.seedId).toBe('test-seed');
+    expect(res.story.body).toContain('魑魅');
+    // the beats reached the user prompt
+    const userPrompt = llm.calls[0].messages.at(-1)!.content;
+    expect(userPrompt).toContain('STORY TO RETELL');
+    expect(userPrompt).toContain('1. The hero sets out.');
+  });
+
   test('a companion name passes validation and is recorded in meta (§11)', async () => {
     const persona = PERSONAS[0]; // 小龙
     const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);

@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import type { AllowedWord } from '../allowlist/index';
 import type { Persona } from '../persona/presets';
+import type { Genre } from '../genres/presets';
+import type { StorySeed } from '../seeds/types';
 import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K } from './constants';
 import type { CoverageResult } from './coverage';
 import type { ValidationResult } from './validate';
@@ -28,6 +30,8 @@ export interface UserPromptInput {
   priorStory?: string;
   seed?: string;
   persona?: Persona;
+  genre?: Genre;
+  storySeed?: StorySeed;
 }
 
 /** First allowed word containing `char`, for the "use this new char" example (§7). */
@@ -45,8 +49,15 @@ export function buildUserPrompt(input: UserPromptInput): string {
     return ex ? `${t} (e.g. ${ex})` : t;
   });
 
+  const themeFallback =
+    input.genre?.label ??
+    (input.storySeed?.themeHints?.length ? input.storySeed.themeHints.join(', ') : null) ??
+    'anything age-appropriate and engaging';
   const parts: string[] = [];
-  parts.push(`THEME: ${input.theme ?? 'anything age-appropriate and engaging'}`);
+  parts.push(`THEME: ${input.theme ?? themeFallback}`);
+  if (input.genre) {
+    parts.push(`GENRE: ${input.genre.promptInstruction}`);
+  }
   if (input.persona) {
     parts.push(`COMPANION: ${input.persona.promptInstruction} Use the name 「${input.persona.name}」 exactly; it is allowed vocabulary.`);
   }
@@ -61,6 +72,15 @@ export function buildUserPrompt(input: UserPromptInput): string {
     parts.push('');
     parts.push('REVIEW CHARACTERS (include each at least once):');
     parts.push(input.due.join(' '));
+  }
+  if (input.storySeed) {
+    const s = input.storySeed;
+    parts.push('');
+    parts.push('STORY TO RETELL (retell this plot in the allowed vocabulary; keep the events, simplify freely):');
+    parts.push(`Setting: ${s.setting}`);
+    parts.push(`Characters: ${s.characters.join('; ')}`);
+    parts.push('Plot beats:');
+    s.beats.forEach((b, i) => parts.push(`${i + 1}. ${b}`));
   }
   if (input.seed) {
     parts.push('');

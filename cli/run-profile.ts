@@ -9,6 +9,8 @@ import { selectDueChars, selectNewChars } from '../lib/grading/select';
 import { buildAllowlist } from '../lib/allowlist/index';
 import { generateGradedStory } from '../lib/generation/generate';
 import { getPersona } from '../lib/persona/presets';
+import { getGenre } from '../lib/genres/presets';
+import { getStorySeed } from '../lib/seeds/presets';
 import type { AttemptDiagnostics, GenerationMeta, StoryJson } from '../lib/generation/types';
 import type { LlmProvider } from '../lib/llm/index';
 
@@ -32,6 +34,10 @@ export interface Profile {
   coverageBand?: number;
   /** Companion persona id (§11) — see lib/persona/presets.ts. */
   personaId?: string;
+  /** Genre id (§17.1) — tone steer; see lib/genres/presets.ts. */
+  genreId?: string;
+  /** Story seed id (§17.2) — retell a plot skeleton; see lib/seeds/presets.ts. */
+  seedId?: string;
   model?: string;
 }
 
@@ -95,6 +101,8 @@ export async function generateForProfile(
     coverageBand: profile.coverageBand,
     bootstrap,
     persona: getPersona(profile.personaId),
+    genre: getGenre(profile.genreId),
+    storySeed: getStorySeed(profile.seedId),
     model: profile.model,
     onAttempt: opts.onAttempt,
   });

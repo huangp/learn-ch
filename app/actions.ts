@@ -36,15 +36,26 @@ export async function onboardLearnerAction(formData: FormData): Promise<void> {
   const gridKnown = parseJsonStringArray(formData.get('gridKnown'));
   const gridUnknown = parseJsonStringArray(formData.get('gridUnknown'));
   const personaId = String(formData.get('personaId') ?? '') || undefined;
+  const genreId = String(formData.get('genreId') ?? '') || undefined;
 
-  const learner = onboardLearner(db, { name, method, hsk, paste, cutoffFreqRank, gridKnown, gridUnknown, personaId });
+  const learner = onboardLearner(db, { name, method, hsk, paste, cutoffFreqRank, gridKnown, gridUnknown, personaId, genreId });
   revalidatePath('/');
   redirect(`/learners/${learner.id}`);
 }
 
-export async function generateStoryAction(learnerId: number, theme?: string): Promise<void> {
+export async function generateStoryAction(learnerId: number, theme?: string, genreId?: string): Promise<void> {
   const llm = createLlmProvider();
-  const story = await generateAndPersistStory(db, llm, learnerId, { theme: theme?.trim() || undefined });
+  const story = await generateAndPersistStory(db, llm, learnerId, {
+    theme: theme?.trim() || undefined,
+    genreId: genreId || undefined,
+  });
+  revalidatePath(`/learners/${learnerId}`);
+  redirect(`/learners/${learnerId}/read/${story.id}`);
+}
+
+export async function generateFromSeedAction(learnerId: number, seedId: string): Promise<void> {
+  const llm = createLlmProvider();
+  const story = await generateAndPersistStory(db, llm, learnerId, { seedId });
   revalidatePath(`/learners/${learnerId}`);
   redirect(`/learners/${learnerId}/read/${story.id}`);
 }

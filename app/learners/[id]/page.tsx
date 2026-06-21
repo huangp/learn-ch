@@ -3,8 +3,10 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { getLearner } from '@/lib/learner/crud';
 import { getPersona } from '@/lib/persona/presets';
+import { getGenre } from '@/lib/genres/presets';
 import { listStoriesForLearner } from '@/lib/story/persist';
 import { GenerateStoryForm } from '@/components/GenerateStoryForm';
+import { SeedLibrary } from '@/components/SeedLibrary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -18,6 +20,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
 
   const stories = listStoriesForLearner(db, learnerId);
   const persona = getPersona(learner.settings.personaId);
+  const genre = getGenre(learner.settings.genreId);
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -28,6 +31,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
             {learner.settings.placementMethod ?? 'unplaced'}
             {learner.settings.bootstrap ? ' · bootstrap' : ''}
             {persona ? ` · ${persona.emoji} ${persona.name}` : ''}
+            {genre ? ` · ${genre.emoji} ${genre.label}` : ''}
           </p>
         </div>
         <div className="flex items-center gap-1">
@@ -36,8 +40,9 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-8 grid gap-8">
         <GenerateStoryForm learnerId={learnerId} />
+        <SeedLibrary learnerId={learnerId} />
       </div>
 
       <h2 className="mb-3 text-lg font-medium">Stories</h2>

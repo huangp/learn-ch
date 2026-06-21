@@ -27,6 +27,8 @@ export interface OnboardInput {
   bootstrapKnown?: number;
   /** chosen companion persona (§11) — stored in settings, reused for every story. */
   personaId?: string;
+  /** default story genre (§17.1) — stored in settings, applied when no per-story pick. */
+  genreId?: string;
   now?: number;
 }
 
@@ -53,8 +55,12 @@ function resolveKnown(db: Db, input: OnboardInput): { known: number[]; method: P
 /** Create + seed a learner from one of the four wired placement paths. */
 export function onboardLearner(db: Db, input: OnboardInput): Learner {
   const { known, method } = resolveKnown(db, input);
-  // seedLearner merges its placement keys onto existing settings, so personaId set here survives.
-  const learner = createLearner(db, input.name, input.personaId ? { personaId: input.personaId } : {}, input.now);
+  // seedLearner merges its placement keys onto existing settings, so personaId/genreId set here survive.
+  const initialSettings = {
+    ...(input.personaId ? { personaId: input.personaId } : {}),
+    ...(input.genreId ? { genreId: input.genreId } : {}),
+  };
+  const learner = createLearner(db, input.name, initialSettings, input.now);
   seedLearner(db, learner.id, known, method, input.now);
   // re-read so the returned learner carries the settings seedLearner just wrote
   // (placementMethod / frontierCharId / bootstrap).

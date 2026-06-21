@@ -3,6 +3,7 @@ import { makeTestDb } from '../lib/test-utils';
 import { createLlmProvider } from '../lib/llm/index';
 import { generateGradedStory } from '../lib/generation/generate';
 import { GenerationFailed } from '../lib/generation/types';
+import { getStorySeed } from '../lib/seeds/presets';
 import { buildFixtures } from './fixtures';
 import { checkGate, type Aggregate } from './thresholds';
 
@@ -68,6 +69,7 @@ async function main() {
             theme,
             lengthChars: fx.lengthChars,
             bootstrap: fx.bootstrap,
+            storySeed: getStorySeed(fx.seedId),
           });
           records.push({
             fixture: fx.name,

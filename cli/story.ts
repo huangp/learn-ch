@@ -20,8 +20,12 @@ Profile (pick one; defaults to --hsk 3):
 Options:
   --targets <n>         new target chars to introduce (default 3; bootstrap 2)
   --due <n>             review (due) chars to weave in (default 3; bootstrap 0)
-  --theme "<text>"      story theme (e.g. mystery, adventure, history)
---persona <id>        companion persona (xiaolong | xiaoyue | afu)
+  --theme "<text>"      custom story theme (free text; overrides --genre)
+  --genre <id>          genre tone steer (§17.1); ids: adventure | mystery | scifi | fantasy |
+                        history | friendship | sport | slice-of-life
+  --seed <id>           retell a plot skeleton (§17.2); ids: lost-dog | new-school | space-rescue |
+                        mulan | sima-guang | silk-road | journey-west-start | tortoise-hare | gua-fu-sun
+  --persona <id>        companion persona (xiaolong | xiaoyue | afu)
   --length <n>          approx story length in characters
   --max-words <n>       cap on the vocabulary list given to the model
   --min-sentence-coverage <0-1>  per-sentence known-coverage floor (default 0.85; lower = more lenient)
@@ -51,7 +55,9 @@ function buildProfile(values: Record<string, string | boolean | undefined>): Pro
     targets: num(values.targets as string | undefined) ?? (isBootstrap ? 2 : 3),
     due: num(values.due as string | undefined) ?? (isBootstrap ? 0 : 3),
     theme: values.theme as string | undefined,
+    genreId: values.genre as string | undefined,
     personaId: values.persona as string | undefined,
+    seedId: values.seed as string | undefined,
     lengthChars: num(values.length as string | undefined),
     maxWords: num(values['max-words'] as string | undefined),
     minSentenceCoverage: num(values['min-sentence-coverage'] as string | undefined),
@@ -74,6 +80,8 @@ async function main() {
       targets: { type: 'string' },
       due: { type: 'string' },
       theme: { type: 'string' },
+      genre: { type: 'string' },
+      seed: { type: 'string' },
       persona: { type: 'string' },
       length: { type: 'string' },
       'max-words': { type: 'string' },
@@ -108,6 +116,8 @@ async function main() {
 
     section('PROFILE');
     console.log(`method:        ${info.method}${info.bootstrap ? ' (bootstrap)' : ''}`);
+    if (profile.genreId) console.log(`genre:         ${profile.genreId}`);
+    if (profile.seedId) console.log(`seed:          ${profile.seedId}`);
     console.log(`known chars:   ${info.knownCount}`);
     console.log(`target chars:  ${info.targetChars.join('') || '∅'}`);
     console.log(`due chars:     ${info.dueChars.join('') || '∅'}`);

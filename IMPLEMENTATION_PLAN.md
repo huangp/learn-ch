@@ -420,9 +420,10 @@ A generation system without an eval loop drifts blind. `/evals/`:
 | **4** | Annotation layer | deterministic pinyin/gloss/segmentation with heteronym tests passing |
 | **5** | Reader UI + interaction capture | a teen can read a story, reveal chars, answer Qs, pick a branch |
 | **7** | SRS integration | interactions update FSRS; due chars resurface in stories invisibly |
-| **8** | Themes, history-retelling templates (Mulan etc.), reward texts, progress dashboard | content variety + the aspirational unlock loop |
+| **8** | **Content & motivation layer** (§17): `StorySeed` abstraction + 3 seed sources, themes/genres, history/public-domain retellings, reward texts, progress dashboard | ✅ **DONE** (see §17.5). Learner steers theme **and genre presets**; seeds drive retellings via the existing engine; reward texts unlock; progress visible |
+| **9** *(optional)* | **Verbatim prose-adaptation pipeline** (§18): coverage analyzer + chunker + meaning-preserving rewrite loop | public-domain source text can be faithfully rewritten down to the learner's band; copyright boundary enforced |
 
-> Build order note: do **6 before 3** (generation needs the curriculum to pick targets) and **2 before 3** (generation needs the allowlist). 4/5/7 follow once the heart is validated.
+> Build order note: do **6 before 3** (generation needs the curriculum to pick targets) and **2 before 3** (generation needs the allowlist). 4/5/7 follow once the heart is validated. **8** is content/motivation and reuses the engine unchanged. **9 is optional** and only worth building if verbatim source adaptation proves necessary — the import value in §17 is captured by seeds without it.
 
 ---
 
@@ -436,6 +437,8 @@ A generation system without an eval loop drifts blind. `/evals/`:
   /generation        # loop, validateChars, checkCoverage, repair           (Phase 3)
   /annotate          # pinyin-pro + segmentation + gloss                    (Phase 4)
   /srs               # FSRS wrapper, grading from interactions              (Phase 7)
+  /seeds             # StorySeed type + seed sources (authored/history/work) (Phase 8)
+  /adapt             # OPTIONAL: coverage analyzer + rewrite loop            (Phase 9)
   /llm               # LlmProvider interface + Anthropic impl
 /data
   /raw               # gitignored downloads
@@ -454,7 +457,8 @@ LLM emits hanzi-only JSON; pinyin/gloss are added deterministically by pinyin-pr
 Curriculum is a component-aware topological order (a char never precedes its components).
 SRS (FSRS) drives WHICH due chars appear in the next story, not flashcards.
 Always keep the eval harness (/evals) green when touching /lib/generation or /prompts.
-Build order: Phase 0 → 1 → 2 → 6 → 3 (+evals) → 4 → 5 → 7 → 8.
+Build order: Phase 0 → 1 → 2 → 6 → 3 (+evals) → 4 → 5 → 7 → 8.  Phase 9 (verbatim prose adaptation) is OPTIONAL — do not build unless explicitly requested.
+Import = produce a StorySeed (plot skeleton), then REGENERATE constrained text. Never display or redistribute copyrighted source prose; only public-domain works may be used verbatim (as reward texts) or rewritten (Phase 9).
 ```
 
 ---
@@ -524,3 +528,122 @@ This also makes "start from zero" a genuinely good first-run experience rather t
 - Seeding: known chars are `review` (never `mastered`); due dates are spread (no synchronized wall — assert spread over a window, not all equal); frontier points at the first unknown curriculum char.
 - A learner who declares HSK3 gets a first story whose `knownCoverage ≥ 0.95` **without** the story being dominated by forced review chars.
 - Zero-start learner enters bootstrap mode and receives a coherent, readable first story.
+
+---
+
+## 17. Phase 8 — Content & motivation layer
+
+### 17.1 Purpose
+Phases 0–7 produce a working *engine*: an endless stream of correctly-graded, adaptive stories. But "endless stream of competent random stories" is not, by itself, something a 11–15-year-old returns to. Phase 8 adds **range, recognizability, and payoff** on top of the engine — it introduces **no new core capability**, it makes the existing capability *engaging*. You can ship without it and the system will function; you'll just struggle to retain a teen past novelty. Four parts:
+
+1. **Steerable themes / genres.** Let the learner bias generation toward sci-fi, mystery, adventure, history, friendship, sport, etc. Implemented as prompt flavoring + a `theme` already on the `stories` table. Cheap, high engagement payoff (agency).
+2. **Seed-driven retellings** (the heart of Phase 8 and of your import question — §17.2).
+3. **Reward texts.** Real, unmodified native text held up as the aspirational destination (the actual 木兰辞; a 成语 story; a classical couplet) that *unlocks* as the learner's coverage of it crosses a threshold. This is where original native prose legitimately belongs — as the **destination**, never graded or rewritten.
+4. **Progress dashboard.** Make the invisible character-acquisition curve visible: characters mastered, curriculum frontier, what's coming next, reward texts approaching unlock. Drives the "look how far I've come" motivation without resorting to streaks/coins.
+
+### 17.2 The `StorySeed` abstraction (this is what makes "import" work)
+The key design move: the generator should never know or care where a plot came from. Introduce one abstraction the generation engine (§8) consumes:
+
+```ts
+type StorySeed = {
+  id: string
+  title: string
+  setting: string            // one line
+  characters: string[]       // names/roles, plain
+  beats: string[]            // ordered plot points, plain language (any language)
+  themeHints?: string[]
+  source: 'authored' | 'history' | 'work'
+  attribution?: string       // for public-domain works
+}
+```
+
+The engine takes a `StorySeed` + the learner's allowlist/targets/due and **regenerates fresh graded hanzi** that follows the beats. The seed is scaffolding for the *plot*; the displayed text is always newly generated inside the learner's vocabulary. This is the **borrowed-comprehension** lever from the very start of the design: when the reader already half-knows what happens, attention shifts from decoding plot to decoding language.
+
+**"Import" becomes seed production — a separate concern from generation.** Three seed sources, all feeding the same `StorySeed`:
+- **`authored`** — you (or an LLM, offline) hand-write seeds.
+- **`history`** — real historical events/figures. Free to mine (history is nobody's IP). Extract beats from an encyclopedic summary.
+- **`work`** — beats extracted from an existing narrative. For copyright safety this extracts only the **high-level plot skeleton**, never prose. Restrict the *verbatim/derivative* use to public-domain works (四大名著, mythology, folk tales, Aesop, Grimm); for in-copyright works, at most a premise-level seed and never original excerpts as reward text.
+
+### 17.3 Does this cover your import use case?
+- **Real history → yes, fully.** A `history` seed retold by the engine is exactly the Mulan template generalized. No new pipeline.
+- **Public-domain fiction → yes** as `work` seeds (plot skeleton) and additionally as **reward texts** (original passages shown untouched at the end).
+- **In-copyright fiction → premise-only seed; no excerpts.** Use the canon instead — for Chinese the public-domain classical corpus is huge and culturally central, so this is barely a limitation.
+- **What Phase 8 does *not* do:** take the *actual prose* of a book and adapt it down to the learner's level. That is verbatim adaptation, a genuinely different and harder pipeline → Phase 9, optional.
+
+**Rule of thumb: import plots, not prose. Regenerate, don't adapt.** This reuses the engine untouched and sidesteps the hard problem entirely.
+
+### 17.4 Acceptance (Phase 8)
+- A learner can pick a theme and subsequent stories reflect it.
+- A `history` seed and a public-domain `work` seed each produce coherent graded stories via the **existing** generation engine (no new generation machinery).
+- Reward texts unlock when the learner's coverage of the specific text crosses the threshold; locked until then.
+- Progress dashboard reflects real SRS/curriculum state.
+- No copyrighted source prose is stored, displayed, or redistributed; `work` seeds carry attribution and a public-domain flag.
+
+### 17.5 Implementation status (DONE)
+
+All four parts shipped, plus the §11 persona companion. They share **one pattern**: a preset list in
+code → resolve by id → inject a prompt directive → record the id in `stories.meta` → (persona/genre
+also persist the learner's default in `learners.settings`). **No DB migration was needed for any of
+them** — new "steers" ride in existing JSON columns. (See CLAUDE.md "Content & motivation layer
+(Phase 8)" for the precise modules and the dual-prompt threading rule.)
+
+1. **Themes / genres** — `lib/genres/presets.ts` (`GENRES`, `getGenre`). Genre chips + free-text in
+   `GenerateStoryForm`; a default on `learners.settings.genreId` chosen at onboarding, overridable
+   per story. Precedence (`lib/story/generate.ts`): explicit per-story genre > a custom free-text
+   theme (**suppresses** the saved default) > saved default. Genres steer tone only (no allowlist
+   effect). Satisfies §17.4's "subsequent stories reflect it".
+2. **Seed-driven retellings** — `lib/seeds/` (`StorySeed`, `STORY_SEEDS`, `getStorySeed`,
+   `seedsBySource`); 3 sources (`authored`/`history`/`work`), one story per seed, picked via
+   `components/SeedLibrary.tsx` / `generateFromSeedAction` / CLI `--seed`. `allowNames` force-added
+   to the allowed set like a persona name. Every `work` seed carries `publicDomain` + `attribution`
+   (unit-tested copyright gate).
+3. **Reward texts** — `lib/progress/reward-texts.ts`; unlock at `REWARD_UNLOCK_THRESHOLD = 0.95`.
+4. **Progress dashboard** — `lib/progress/index.ts` + `app/learners/[id]/progress/page.tsx`.
+
+**Verification:** `pnpm typecheck`, `pnpm test`, `pnpm build` all green; `pnpm story --genre <id>` /
+`--seed <id>` / `--persona <id>` compose end-to-end.
+
+**Deferred (TODO):**
+- **Learner settings page** — no post-onboarding UI to edit the saved **default persona / genre** (or
+  display name). `updateLearner(db, id, { settings })` already merge-patches settings, so this is a
+  UI + server-action task (e.g. `app/learners/[id]/settings`) with **no schema work**.
+- **Re-running placement (§16.1)** — *separate, heavier feature* from the settings page: let an
+  existing learner re-run placement (HSK / paste / toggle-grid / zero) to correct or expand their
+  known set. Unlike the persona/genre overwrite, this re-derives the known set and **merges into
+  `learner_chars`** — the lib path exists and is **non-downgrading** by design (`seedLearner` +
+  `onConflictDoNothing`), so reading-promoted chars are preserved. Reuse the `lib/placement` resolvers
+  and onboarding pickers; gate behind a confirmation since it touches real learning state.
+- Branch `choices[].seed` (§8.5) remains a stub — distinct from `StorySeed`.
+- §12 empirical coverage-band regression (needs accumulated reading data).
+
+---
+
+## 18. Phase 9 *(OPTIONAL)* — Verbatim prose adaptation
+
+> Build only if §17 seed-based retelling proves insufficient and there's a real need to adapt **actual source text** (not just plots) down to the learner's level. Most of the import value is already captured in Phase 8 without this.
+
+### 18.1 Why it's a separate, harder pipeline
+Phase 8 *generates* fresh text from a plot, so it can freely simplify to satisfy the vocabulary constraint. Phase 9 must *preserve* a specific source's content and wording while forcing it into the learner's band — and native source text typically sits at ~40–60% known coverage for your learner, far below the 90–95% target. Binding to the source makes the constraint **harder**, not easier: you can't drop a hard plot point to dodge a hard word. It's a constrained-**rewrite** loop, not a constrained-**generation** loop.
+
+### 18.2 Pipeline
+```
+ingest(sourceText)                          # PUBLIC-DOMAIN ONLY — license gate first
+  → coverageAnalyze(text, learner)          # measure known%, locate the hard spans
+  → chunk(text)                             # sentence/paragraph units preserving order
+  → for each chunk:
+       rewriteToBand(chunk, allowlist,      # meaning-preserving simplification,
+                     targets, due)          #   seeded with the source chunk
+       → validate (§8.2) → repair           # same char-level validation as generation
+  → stitch + annotate (§9)
+```
+- Reuses `validateChars`, `checkCoverage`, the repair loop, and the annotation layer unchanged. The *only* new component is `rewriteToBand` (a different prompt: "faithfully simplify THIS passage to the allowed vocabulary, preserve meaning and key names").
+- Faithfulness check: a second pass (or eval-judge) confirms the rewrite didn't drop or distort key plot content.
+
+### 18.3 Hard copyright gate (non-negotiable)
+- **Input must be public domain.** A license check gates ingestion; in-copyright text is rejected at the door. A close adaptation of a copyrighted work is a derivative — out of scope regardless of educational framing.
+- The original public-domain passage may also be offered as a reward text (§17.1.3).
+
+### 18.4 Acceptance (Phase 9)
+- License gate rejects non-public-domain input.
+- A public-domain passage is rewritten to within the learner's coverage band, passes char validation, and a faithfulness judge confirms preserved meaning.
+- Output flows through the standard annotation + reader path with no special-casing downstream.

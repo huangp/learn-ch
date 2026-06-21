@@ -61,6 +61,64 @@ describe('generateAndPersistStory', () => {
     expect(getStory(t.db, rec.id)).not.toBeNull();
   });
 
+  test('per-story genre: directive reaches the prompt, genreId persists in meta (§17.1)', async () => {
+    const learnerId = createLearner(t.db, 'gen-genre', {}, NOW).id;
+    seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW);
+    const { json } = buildPassingJson(learnerId);
+
+    const llm = new MockLlmProvider([json]);
+    const rec = await generateAndPersistStory(t.db, llm, learnerId, { genreId: 'mystery', targets: 1, due: 0, now: NOW });
+
+    expect(llm.calls[0].messages.at(-1)!.content).toContain('GENRE:');
+    expect(rec.meta?.genreId).toBe('mystery');
+    expect(getStory(t.db, rec.id)?.meta?.genreId).toBe('mystery');
+    // a meaningful theme is persisted from the genre label
+    expect(rec.theme).toBe('mystery');
+  });
+
+  test('saved default genre applies when no per-story theme/genre is given (§17.1)', async () => {
+    const learnerId = createLearner(t.db, 'gen-default-genre', { genreId: 'mystery' }, NOW).id;
+    seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW); // merges, preserving genreId
+    const { json } = buildPassingJson(learnerId);
+
+    const llm = new MockLlmProvider([json]);
+    const rec = await generateAndPersistStory(t.db, llm, learnerId, { targets: 1, due: 0, now: NOW });
+
+    expect(llm.calls[0].messages.at(-1)!.content).toContain('GENRE:');
+    expect(rec.meta?.genreId).toBe('mystery');
+  });
+
+  test('a custom free-text theme suppresses the saved default genre (§17.1)', async () => {
+    const learnerId = createLearner(t.db, 'gen-custom-theme', { genreId: 'mystery' }, NOW).id;
+    seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW);
+    const { json } = buildPassingJson(learnerId);
+
+    const llm = new MockLlmProvider([json]);
+    const rec = await generateAndPersistStory(t.db, llm, learnerId, { theme: '一只猫的故事', targets: 1, due: 0, now: NOW });
+
+    const prompt = llm.calls[0].messages.at(-1)!.content;
+    expect(prompt).toContain('THEME: 一只猫的故事');
+    expect(prompt).not.toContain('GENRE:');
+    expect(rec.meta?.genreId).toBeUndefined();
+  });
+
+  test('retells a story seed: beats reach the prompt, seedId persists in meta (§17.2)', async () => {
+    const learnerId = createLearner(t.db, 'gen-seed', {}, NOW).id;
+    seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW);
+    const { json } = buildPassingJson(learnerId);
+
+    const llm = new MockLlmProvider([json]);
+    const rec = await generateAndPersistStory(t.db, llm, learnerId, { seedId: 'mulan', targets: 1, due: 0, now: NOW });
+
+    // beats from the resolved preset reached the generation prompt
+    const userPrompt = llm.calls[0].messages.at(-1)!.content;
+    expect(userPrompt).toContain('STORY TO RETELL');
+    expect(userPrompt).toContain('木兰');
+    // seedId round-trips through persistence (no schema migration — rides in meta JSON)
+    expect(rec.meta?.seedId).toBe('mulan');
+    expect(getStory(t.db, rec.id)?.meta?.seedId).toBe('mulan');
+  });
+
   test('records parentStoryId for a branch continuation', async () => {
     const learnerId = createLearner(t.db, 'gen-branch', {}, NOW).id;
     seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW);

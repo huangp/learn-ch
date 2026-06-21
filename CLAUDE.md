@@ -191,7 +191,8 @@ by `parseGraphics`/`build.ts`); `lib/char/strokes.ts` `getStrokeData` → `getSt
 hanzi-writer via `charDataLoader`. (Toggle-grid placement, progress view + reward-text unlock, and
 the "characters you can now read" counter also shipped since this list was written.)
 
-Remaining §11 deferral (not started): narrator/companion persona.
+§11 narrator/companion persona — **done** (see "Content & motivation layer (Phase 8)" below: presets
+in `lib/persona/presets.ts`, chosen at onboarding, threaded into generation). No §11 items remain.
 
 ## SRS integration (Phase 7 — done)
 
@@ -232,6 +233,62 @@ only), else legacy `pass` (back-compat). New `'unseen'` `CharSignal`; incidental
 `rescheduled` set so skipped focus chars still get their exposure bump.
 
 Still deferred: the empirical coverage-band regression (needs accumulated reading data).
+
+## Content & motivation layer (Phase 8 — done)
+
+§17 adds range/recognizability/payoff on top of the engine — **no new core generation capability**.
+Four parts, all shipped: steerable themes/**genres**, **`StorySeed`** retellings, **reward texts**,
+and a **progress dashboard**. The persona companion (§11) shares the same shape.
+
+**One pattern, four features** — `persona`, `genre`, and `storySeed` are all *presets-in-code →
+resolve by id → inject a prompt directive → record the id in `stories.meta` → (persona/genre also
+store the learner's default in `learners.settings`)*. **None of them needed a DB migration.** When
+adding another such steer, copy this pattern; do **not** add a column.
+
+- **Persona** (§11) — `lib/persona/presets.ts` (`PERSONAS`, `getPersona`). Chosen at onboarding
+  (`learners.settings.personaId`), recurs in the prose; its **name is force-added to the allowed
+  set** in `generate.ts` so it always validates (proper noun, not an SRS target). `meta.personaId`.
+- **Genre** (§17.1) — `lib/genres/presets.ts` (`GENRES`, `getGenre`). Tone steer only (does **not**
+  touch the allowlist). Default on `learners.settings.genreId`, overridable per story. Precedence in
+  `lib/story/generate.ts`: explicit per-story genre > a custom free-text `theme` (**suppresses** the
+  saved default) > saved default. Prompt: a `GENRE:` directive + the THEME line
+  (`theme ?? genre.label ?? storySeed.themeHints ?? default`). `meta.genreId`.
+- **StorySeed** (§17.2) — `lib/seeds/types.ts` + `lib/seeds/presets.ts` (`STORY_SEEDS`,
+  `getStorySeed`, `seedsBySource`). A plot skeleton (beats) the engine **retells** in the learner's
+  vocabulary ("import plots, not prose"). Three sources: `authored` / `history` / `work`. Every
+  `work` seed **must** carry `publicDomain: true` + `attribution` (copyright gate, unit-tested).
+  `allowNames` (e.g. 木兰) are force-added to the allowed set like a persona name. One story per seed
+  (all beats woven in). Prompt: a "STORY TO RETELL" block. `meta.seedId`.
+- **Reward texts** (§17.1) — `lib/progress/reward-texts.ts` (constants, no table); unlock at
+  `REWARD_UNLOCK_THRESHOLD = 0.95` coverage of the specific text. Shown in the progress view.
+- **Progress dashboard** (§11/§17.1) — `lib/progress/index.ts` (`getLearnerProgress`) +
+  `app/learners/[id]/progress/page.tsx`: "characters you can now read", frontier, upcoming, stories
+  read, reward-text unlock. Pure DB read.
+
+UI: `components/GenerateStoryForm.tsx` (genre chips + free-text), `components/SeedLibrary.tsx`
+(grouped seed picker), `components/OnboardForm.tsx` (persona + favorite-genre pickers). Server
+actions: `generateStoryAction(learnerId, theme?, genreId?)`, `generateFromSeedAction`. CLI:
+`pnpm story` flags `--persona`, `--genre`, `--seed` (compose). Evals: `hsk3-seed-mulan` fixture.
+
+**Threading rule:** a new generation steer must reach **both** `buildUserPrompt` calls in
+`generate.ts` (the main loop **and** the reduced-ambition fallback) and be added to `buildMeta`.
+
+**Deferred (TODO):**
+- **Settings page** — no post-onboarding UI to edit a learner's saved **default persona / genre**
+  (or display name). Both are set once at onboarding and stored in `learners.settings`;
+  `updateLearner(db, id, { settings })` (`lib/learner/crud.ts`) already merge-patches settings, so
+  this is a UI + server-action task (e.g. `app/learners/[id]/settings`), no schema work.
+- **Re-running placement** (§16.1, a *separate* feature from the settings page) — no UI to let an
+  existing learner re-run placement (declare HSK / paste / toggle-grid / zero) to correct or expand
+  their known-character set. Unlike persona/genre (a pure settings overwrite), this re-derives the
+  **known set** and **merges into `learner_chars`**: the lib path already exists and is
+  **non-downgrading** (`seedLearner`'s `onConflictDoNothing`, `lib/learner/seed.ts`) so chars
+  promoted/demoted by reading evidence survive. Reuse the four `lib/placement/index.ts` resolvers +
+  the onboarding pickers (incl. the paste confirmation-count UX). Heavier/riskier than persona/genre
+  edits because it touches real learning state — gate behind a confirmation.
+- Branch `choices[].seed` (§8.5) is still a stub (see Phase 5); separate from `StorySeed`.
+- §12 empirical coverage-band regression (needs accumulated reading data).
+- Phase 9 (verbatim prose adaptation) is **OPTIONAL** — not started.
 
 ## App + tooling (read before touching imports or the build)
 

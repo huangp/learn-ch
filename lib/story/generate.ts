@@ -4,6 +4,8 @@ import { characters } from '../../db/schema';
 import type { LlmProvider } from '../llm/index';
 import { getLearner } from '../learner/crud';
 import { getPersona } from '../persona/presets';
+import { getGenre } from '../genres/presets';
+import { getStorySeed } from '../seeds/presets';
 import { selectDueChars, selectNewChars } from '../grading/select';
 import { gradeUngradedStories } from '../srs/grade';
 import { generateGradedStory } from '../generation/generate';
@@ -31,6 +33,10 @@ export interface GenerateStoryOptions {
   seed?: string;
   /** Override the learner's saved companion (§11); defaults to learner.settings.personaId. */
   personaId?: string;
+  /** Per-story genre (§17.1); falls back to learner.settings.genreId unless a custom `theme` is set. */
+  genreId?: string;
+  /** Retell a plot skeleton (§17.2) — resolved via getStorySeed and woven into generation. */
+  seedId?: string;
   model?: string;
   now?: number;
 }
@@ -63,6 +69,10 @@ export async function generateAndPersistStory(
   const targetCharIds = selectNewChars(db, learnerId, targets);
   const dueCharIds = selectDueChars(db, learnerId, due);
   const persona = getPersona(opts.personaId ?? (learner.settings.personaId as string | undefined));
+  const storySeed = getStorySeed(opts.seedId);
+  // Genre precedence (§17.1): explicit per-story genre wins; a custom free-text theme suppresses the
+  // saved default; otherwise fall back to the learner's saved default genre.
+  const genre = getGenre(opts.genreId ?? (opts.theme ? undefined : (learner.settings.genreId as string | undefined)));
 
   const { story, meta } = await generateGradedStory(db, llm, learnerId, {
     targetCharIds,
@@ -74,6 +84,8 @@ export async function generateAndPersistStory(
     priorStory: opts.priorStory,
     seed: opts.seed,
     persona,
+    genre,
+    storySeed,
     model: opts.model,
   });
 
@@ -86,7 +98,7 @@ export async function generateAndPersistStory(
     meta,
     segments,
     dueChars: resolveChars(db, dueCharIds),
-    theme: opts.theme,
+    theme: opts.theme ?? genre?.label,
     parentStoryId: opts.parentStoryId,
     now: opts.now,
   });

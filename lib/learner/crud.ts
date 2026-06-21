@@ -12,6 +12,8 @@ export interface LearnerSettings {
   bootstrap?: boolean;
   /** Chosen companion persona (§11) — see lib/persona/presets.ts. */
   personaId?: string;
+  /** Default story genre (§17.1) — see lib/genres/presets.ts; overridable per story. */
+  genreId?: string;
   [key: string]: unknown;
 }
 

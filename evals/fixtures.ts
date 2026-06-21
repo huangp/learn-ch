@@ -19,6 +19,8 @@ export interface EvalFixture {
   bootstrap: boolean;
   lengthChars: number;
   themes: string[];
+  /** Story seed id (§17.2) to retell, if this fixture exercises a seed. */
+  seedId?: string;
 }
 
 /** First `n` curriculum chars (for the bootstrap profile's "already introduced" set). */
@@ -34,6 +36,8 @@ export interface FixtureSpec {
   maxDue: number;
   lengthChars: number;
   themes: string[];
+  /** Story seed id (§17.2) to retell, if this spec exercises a seed. */
+  seedId?: string;
 }
 
 export const FIXTURE_SPECS: FixtureSpec[] = [
@@ -42,6 +46,8 @@ export const FIXTURE_SPECS: FixtureSpec[] = [
   { name: 'hsk3', hsk: 3, targets: 3, maxDue: 3, lengthChars: 100, themes: ['history (Mulan retold)'] },
   { name: 'hsk4-mid', hsk: 4, targets: 3, maxDue: 4, lengthChars: 120, themes: ['sci-fi'] },
   { name: 'bootstrap', bootstrapKnown: 30, targets: 2, maxDue: 0, lengthChars: 50, themes: ['friendship'] },
+  // Seed-driven (§17.2): retell a history plot skeleton through the existing engine.
+  { name: 'hsk3-seed-mulan', hsk: 3, targets: 3, maxDue: 3, lengthChars: 100, themes: [''], seedId: 'mulan' },
 ];
 
 /** Materialize every spec into a runnable fixture (creates learners in `db`). */
@@ -68,6 +74,7 @@ export function buildFixtures(db: Db): EvalFixture[] {
       bootstrap: spec.bootstrapKnown != null,
       lengthChars: spec.lengthChars,
       themes: spec.themes,
+      seedId: spec.seedId,
     };
   });
 }

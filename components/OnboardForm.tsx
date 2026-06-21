@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from 'react';
 import { onboardLearnerAction } from '@/app/actions';
 import type { FreqRankedChar } from '@/lib/placement/index';
 import { PERSONAS, DEFAULT_PERSONA_ID } from '@/lib/persona/presets';
+import { GENRES } from '@/lib/genres/presets';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +22,7 @@ export function OnboardForm({ gridChars }: { gridChars: FreqRankedChar[] }) {
   const [hsk, setHsk] = useState('3');
   const [paste, setPaste] = useState('');
   const [personaId, setPersonaId] = useState(DEFAULT_PERSONA_ID);
+  const [genreId, setGenreId] = useState(''); // '' = surprise me (no saved default)
   const [pending, startTransition] = useTransition();
 
   // Toggle-grid state (§16.1 path 3): a bulk "know down to here" cutoff plus fine per-char
@@ -55,6 +57,7 @@ export function OnboardForm({ gridChars }: { gridChars: FreqRankedChar[] }) {
       fd.set('hsk', hsk);
       fd.set('paste', paste);
       fd.set('personaId', personaId);
+      fd.set('genreId', genreId);
 
       if (method === 'grid') {
         // Derive the exact ToggleGridInput shape: cutoff ∪ known − unknown.
@@ -104,6 +107,36 @@ export function OnboardForm({ gridChars }: { gridChars: FreqRankedChar[] }) {
             </label>
           ))}
         </RadioGroup>
+      </div>
+
+      <div className="grid gap-2">
+        <Label>Favorite genre</Label>
+        <p className="text-sm text-muted-foreground">We’ll lean toward this — you can change it for any story.</p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setGenreId('')}
+            aria-pressed={genreId === ''}
+            className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+              genreId === '' ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted'
+            }`}
+          >
+            🎲 surprise me
+          </button>
+          {GENRES.map((g) => (
+            <button
+              key={g.id}
+              type="button"
+              onClick={() => setGenreId(g.id)}
+              aria-pressed={genreId === g.id}
+              className={`rounded-full border px-3 py-1 text-sm transition-colors ${
+                genreId === g.id ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-muted'
+              }`}
+            >
+              <span aria-hidden>{g.emoji}</span> {g.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid gap-2">

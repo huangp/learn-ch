@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import type { LlmUsage } from '../llm/provider';
 import type { Persona } from '../persona/presets';
+import type { Genre } from '../genres/presets';
+import type { StorySeed } from '../seeds/types';
 
 // The §8.5 output contract the LLM must emit: hanzi-only prose + questions + choices,
 // NO pinyin (pinyin/gloss are added deterministically in Phase 4). Zod both validates
@@ -57,6 +59,10 @@ export interface GenerationConfig {
   seed?: string;
   /** Recurring companion (§11): woven into the prose + its name forced into the allowed set. */
   persona?: Persona;
+  /** Story genre/tone steer (§17.1): a directive woven into the prompt; sets the THEME line. */
+  genre?: Genre;
+  /** Plot skeleton to retell (§17.2): beats woven into the prose + any allowNames forced into the allowed set. */
+  storySeed?: StorySeed;
   model?: string;
   /** Per-attempt diagnostics hook (logging/debugging). Called once per LLM turn. */
   onAttempt?: (info: AttemptDiagnostics) => void;
@@ -76,6 +82,10 @@ export interface GenerationMeta {
   branchSeed?: string;
   /** Companion persona this story featured (§11), when one was active. */
   personaId?: string;
+  /** Genre this story was steered toward (§17.1), when one was active — resolves back via getGenre. */
+  genreId?: string;
+  /** Story seed this story retold (§17.2), when generated from one — resolves back via getStorySeed. */
+  seedId?: string;
 }
 
 export interface GenerationResult {
