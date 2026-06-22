@@ -61,15 +61,80 @@ export const words = sqliteTable(
   (t) => [index('words_freq').on(t.freqRank), index('words_hsk').on(t.hskLevel)],
 );
 
+// ---- Auth: adult owner accounts (Auth.js) ----
+
+// users: adult owners only (children are learner rows, not users). Shape matches the
+// Auth.js Drizzle adapter (id/name/email/emailVerified/image) + our role/createdAt.
+export const users = sqliteTable('users', {
+  id: text('id').primaryKey(), // Auth.js supplies a uuid
+  name: text('name'),
+  email: text('email').notNull().unique(),
+  emailVerified: integer('email_verified', { mode: 'timestamp_ms' }),
+  image: text('image'),
+  role: text('role').notNull().default('adult'), // reserved for future ('admin')
+  createdAt: integer('created_at').notNull().default(0), // epoch ms
+});
+
+// accounts: OAuth provider linkage (Auth.js adapter standard schema).
+export const accounts = sqliteTable(
+  'accounts',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(),
+    provider: text('provider').notNull(),
+    providerAccountId: text('provider_account_id').notNull(),
+    refresh_token: text('refresh_token'),
+    access_token: text('access_token'),
+    expires_at: integer('expires_at'),
+    token_type: text('token_type'),
+    scope: text('scope'),
+    id_token: text('id_token'),
+    session_state: text('session_state'),
+  },
+  (t) => [primaryKey({ columns: [t.provider, t.providerAccountId] })],
+);
+
+// sessions / verificationTokens: required by the Auth.js Drizzle adapter shape. Unused at
+// runtime under the JWT session strategy, but kept so the adapter is complete and a future
+// email magic-link provider works without a migration.
+export const sessions = sqliteTable('sessions', {
+  sessionToken: text('session_token').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  expires: integer('expires', { mode: 'timestamp_ms' }).notNull(),
+});
+
+export const verificationTokens = sqliteTable(
+  'verification_tokens',
+  {
+    identifier: text('identifier').notNull(),
+    token: text('token').notNull(),
+    expires: integer('expires', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.identifier, t.token] })],
+);
+
 // ---- Phase 1: learner tables ----
 
-// learners: one row per onboarded reader
-export const learners = sqliteTable('learners', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  displayName: text('display_name').notNull(),
-  createdAt: integer('created_at').notNull(), // epoch ms
-  settings: text('settings'), // JSON: { placementMethod, frontierCharId, bootstrap, ... }
-});
+// learners: one row per onboarded reader (a child profile owned by an adult user)
+export const learners = sqliteTable(
+  'learners',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    // owner adult; nullable for legacy/dev rows, set on onboarding.
+    ownerId: text('owner_id').references(() => users.id, { onDelete: 'cascade' }),
+    displayName: text('display_name').notNull(),
+    // child direct-login credentials (set by the owner; both null = no direct login).
+    username: text('username').unique(),
+    pinHash: text('pin_hash'),
+    createdAt: integer('created_at').notNull(), // epoch ms
+    settings: text('settings'), // JSON: { placementMethod, frontierCharId, bootstrap, ... }
+  },
+  (t) => [index('learners_owner').on(t.ownerId)],
+);
 
 // learner_chars: per-learner SRS + mastery state (one row per known/seen char)
 export const learnerChars = sqliteTable(

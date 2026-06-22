@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 export const ROOT = resolve(here, '../..');
 export const RAW = resolve(ROOT, 'data/raw');
-export const DB_PATH = resolve(ROOT, 'data/hanzi.db');
+// Prod (container) overrides this to point at the mounted persistent volume, e.g. /data/hanzi.db.
+export const DB_PATH = process.env.DB_PATH ?? resolve(ROOT, 'data/hanzi.db');
 export const MIGRATIONS = resolve(ROOT, 'db/migrations');
 export const MANIFEST = resolve(RAW, 'manifest.json');
 

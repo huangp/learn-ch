@@ -29,6 +29,20 @@
       "when": 1781956655111,
       "tag": "0003_lumpy_blackheart",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1782011594898,
+      "tag": "0004_brief_revanche",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1782011728290,
+      "tag": "0005_secret_black_queen",
+      "breakpoints": true
     }
   ]
 }

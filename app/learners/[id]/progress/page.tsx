@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { getLearner } from '@/lib/learner/crud';
+import { canAccessLearner } from '@/lib/auth/access';
+import { getSessionContext } from '@/lib/auth/session';
 import { getLearnerProgress } from '@/lib/progress/index';
 import { ProgressBar } from '@/components/ProgressBar';
 import { Button } from '@/components/ui/button';
@@ -12,6 +14,8 @@ export const dynamic = 'force-dynamic';
 export default async function ProgressPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const learnerId = Number(id);
+  const ctx = await getSessionContext();
+  if (!ctx || !canAccessLearner(db, ctx, learnerId)) notFound();
   const learner = getLearner(db, learnerId);
   if (!learner) notFound();
 

@@ -19,13 +19,32 @@ export interface LearnerSettings {
 
 export interface Learner {
   id: number;
+  ownerId: string | null; // adult owner (users.id); null for legacy/dev rows
   displayName: string;
+  username: string | null; // child direct-login handle (null = no direct login)
   createdAt: number;
   settings: LearnerSettings;
 }
 
-function parse(row: { id: number; displayName: string; createdAt: number; settings: string | null }): Learner {
-  return { ...row, settings: row.settings ? JSON.parse(row.settings) : {} };
+interface LearnerRow {
+  id: number;
+  ownerId: string | null;
+  displayName: string;
+  username: string | null;
+  createdAt: number;
+  settings: string | null;
+}
+
+// Explicit field copy — never spread the raw row, so `pinHash` can't leak out of the lib.
+function parse(row: LearnerRow): Learner {
+  return {
+    id: row.id,
+    ownerId: row.ownerId,
+    displayName: row.displayName,
+    username: row.username,
+    createdAt: row.createdAt,
+    settings: row.settings ? JSON.parse(row.settings) : {},
+  };
 }
 
 export function createLearner(
@@ -33,10 +52,11 @@ export function createLearner(
   displayName: string,
   settings: LearnerSettings = {},
   now: number = Date.now(),
+  ownerId: string | null = null,
 ): Learner {
   const row = db
     .insert(learners)
-    .values({ displayName, createdAt: now, settings: JSON.stringify(settings) })
+    .values({ ownerId, displayName, createdAt: now, settings: JSON.stringify(settings) })
     .returning()
     .get();
   return parse(row);
@@ -49,6 +69,11 @@ export function getLearner(db: Db, id: number): Learner | null {
 
 export function listLearners(db: Db): Learner[] {
   return db.select().from(learners).all().map(parse);
+}
+
+/** Learners owned by one adult (the dashboard list). */
+export function listLearnersByOwner(db: Db, ownerId: string): Learner[] {
+  return db.select().from(learners).where(eq(learners.ownerId, ownerId)).all().map(parse);
 }
 
 /** Update display name and/or merge settings (existing keys preserved unless overridden). */

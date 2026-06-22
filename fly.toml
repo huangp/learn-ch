@@ -1,0 +1,27 @@
+# Fly.io config. SINGLE instance only — SQLite is a single-writer file on the volume below.
+# Do not `fly scale count >1`. Secrets (set via `fly secrets set`): ANTHROPIC_API_KEY,
+# AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, NEXTAUTH_URL/AUTH_URL.
+
+app = "hanzi-graded-reader"
+primary_region = "sjc"
+
+[build]
+
+[env]
+  DB_PATH = "/data/hanzi.db"
+  PORT = "3000"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1   # keep one warm so the SQLite writer stays available
+
+[mounts]
+  source = "hanzi_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

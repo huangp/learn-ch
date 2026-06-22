@@ -5,15 +5,19 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { createLlmProvider } from '@/lib/llm/index';
 import { onboardLearner, type OnboardMethod } from '@/lib/learner/onboard';
+import { setChildCredentials, CredentialError } from '@/lib/learner/credentials';
 import { generateAndPersistStory } from '@/lib/story/generate';
 import { getStory } from '@/lib/story/persist';
 import { recordDwell, recordInteraction, type InteractionType } from '@/lib/interactions/record';
 import { gradeStory } from '@/lib/srs/grade';
 import { getCharDetail, type CharDetail } from '@/lib/char/detail';
 import { getStrokeData, type StrokeData } from '@/lib/char/strokes';
+import { assertLearnerAccess, assertStoryAccess } from '@/lib/auth/access';
+import { requireAdult, requireSession } from '@/lib/auth/session';
 
 // Phase 5 server actions — thin wrappers over the lib service layer. All DB/LLM access
 // is server-side only (better-sqlite3 + the Anthropic key never reach the client).
+// Every learner-scoped action authorizes the session BEFORE any DB/LLM work (plan Part B4).
 
 function parseJsonStringArray(raw: FormDataEntryValue | null): string[] | undefined {
   if (typeof raw !== 'string' || raw === '') return undefined;
@@ -26,6 +30,7 @@ function parseJsonStringArray(raw: FormDataEntryValue | null): string[] | undefi
 }
 
 export async function onboardLearnerAction(formData: FormData): Promise<void> {
+  const ctx = await requireAdult();
   const name = String(formData.get('name') ?? '').trim() || 'Reader';
   const method = String(formData.get('method') ?? 'hsk') as OnboardMethod;
   const hsk = Number(formData.get('hsk') ?? 3);
@@ -38,12 +43,13 @@ export async function onboardLearnerAction(formData: FormData): Promise<void> {
   const personaId = String(formData.get('personaId') ?? '') || undefined;
   const genreId = String(formData.get('genreId') ?? '') || undefined;
 
-  const learner = onboardLearner(db, { name, method, hsk, paste, cutoffFreqRank, gridKnown, gridUnknown, personaId, genreId });
+  const learner = onboardLearner(db, { name, method, hsk, paste, cutoffFreqRank, gridKnown, gridUnknown, personaId, genreId, ownerId: ctx.userId });
   revalidatePath('/');
   redirect(`/learners/${learner.id}`);
 }
 
 export async function generateStoryAction(learnerId: number, theme?: string, genreId?: string): Promise<void> {
+  assertLearnerAccess(db, await requireSession(), learnerId);
   const llm = createLlmProvider();
   const story = await generateAndPersistStory(db, llm, learnerId, {
     theme: theme?.trim() || undefined,
@@ -54,6 +60,7 @@ export async function generateStoryAction(learnerId: number, theme?: string, gen
 }
 
 export async function generateFromSeedAction(learnerId: number, seedId: string): Promise<void> {
+  assertLearnerAccess(db, await requireSession(), learnerId);
   const llm = createLlmProvider();
   const story = await generateAndPersistStory(db, llm, learnerId, { seedId });
   revalidatePath(`/learners/${learnerId}`);
@@ -61,6 +68,7 @@ export async function generateFromSeedAction(learnerId: number, seedId: string):
 }
 
 export async function chooseBranchAction(storyId: number, seed: string, label: string): Promise<void> {
+  assertStoryAccess(db, await requireSession(), storyId);
   const parent = getStory(db, storyId);
   if (!parent) throw new Error(`story ${storyId} not found`);
   const llm = createLlmProvider();
@@ -81,6 +89,9 @@ export async function recordInteractionAction(input: {
   type: InteractionType;
   value?: number;
 }): Promise<void> {
+  const ctx = await requireSession();
+  assertLearnerAccess(db, ctx, input.learnerId);
+  assertStoryAccess(db, ctx, input.storyId);
   recordInteraction(db, input);
 }
 
@@ -90,12 +101,36 @@ export async function recordDwellAction(input: {
   chars: string[];
   valueMs: number;
 }): Promise<void> {
+  const ctx = await requireSession();
+  assertLearnerAccess(db, ctx, input.learnerId);
+  assertStoryAccess(db, ctx, input.storyId);
   recordDwell(db, input);
 }
 
 export async function gradeStoryAction(learnerId: number, storyId: number): Promise<void> {
+  const ctx = await requireSession();
+  assertLearnerAccess(db, ctx, learnerId);
+  assertStoryAccess(db, ctx, storyId);
   gradeStory(db, learnerId, storyId);
   revalidatePath(`/learners/${learnerId}`);
+}
+
+/** Adult sets/resets a child's direct-login username + PIN. Returns an error string or null. */
+export async function setChildCredentialsAction(
+  learnerId: number,
+  username: string,
+  pin: string,
+): Promise<string | null> {
+  const ctx = await requireAdult();
+  assertLearnerAccess(db, ctx, learnerId);
+  try {
+    setChildCredentials(db, learnerId, username, pin);
+  } catch (e) {
+    if (e instanceof CredentialError) return e.message;
+    throw e;
+  }
+  revalidatePath('/');
+  return null;
 }
 
 export async function getCharDetailAction(char: string): Promise<CharDetail | null> {

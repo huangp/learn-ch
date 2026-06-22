@@ -29,6 +29,8 @@ export interface OnboardInput {
   personaId?: string;
   /** default story genre (§17.1) — stored in settings, applied when no per-story pick. */
   genreId?: string;
+  /** adult owner (users.id) this child profile belongs to. */
+  ownerId?: string | null;
   now?: number;
 }
 
@@ -60,7 +62,7 @@ export function onboardLearner(db: Db, input: OnboardInput): Learner {
     ...(input.personaId ? { personaId: input.personaId } : {}),
     ...(input.genreId ? { genreId: input.genreId } : {}),
   };
-  const learner = createLearner(db, input.name, initialSettings, input.now);
+  const learner = createLearner(db, input.name, initialSettings, input.now, input.ownerId ?? null);
   seedLearner(db, learner.id, known, method, input.now);
   // re-read so the returned learner carries the settings seedLearner just wrote
   // (placementMethod / frontierCharId / bootstrap).

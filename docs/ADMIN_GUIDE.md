@@ -219,6 +219,58 @@ Use `pnpm eval` to confirm no regression once the CLI output looks good.
 
 ---
 
+## 9. Authentication & accounts
+
+Sign-in is handled by **Auth.js v5 (NextAuth)** with a JWT session. Two roles:
+
+- **Adults (parents/teachers)** sign in with **Google** and are stored in the `users` table.
+  An adult owns the child profiles they create (`learners.ownerId`) and may view their
+  children's stories/progress.
+- **Children (readers)** sign in with a **username + PIN** the adult sets from the dashboard
+  (`learners.username` + bcrypt `pinHash`). No email per child. A child sees only their own
+  profile.
+
+**Isolation is enforced in one place:** `lib/auth/access.ts` (pure, unit-tested in
+`access.test.ts`) provides `canAccessLearner`/`assertLearnerAccess`/`assertStoryAccess`, and
+every server action (`app/actions.ts`) and learner page calls it before any DB work, so changing
+the id in a URL returns *not found*. `lib/auth/session.ts` maps the Auth.js session to a
+`SessionContext`. Auth config is split for the Edge runtime: `auth.config.ts` (edge-safe, used by the
+`proxy.ts` proxy/middleware) and `auth.ts` (full, with the Drizzle adapter + child Credentials
+provider).
+
+**Google OAuth setup:** create an OAuth client in Google Cloud Console (Authorized redirect URI
+`https://<your-domain>/api/auth/callback/google`) and set `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`.
+
+**Required env vars (prod):**
+- `ANTHROPIC_API_KEY` — story generation.
+- `AUTH_SECRET` — JWT signing (generate with `npx auth secret`).
+- `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` — adult Google sign-in.
+- `AUTH_URL` — the public origin, e.g. `https://hanzi.example.com`.
+- `DB_PATH` — absolute path to the SQLite file on the persistent volume (e.g. `/data/hanzi.db`).
+
+## 10. Hosting & deployment
+
+The app runs as a **single long-running container** with the SQLite DB on a **persistent
+volume**. (It is *not* deployable to Vercel as-is: serverless has an ephemeral filesystem;
+`better-sqlite3` needs a persistent disk and one writer.) See `Dockerfile` + `fly.toml`.
+
+- **Single instance only.** SQLite is a single-writer file — do **not** scale to >1 machine.
+- **Seed the volume once** (the reference tables live inside the DB file). Either build it in CI
+  and copy it onto the volume, or run a one-off release command on the host:
+  `pnpm data:build && DB_PATH=/data/hanzi.db pnpm db:migrate`. The image bundles `db/` so
+  `pnpm db:migrate` can apply pending migrations against the volume after a schema change.
+- **Deploy (Fly.io):** `fly volumes create hanzi_data --size 2`,
+  `fly secrets set ANTHROPIC_API_KEY=… AUTH_SECRET=… AUTH_GOOGLE_ID=… AUTH_GOOGLE_SECRET=… AUTH_URL=https://…`,
+  then `fly deploy`. Keep `fly scale count 1`.
+- **Backups are now essential** — `hanzi.db` holds *all* learner state (progress, stories,
+  credentials). Schedule a volume snapshot or a periodic copy of the file off-box.
+
+> Migrating to Postgres/RDS later (to run on Vercel and scale horizontally) is a contained but
+> non-trivial change — the DB layer is synchronous today, so it becomes an `async` refactor across
+> `lib/**`. Keep all DB access behind `lib/**` to keep that move cheap.
+
+---
+
 ## Current limitations (worth knowing)
 
 - No **settings page** yet — a learner's default persona/genre and display name are set only at

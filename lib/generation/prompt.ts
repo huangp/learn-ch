@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { AllowedWord } from '../allowlist/index';
 import type { Persona } from '../persona/presets';
 import type { Genre } from '../genres/presets';
@@ -10,8 +11,12 @@ import type { ValidationResult } from './validate';
 // Prompt assembly (§8.4/§8.6). The system prompt + repair shell live as templates in
 // /prompts; the vocab-heavy user prompt is built here because it's fully dynamic.
 
-const SYSTEM_TEMPLATE = readFileSync(new URL('../../prompts/generate.system.md', import.meta.url), 'utf8');
-const REPAIR_TEMPLATE = readFileSync(new URL('../../prompts/repair.user.md', import.meta.url), 'utf8');
+// Read from a plain filesystem path (cwd = project root for `next dev/start`, tsx, vitest;
+// /app in the container, where the Dockerfile copies /prompts). A `new URL(..., import.meta.url)`
+// here breaks the Turbopack production bundle (readFileSync rejects the rewritten URL).
+const PROMPTS_DIR = join(process.cwd(), 'prompts');
+const SYSTEM_TEMPLATE = readFileSync(join(PROMPTS_DIR, 'generate.system.md'), 'utf8');
+const REPAIR_TEMPLATE = readFileSync(join(PROMPTS_DIR, 'repair.user.md'), 'utf8');
 
 export function buildSystemPrompt(opts: { k?: number; lengthChars?: number } = {}): string {
   return SYSTEM_TEMPLATE.replaceAll('{K}', String(opts.k ?? DEFAULT_K)).replaceAll(

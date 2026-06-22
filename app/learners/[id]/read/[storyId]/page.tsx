@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { getLearner } from '@/lib/learner/crud';
+import { canAccessLearner } from '@/lib/auth/access';
+import { getSessionContext } from '@/lib/auth/session';
 import { getPersona } from '@/lib/persona/presets';
 import { getStory } from '@/lib/story/persist';
 import { Reader } from '@/components/Reader';
@@ -12,6 +14,8 @@ export const dynamic = 'force-dynamic';
 export default async function ReadPage({ params }: { params: Promise<{ id: string; storyId: string }> }) {
   const { id, storyId } = await params;
   const learnerId = Number(id);
+  const ctx = await getSessionContext();
+  if (!ctx || !canAccessLearner(db, ctx, learnerId)) notFound();
   const learner = getLearner(db, learnerId);
   const story = getStory(db, Number(storyId));
   if (!learner || !story || story.learnerId !== learnerId) notFound();

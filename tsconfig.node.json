@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": { "@/*": ["./*"] }
   },
   "include": ["db", "data", "lib", "evals", "cli", "drizzle.config.ts", "vitest.config.ts"]
 }

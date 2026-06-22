@@ -2,11 +2,14 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { getLearner } from '@/lib/learner/crud';
+import { canAccessLearner } from '@/lib/auth/access';
+import { getSessionContext } from '@/lib/auth/session';
 import { getPersona } from '@/lib/persona/presets';
 import { getGenre } from '@/lib/genres/presets';
 import { listStoriesForLearner } from '@/lib/story/persist';
 import { GenerateStoryForm } from '@/components/GenerateStoryForm';
 import { SeedLibrary } from '@/components/SeedLibrary';
+import { SignOutButton } from '@/components/SignOutButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -15,6 +18,8 @@ export const dynamic = 'force-dynamic';
 export default async function LearnerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const learnerId = Number(id);
+  const ctx = await getSessionContext();
+  if (!ctx || !canAccessLearner(db, ctx, learnerId)) notFound();
   const learner = getLearner(db, learnerId);
   if (!learner) notFound();
 
@@ -36,7 +41,10 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" render={<Link href={`/learners/${learnerId}/progress`}>Progress</Link>} />
-          <Button variant="ghost" render={<Link href="/">All learners</Link>} />
+          {ctx.kind === 'adult' && (
+            <Button variant="ghost" render={<Link href="/">All learners</Link>} />
+          )}
+          <SignOutButton />
         </div>
       </div>
 
