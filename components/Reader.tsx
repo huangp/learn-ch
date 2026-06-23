@@ -30,6 +30,10 @@ function hanCharsOf(seg: AnnotatedSegment): string[] {
 function useSegmentDwell(storyId: number, learnerId: number, segments: AnnotatedSegment[]) {
   const els = useRef<(Element | null)[]>([]);
   const setRef = useCallback((i: number) => (el: Element | null) => { els.current[i] = el; }, []);
+  // In-flight dwell writes + a handle to the current effect's flushAll, so callers (branch /
+  // finish) can flush AND await persistence before triggering grading (which is idempotent).
+  const pendingRef = useRef<Promise<unknown>[]>([]);
+  const flushAllRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const n = segments.length;
@@ -47,7 +51,9 @@ function useSegmentDwell(storyId: number, learnerId: number, segments: Annotated
         emitted[i] = true;
         const chars = hanCharsOf(segments[i]);
         if (chars.length > 0) {
-          void recordDwellAction({ storyId, learnerId, chars, valueMs: Math.round(accum[i]) });
+          pendingRef.current.push(
+            recordDwellAction({ storyId, learnerId, chars, valueMs: Math.round(accum[i]) }).catch(() => {}),
+          );
         }
       }
     }
@@ -80,6 +86,7 @@ function useSegmentDwell(storyId: number, learnerId: number, segments: Annotated
       const now = performance.now();
       for (let i = 0; i < n; i++) flush(i, now);
     }
+    flushAllRef.current = flushAll;
     const onVis = () => { if (document.visibilityState === 'hidden') flushAll(); };
     document.addEventListener('visibilitychange', onVis);
 
@@ -91,7 +98,14 @@ function useSegmentDwell(storyId: number, learnerId: number, segments: Annotated
     };
   }, [storyId, learnerId, segments]);
 
-  return setRef;
+  // Emit any pending dwell, then await the writes — so a subsequent grade sees complete evidence.
+  const flushDwell = useCallback(async () => {
+    flushAllRef.current?.();
+    await Promise.allSettled(pendingRef.current);
+    pendingRef.current = [];
+  }, []);
+
+  return { setRef, flushDwell };
 }
 
 interface ReaderProps {
@@ -146,7 +160,7 @@ function SegmentView({
 export function Reader({ storyId, learnerId, title, segments, questions, choices, bootstrap, persona }: ReaderProps) {
   const [showPinyin, setShowPinyin] = useState(bootstrap); // off by default; on in bootstrap (§16.4)
   const [selected, setSelected] = useState<SelectedChar | null>(null);
-  const setDwellRef = useSegmentDwell(storyId, learnerId, segments);
+  const { setRef: setDwellRef, flushDwell } = useSegmentDwell(storyId, learnerId, segments);
 
   return (
     <div className="pb-48">
@@ -186,12 +200,12 @@ export function Reader({ storyId, learnerId, title, segments, questions, choices
 
       {choices.length > 0 && (
         <div className="mt-10">
-          <Choices storyId={storyId} choices={choices} />
+          <Choices storyId={storyId} choices={choices} flushDwell={flushDwell} />
         </div>
       )}
 
       <div className="mt-10">
-        <FinishButton storyId={storyId} learnerId={learnerId} />
+        <FinishButton storyId={storyId} learnerId={learnerId} flushDwell={flushDwell} />
       </div>
 
       <CharPanel selected={selected} storyId={storyId} learnerId={learnerId} onClose={() => setSelected(null)} />

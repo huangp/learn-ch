@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages';
 import type { LlmGenerateOptions, LlmProvider, LlmResult } from './provider';
+import { llmTimeoutMs } from './openrouter';
 
 export const DEFAULT_MODEL = 'claude-haiku-4-5';
 const DEFAULT_MAX_TOKENS = 2048;
@@ -27,7 +28,7 @@ export class AnthropicProvider implements LlmProvider {
     if (!apiKey) {
       throw new Error('ANTHROPIC_API_KEY is not set (required for the real LLM provider).');
     }
-    this.client = new Anthropic({ apiKey });
+    this.client = new Anthropic({ apiKey, timeout: llmTimeoutMs(), maxRetries: 1 });
   }
 
   async generate(opts: LlmGenerateOptions): Promise<LlmResult> {

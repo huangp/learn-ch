@@ -86,6 +86,10 @@ export interface GenerationMeta {
   genreId?: string;
   /** Story seed this story retold (§17.2), when generated from one — resolves back via getStorySeed. */
   seedId?: string;
+  /** True when the story was returned despite not passing all gates (best-effort draft). */
+  belowTarget?: boolean;
+  /** Human-readable shortfalls when belowTarget (reuses describeFailures output). */
+  shortfalls?: string[];
 }
 
 export interface GenerationResult {

@@ -17,6 +17,7 @@
     "test:integration": "vitest run cli",
     "typecheck": "tsc -p tsconfig.node.json",
     "story": "tsx --env-file=.env cli/story.ts",
+    "gen:seeds": "tsx --env-file=.env cli/gen-seeds.ts",
     "eval": "tsx --env-file=.env evals/runner.ts",
     "eval:judge": "tsx --env-file=.env evals/judge.ts"
   },

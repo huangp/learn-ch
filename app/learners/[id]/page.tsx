@@ -12,6 +12,7 @@ import { SeedLibrary } from '@/components/SeedLibrary';
 import { SignOutButton } from '@/components/SignOutButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Toaster } from '@/components/ui/toast';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,6 +29,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
   const genre = getGenre(learner.settings.genreId);
 
   return (
+    <Toaster>
     <main className="mx-auto max-w-2xl p-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -68,6 +70,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
                   <CardContent className="text-sm text-muted-foreground">
                     targets: {s.targetChars.join(' ') || '—'}
                     {s.meta ? ` · coverage ${(s.meta.knownCoverage * 100).toFixed(0)}%` : ''}
+                    {s.meta?.belowTarget ? ' · draft' : ''}
                     {s.parentStoryId ? ' · branch' : ''}
                   </CardContent>
                 </Card>
@@ -77,5 +80,6 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
         </ul>
       )}
     </main>
+    </Toaster>
   );
 }

@@ -18,6 +18,8 @@ export interface CoverageOptions {
   minSentenceCoverage?: number;
   /** Bootstrap mode (§16.4): skip the global known-coverage gate. */
   bootstrap?: boolean;
+  /** Relaxed mode (small vocab): replace the % floors with a cap on DISTINCT unknown chars. */
+  maxUnknownChars?: number;
 }
 
 export interface CoverageResult {
@@ -30,6 +32,7 @@ export interface CoverageResult {
   dueMissing: string[]; // appear 0 times
   lowCoverageSentences: { text: string; coverage: number }[];
   clusteredTargets: string[]; // appear ≥2× but all in one sentence
+  unknownChars: string[]; // distinct Han chars not in `known` (targets + out-of-vocab)
 }
 
 function hanChars(s: string): string[] {
@@ -51,6 +54,9 @@ export function checkCoverage(hanzi: string, opts: CoverageOptions): CoverageRes
 
   const bodyHan = hanChars(hanzi);
   const knownCoverage = knownFraction(bodyHan, opts.known);
+
+  // Distinct Han chars the learner doesn't know yet (targets ∉ known, plus any out-of-vocab).
+  const unknownChars = [...new Set(bodyHan.filter((c) => !opts.known.has(c)))];
 
   // Per-target occurrence counts over the whole body.
   const targetCounts: Record<string, number> = {};
@@ -93,12 +99,17 @@ export function checkCoverage(hanzi: string, opts: CoverageOptions): CoverageRes
     (t) => targetCounts[t] >= 2 && targetSentenceCount.get(t)! <= 1,
   );
 
-  // Bootstrap (§16.4) relaxes the coverage gates entirely (global %, per-sentence floor,
-  // clustering) — with a tiny vocab they're mathematically impossible; validateChars still
-  // enforces "every non-target char is allowed". Only target/due presence is required.
+  // Coverage gate, in precedence order:
+  // - Relaxed mode (small vocab): the % floors are mathematically hostile, so replace them with
+  //   a cap on DISTINCT unknown chars (validateChars runs relaxed in tandem, so out-of-vocab
+  //   chars are permitted but still consume this budget). Per-sentence/clustering gates are off.
+  // - Bootstrap (§16.4): relax the coverage gates entirely; only target/due presence required.
+  // - Otherwise: the strict global % + per-sentence floor + no-clustering gate.
   const coverageOk =
-    opts.bootstrap ||
-    (knownCoverage >= band && lowCoverageSentences.length === 0 && clusteredTargets.length === 0);
+    opts.maxUnknownChars != null
+      ? unknownChars.length <= opts.maxUnknownChars
+      : opts.bootstrap ||
+        (knownCoverage >= band && lowCoverageSentences.length === 0 && clusteredTargets.length === 0);
 
   const ok = targetsMissing.length === 0 && dueMissing.length === 0 && coverageOk;
 
@@ -112,5 +123,6 @@ export function checkCoverage(hanzi: string, opts: CoverageOptions): CoverageRes
     dueMissing,
     lowCoverageSentences,
     clusteredTargets,
+    unknownChars,
   };
 }

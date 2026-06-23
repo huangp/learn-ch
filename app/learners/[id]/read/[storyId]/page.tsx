@@ -27,6 +27,11 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
       <div className="mb-6">
         <Button variant="ghost" render={<Link href={`/learners/${learnerId}`}>← {learner.displayName}</Link>} />
       </div>
+      {story.meta?.belowTarget ? (
+        <div className="mb-6 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+          This story was a best effort — a few characters may be new or harder than usual.
+        </div>
+      ) : null}
       <Reader
         storyId={story.id}
         learnerId={learnerId}

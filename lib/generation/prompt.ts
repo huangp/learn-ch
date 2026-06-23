@@ -37,6 +37,9 @@ export interface UserPromptInput {
   persona?: Persona;
   genre?: Genre;
   storySeed?: StorySeed;
+  /** Relaxed mode (small vocab): allow a small budget of chars outside the vocab list. */
+  relaxed?: boolean;
+  maxUnknown?: number;
 }
 
 /** First allowed word containing `char`, for the "use this new char" example (§7). */
@@ -68,8 +71,17 @@ export function buildUserPrompt(input: UserPromptInput): string {
   }
   parts.push(`LENGTH: about ${lengthChars} characters.`);
   parts.push('');
-  parts.push('VOCABULARY (use ONLY these words):');
-  parts.push(vocab);
+  if (input.relaxed) {
+    parts.push('VOCABULARY (prefer these words):');
+    parts.push(vocab);
+    parts.push('');
+    parts.push(
+      `You may use up to ${input.maxUnknown ?? 10} different characters outside this list if needed for a natural story; they will be shown with pinyin.`,
+    );
+  } else {
+    parts.push('VOCABULARY (use ONLY these words):');
+    parts.push(vocab);
+  }
   parts.push('');
   parts.push(`TARGET CHARACTERS (weave each in naturally at least ${k} times, across different sentences):`);
   parts.push(targetLines.length > 0 ? targetLines.join('\n') : '(none)');
@@ -111,6 +123,8 @@ export function buildRepairPrompt(args: {
   coverage?: CoverageResult;
   parseError?: string;
   k?: number;
+  relaxed?: boolean;
+  maxUnknown?: number;
 }): string {
   const k = args.k ?? DEFAULT_K;
   const issues: string[] = [];
@@ -120,9 +134,13 @@ export function buildRepairPrompt(args: {
   }
   const v = args.validation;
   if (v) {
-    const bad = uniqueChars(v.violations);
-    if (bad.length > 0) {
-      issues.push(`- These characters are NOT allowed: 「${bad.join('、')}」. Replace the words containing them with allowed vocabulary.`);
+    // In relaxed mode out-of-vocab chars are permitted (bounded by the unknown-char budget below),
+    // so don't ask the model to remove them — only evasions are always wrong.
+    if (!args.relaxed) {
+      const bad = uniqueChars(v.violations);
+      if (bad.length > 0) {
+        issues.push(`- These characters are NOT allowed: 「${bad.join('、')}」. Replace the words containing them with allowed vocabulary.`);
+      }
     }
     const ev = uniqueChars(v.evasions);
     if (ev.length > 0) {
@@ -134,14 +152,21 @@ export function buildRepairPrompt(args: {
     if (c.targetsMissing.length > 0) {
       issues.push(`- These TARGET characters must each appear at least ${k} times: 「${c.targetsMissing.join('、')}」.`);
     }
-    if (c.clusteredTargets.length > 0) {
-      issues.push(`- Spread these target characters across different sentences (currently clustered): 「${c.clusteredTargets.join('、')}」.`);
-    }
     if (c.dueMissing.length > 0) {
       issues.push(`- These REVIEW characters must each appear at least once: 「${c.dueMissing.join('、')}」.`);
     }
-    if (c.lowCoverageSentences.length > 0) {
-      issues.push('- Some sentences have too many hard/new characters. Simplify them so each sentence is mostly known vocabulary.');
+    if (args.relaxed) {
+      const max = args.maxUnknown ?? 10;
+      if (c.unknownChars.length > max) {
+        issues.push(`- You used too many new characters (${c.unknownChars.length}): 「${c.unknownChars.join('、')}」. Use at most ${max} different characters outside the known set.`);
+      }
+    } else {
+      if (c.clusteredTargets.length > 0) {
+        issues.push(`- Spread these target characters across different sentences (currently clustered): 「${c.clusteredTargets.join('、')}」.`);
+      }
+      if (c.lowCoverageSentences.length > 0) {
+        issues.push('- Some sentences have too many hard/new characters. Simplify them so each sentence is mostly known vocabulary.');
+      }
     }
   }
 

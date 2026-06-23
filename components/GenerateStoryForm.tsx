@@ -6,12 +6,13 @@ import { GENRES } from '@/lib/genres/presets';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useGenerationToast } from '@/components/ui/toast';
 
 export function GenerateStoryForm({ learnerId }: { learnerId: number }) {
   const [theme, setTheme] = useState('');
   const [genreId, setGenreId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const runGen = useGenerationToast();
 
   function pickGenre(id: string) {
     setGenreId((cur) => (cur === id ? null : id)); // toggle
@@ -24,17 +25,7 @@ export function GenerateStoryForm({ learnerId }: { learnerId: number }) {
   }
 
   function generate() {
-    setError(null);
-    startTransition(async () => {
-      try {
-        await generateStoryAction(learnerId, theme, genreId ?? undefined);
-      } catch (e) {
-        // redirect() throws a control-flow signal we must not swallow.
-        if (e instanceof Error && e.message === 'NEXT_REDIRECT') throw e;
-        if (typeof e === 'object' && e && 'digest' in e && String((e as { digest?: string }).digest).startsWith('NEXT_REDIRECT')) throw e;
-        setError(e instanceof Error ? e.message : 'Generation failed');
-      }
-    });
+    startTransition(() => runGen(() => generateStoryAction(learnerId, theme, genreId ?? undefined)));
   }
 
   return (
@@ -63,10 +54,9 @@ export function GenerateStoryForm({ learnerId }: { learnerId: number }) {
           placeholder="…or type your own theme (e.g. a dragon who can't fly)"
         />
         <Button onClick={generate} disabled={pending} className="shrink-0">
-          {pending ? 'Writing your story…' : 'Generate'}
+          Generate
         </Button>
       </div>
-      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

@@ -47,6 +47,32 @@ describe('checkCoverage (§8.3)', () => {
     expect(r.ok).toBe(false);
   });
 
+  test('relaxed mode passes a low-coverage body within the distinct-unknown budget', () => {
+    // Many unknown chars but only 3 DISTINCT ones (兰 target + 山 火); strict mode fails on the
+    // %/per-sentence floors, relaxed mode passes because distinct unknown ≤ budget.
+    const body = '我兰山火。你兰山火。';
+    const strict = checkCoverage(body, { known, targets: ['兰'], k: 2 });
+    expect(strict.ok).toBe(false);
+    const relaxed = checkCoverage(body, { known, targets: ['兰'], k: 2, maxUnknownChars: 10 });
+    expect(relaxed.unknownChars.sort()).toEqual(['兰', '山', '火'].sort());
+    expect(relaxed.ok).toBe(true);
+  });
+
+  test('relaxed mode fails when distinct unknown chars exceed the budget', () => {
+    // 兰 (target) + 11 distinct unknown chars = 12 distinct unknown > budget of 10.
+    const body = '兰甲乙丙丁戊己庚辛壬癸子。兰甲乙丙丁戊己庚辛壬癸子。';
+    const r = checkCoverage(body, { known, targets: ['兰'], k: 2, maxUnknownChars: 10 });
+    expect(r.unknownChars.length).toBeGreaterThan(10);
+    expect(r.ok).toBe(false);
+  });
+
+  test('relaxed mode still enforces target ≥K and due presence', () => {
+    const body = '兰甲乙。我你他。'; // 兰 only once (< K), within unknown budget
+    const r = checkCoverage(body, { known, targets: ['兰'], k: 2, maxUnknownChars: 10 });
+    expect(r.targetsMissing).toEqual(['兰']);
+    expect(r.ok).toBe(false);
+  });
+
   test('bootstrap mode skips the global known-coverage gate', () => {
     // Low known coverage, but every non-target char IS allowed; targets met & spread.
     const body = '兰去。兰来。';

@@ -6,6 +6,15 @@ export const DEFAULT_MODEL = 'anthropic/claude-haiku-4.5';
 const DEFAULT_MAX_TOKENS = 2048;
 const BASE_URL = 'https://openrouter.ai/api/v1';
 
+// Per-request timeout. The generate→repair loop fires up to ~6 calls serially, so a single
+// stalled upstream must fail fast instead of riding the SDK's 10-minute default (× retries) and
+// leaving the story action pending for many minutes. Override with LLM_TIMEOUT_MS.
+const DEFAULT_TIMEOUT_MS = 120_000;
+export function llmTimeoutMs(): number {
+  const n = Number(process.env.LLM_TIMEOUT_MS);
+  return Number.isFinite(n) && n > 0 ? n : DEFAULT_TIMEOUT_MS;
+}
+
 // Models that need EXPLICIT cache_control breakpoints for prompt caching (Anthropic + Gemini).
 // OpenAI-family models cache automatically with no markup, so we add nothing for them.
 const EXPLICIT_CACHE_MODEL = /^(anthropic|google)\//;
@@ -48,6 +57,8 @@ export class OpenRouterProvider implements LlmProvider {
     this.client = new OpenAI({
       apiKey,
       baseURL: BASE_URL,
+      timeout: llmTimeoutMs(),
+      maxRetries: 1,
       defaultHeaders: { 'HTTP-Referer': 'https://github.com/hanzi-graded-reader', 'X-Title': 'Hanzi Graded Reader' },
     });
   }

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { STORY_SEEDS, getStorySeed, seedsBySource } from './presets';
+import { GENERATED_SEEDS } from './generated';
 
 describe('story seed presets (§17.2)', () => {
   test('every preset has the required fields and ordered beats', () => {
@@ -37,6 +38,12 @@ describe('story seed presets (§17.2)', () => {
     expect(getStorySeed(undefined)).toBeUndefined();
     expect(getStorySeed(null)).toBeUndefined();
     expect(getStorySeed('')).toBeUndefined();
+  });
+
+  test('generated seeds are only history/work (never authored), so the copyright gate applies', () => {
+    // Vacuously true until `pnpm gen:seeds` populates lib/seeds/generated.ts; catches a regen that
+    // miscategorizes a 成语/history seed as `authored` (which would skip the publicDomain gate).
+    for (const s of GENERATED_SEEDS) expect(s.source === 'history' || s.source === 'work').toBe(true);
   });
 
   test('seedsBySource partitions every seed exactly once', () => {

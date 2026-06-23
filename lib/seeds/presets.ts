@@ -1,4 +1,5 @@
 import type { StorySeed } from './types';
+import { GENERATED_SEEDS } from './generated';
 
 // Phase 8 seed library (§17.2). Plain typed constants (no DB table) — mirrors lib/persona/presets.
 // Three sources feed the same StorySeed shape:
@@ -166,6 +167,9 @@ export const STORY_SEEDS: StorySeed[] = [
     publicDomain: true,
     attribution: '《山海经》 (Classic of Mountains and Seas) — public domain',
   },
+
+  // --- generated (pnpm gen:seeds, from data/seeds/topics.ts) -------------------------------------
+  ...GENERATED_SEEDS,
 ];
 
 /** Resolve a stored seedId to its preset (undefined if missing/unknown — generation stays seed-free). */

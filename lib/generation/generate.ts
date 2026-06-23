@@ -4,7 +4,7 @@ import type { Db } from '../db';
 import { characters } from '../../db/schema';
 import { costUsd } from '../llm/pricing';
 import type { LlmMessage, LlmProvider, LlmUsage } from '../llm/provider';
-import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MAX_REPAIRS } from './constants';
+import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MAX_REPAIRS, MAX_UNKNOWN_CHARS, RELAX_KNOWN_THRESHOLD } from './constants';
 import { checkCoverage, type CoverageResult } from './coverage';
 import { buildRepairPrompt, buildSystemPrompt, buildUserPrompt } from './prompt';
 import { parseStoryJson, StoryParseError } from './parse';
@@ -26,27 +26,35 @@ interface Attempt {
 const uniq = (hits: { char: string }[]): string => [...new Set(hits.map((h) => h.char))].join('、');
 
 /** Human-readable reasons an attempt failed its gates (empty = passed). */
-function describeFailures(a: Attempt, k: number, bootstrap: boolean): string[] {
+function describeFailures(a: Attempt, k: number, bootstrap: boolean, maxUnknown?: number): string[] {
+  const relaxed = maxUnknown != null;
   const reasons: string[] = [];
   if (a.parseError) reasons.push(`bad JSON: ${a.parseError}`);
   const v = a.validation;
   if (v) {
-    if (v.violations.length) reasons.push(`out-of-vocab chars: 「${uniq(v.violations)}」`);
+    // Out-of-vocab chars are permitted in relaxed mode (bounded by the unknown-char budget below).
+    if (v.violations.length && !relaxed) reasons.push(`out-of-vocab chars: 「${uniq(v.violations)}」`);
     if (v.evasions.length) reasons.push(`evasions (latin/pinyin): 「${uniq(v.evasions)}」`);
   }
   const c = a.coverage;
   if (c) {
     if (c.targetsMissing.length) reasons.push(`targets below ${k}×: 「${c.targetsMissing.join('、')}」`);
-    if (c.clusteredTargets.length) reasons.push(`targets clustered in one sentence: 「${c.clusteredTargets.join('、')}」`);
     if (c.dueMissing.length) reasons.push(`due chars absent: 「${c.dueMissing.join('、')}」`);
-    if (c.lowCoverageSentences.length) {
-      const worst = c.lowCoverageSentences.reduce((a, b) => (b.coverage < a.coverage ? b : a));
-      reasons.push(
-        `${c.lowCoverageSentences.length} sentence(s) below the per-sentence floor (worst ${worst.coverage.toFixed(2)}: 「${worst.text}」)`,
-      );
-    }
-    if (!bootstrap && c.knownCoverage < KNOWN_COVERAGE_FLOOR) {
-      reasons.push(`global knownCoverage ${c.knownCoverage.toFixed(3)} below floor ${KNOWN_COVERAGE_FLOOR}`);
+    if (relaxed) {
+      if (c.unknownChars.length > maxUnknown) {
+        reasons.push(`${c.unknownChars.length} unknown chars (max ${maxUnknown}): 「${c.unknownChars.join('、')}」`);
+      }
+    } else {
+      if (c.clusteredTargets.length) reasons.push(`targets clustered in one sentence: 「${c.clusteredTargets.join('、')}」`);
+      if (c.lowCoverageSentences.length) {
+        const worst = c.lowCoverageSentences.reduce((a, b) => (b.coverage < a.coverage ? b : a));
+        reasons.push(
+          `${c.lowCoverageSentences.length} sentence(s) below the per-sentence floor (worst ${worst.coverage.toFixed(2)}: 「${worst.text}」)`,
+        );
+      }
+      if (!bootstrap && c.knownCoverage < KNOWN_COVERAGE_FLOOR) {
+        reasons.push(`global knownCoverage ${c.knownCoverage.toFixed(3)} below floor ${KNOWN_COVERAGE_FLOOR}`);
+      }
     }
   }
   return reasons;
@@ -99,6 +107,12 @@ export async function generateGradedStory(
   const known = new Set(allowedChars);
   for (const t of targetChars) known.delete(t);
 
+  // Small-vocabulary relaxation: below the threshold, the % coverage floors are mathematically
+  // hostile, so swap them for an absolute budget of DISTINCT unknown chars and let the model
+  // reach beyond the allowed set (those chars still get pinyin/gloss downstream). See §8.3.
+  const relaxed = known.size < RELAX_KNOWN_THRESHOLD;
+  const maxUnknown = relaxed ? MAX_UNKNOWN_CHARS : undefined;
+
   const usage: LlmUsage = { inputTokens: 0, outputTokens: 0 };
   let model = config.model ?? 'unknown';
 
@@ -124,7 +138,7 @@ export async function generateGradedStory(
     let a: Attempt;
     try {
       const story = parseStoryJson(res.text);
-      const validation = validateChars(story.body, allowedChars);
+      const validation = validateChars(story.body, allowedChars, { relaxed });
       const coverage = checkCoverage(story.body, {
         known,
         targets,
@@ -133,6 +147,7 @@ export async function generateGradedStory(
         band: config.coverageBand,
         minSentenceCoverage: config.minSentenceCoverage,
         bootstrap: config.bootstrap,
+        maxUnknownChars: maxUnknown,
       });
       a = { raw: res.text, story, validation, coverage, passed: validation.ok && coverage.ok };
     } catch (e) {
@@ -144,7 +159,7 @@ export async function generateGradedStory(
       phase,
       attempt: attemptIndex++,
       passed: a.passed,
-      reasons: a.passed ? [] : describeFailures(a, k, config.bootstrap ?? false),
+      reasons: a.passed ? [] : describeFailures(a, k, config.bootstrap ?? false, maxUnknown),
       parseError: a.parseError,
       knownCoverage: a.coverage?.knownCoverage,
       targetCoverage: a.coverage?.targetCoverage,
@@ -154,7 +169,13 @@ export async function generateGradedStory(
     return a;
   };
 
-  const buildMeta = (repairIterations: number, fallbackUsed: boolean, a: Attempt): GenerationMeta => ({
+  const buildMeta = (
+    repairIterations: number,
+    fallbackUsed: boolean,
+    a: Attempt,
+    belowTarget = false,
+    shortfalls: string[] = [],
+  ): GenerationMeta => ({
     model,
     repairIterations,
     knownCoverage: a.coverage?.knownCoverage ?? 0,
@@ -168,12 +189,14 @@ export async function generateGradedStory(
     personaId: config.persona?.id,
     genreId: config.genre?.id,
     seedId: config.storySeed?.id,
+    belowTarget,
+    shortfalls,
   });
 
   // --- Main loop: initial generation + up to maxRepairs targeted repairs. ---
   const system = buildSystemPrompt({ k, lengthChars });
   const messages: LlmMessage[] = [
-    { role: 'user', content: buildUserPrompt({ allowedWords, targets: targetChars, due, theme: config.theme, lengthChars, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona, genre: config.genre, storySeed: config.storySeed }) },
+    { role: 'user', content: buildUserPrompt({ allowedWords, targets: targetChars, due, theme: config.theme, lengthChars, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona, genre: config.genre, storySeed: config.storySeed, relaxed, maxUnknown }) },
   ];
 
   let best: Attempt | null = null;
@@ -185,7 +208,7 @@ export async function generateGradedStory(
     messages.push({ role: 'assistant', content: a.raw });
     messages.push({
       role: 'user',
-      content: buildRepairPrompt({ validation: a.validation, coverage: a.coverage, parseError: a.parseError, k }),
+      content: buildRepairPrompt({ validation: a.validation, coverage: a.coverage, parseError: a.parseError, k, relaxed, maxUnknown }),
     });
   }
 
@@ -194,17 +217,24 @@ export async function generateGradedStory(
   const fbLength = Math.max(40, Math.round(lengthChars * 0.7));
   const fbSystem = buildSystemPrompt({ k, lengthChars: fbLength });
   const fbMessages: LlmMessage[] = [
-    { role: 'user', content: buildUserPrompt({ allowedWords, targets: fbTargets, due, theme: config.theme, lengthChars: fbLength, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona, genre: config.genre, storySeed: config.storySeed }) },
+    { role: 'user', content: buildUserPrompt({ allowedWords, targets: fbTargets, due, theme: config.theme, lengthChars: fbLength, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona, genre: config.genre, storySeed: config.storySeed, relaxed, maxUnknown }) },
   ];
   const fb = await runAttempt(fbMessages, fbSystem, fbTargets, 'fallback');
   best = pickBest(best, fb);
   if (fb.passed) return { story: fb.story!, meta: buildMeta(maxRepairs + 1, true, fb) };
 
   const bestAttempt = best ?? fb;
+  const shortfalls = describeFailures(bestAttempt, k, config.bootstrap ?? false, maxUnknown);
+
+  // Keep the best draft rather than dead-ending: if any attempt parsed into a story, return it
+  // flagged belowTarget so the caller can persist + surface it. Only throw when nothing parsed.
+  if (bestAttempt.story) {
+    return { story: bestAttempt.story, meta: buildMeta(maxRepairs + 1, true, bestAttempt, true, shortfalls) };
+  }
   throw new GenerationFailed(
-    'No attempt produced a valid story within the repair + fallback budget.',
+    'No attempt produced a parseable story within the repair + fallback budget.',
     buildMeta(maxRepairs + 1, true, bestAttempt),
-    describeFailures(bestAttempt, k, config.bootstrap ?? false),
+    shortfalls,
   );
 }
 

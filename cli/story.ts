@@ -23,8 +23,10 @@ Options:
   --theme "<text>"      custom story theme (free text; overrides --genre)
   --genre <id>          genre tone steer (§17.1); ids: adventure | mystery | scifi | fantasy |
                         history | friendship | sport | slice-of-life
-  --seed <id>           retell a plot skeleton (§17.2); ids: lost-dog | new-school | space-rescue |
-                        mulan | sima-guang | silk-road | journey-west-start | tortoise-hare | gua-fu-sun
+  --seed <id>           retell a plot skeleton (§17.2); authored/classic ids: lost-dog | new-school |
+                        space-rescue | mulan | sima-guang | silk-road | journey-west-start |
+                        tortoise-hare | gua-fu-sun. Plus the 成语/history seeds in data/seeds/topics.ts
+                        (run pnpm gen:seeds to build them), e.g. shou-zhu-dai-tu | kong-rong-rang-li
   --persona <id>        companion persona (xiaolong | xiaoyue | afu)
   --length <n>          approx story length in characters
   --max-words <n>       cap on the vocabulary list given to the model
@@ -149,7 +151,16 @@ async function main() {
     const cacheWrite = meta.usage.cacheWriteTokens ?? 0;
     const cacheNote = cacheRead || cacheWrite ? ` / cacheRead ${cacheRead} / cacheWrite ${cacheWrite}` : '';
     console.log(`cost:             $${meta.costUsd.toFixed(4)}  (in ${meta.usage.inputTokens} / out ${meta.usage.outputTokens}${cacheNote})`);
-    console.log(`verdict:          ${pass ? '✓ PASS' : '⚠ WARN (valid story, below the quality bar)'}`);
+    const verdict = meta.belowTarget
+      ? '⚠ BELOW TARGET (best-effort draft, gates not met)'
+      : pass
+        ? '✓ PASS'
+        : '⚠ WARN (valid story, below the quality bar)';
+    console.log(`verdict:          ${verdict}`);
+    if (meta.belowTarget && meta.shortfalls?.length) {
+      console.log('shortfalls:');
+      for (const s of meta.shortfalls) console.log(`  - ${s}`);
+    }
 
     if (values.judge) {
       section('COHERENCE JUDGE');

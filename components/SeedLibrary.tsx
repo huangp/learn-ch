@@ -6,6 +6,7 @@ import { seedsBySource } from '@/lib/seeds/presets';
 import type { StorySeed } from '@/lib/seeds/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useGenerationToast } from '@/components/ui/toast';
 
 // Phase 8 (§17.2) — pick a plot skeleton; the engine retells it in the learner's vocabulary.
 const SECTION_LABELS: Record<StorySeed['source'], string> = {
@@ -14,26 +15,16 @@ const SECTION_LABELS: Record<StorySeed['source'], string> = {
   work: 'Classic tales',
 };
 
+// Per-group page size — provisional, easily tuned. The pager only appears once a group exceeds it.
+const SEEDS_PER_PAGE = 4;
+
 export function SeedLibrary({ learnerId }: { learnerId: number }) {
   const groups = seedsBySource();
-  const [error, setError] = useState<string | null>(null);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const runGen = useGenerationToast();
 
   function start(seedId: string) {
-    setError(null);
-    setActiveId(seedId);
-    startTransition(async () => {
-      try {
-        await generateFromSeedAction(learnerId, seedId);
-      } catch (e) {
-        // redirect() throws a control-flow signal we must not swallow.
-        if (e instanceof Error && e.message === 'NEXT_REDIRECT') throw e;
-        if (typeof e === 'object' && e && 'digest' in e && String((e as { digest?: string }).digest).startsWith('NEXT_REDIRECT')) throw e;
-        setError(e instanceof Error ? e.message : 'Generation failed');
-        setActiveId(null);
-      }
-    });
+    startTransition(() => runGen(() => generateFromSeedAction(learnerId, seedId)));
   }
 
   return (
@@ -44,32 +35,76 @@ export function SeedLibrary({ learnerId }: { learnerId: number }) {
       </div>
       {(['authored', 'history', 'work'] as const).map((source) =>
         groups[source].length === 0 ? null : (
-          <div key={source} className="grid gap-2">
-            <h3 className="text-sm font-medium text-muted-foreground">{SECTION_LABELS[source]}</h3>
-            <div className="grid gap-3">
-              {groups[source].map((s) => (
-                <Card key={s.id}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between text-base">
-                      <span>
-                        {s.title} <span className="text-muted-foreground">· {s.titleEn}</span>
-                      </span>
-                      <Button onClick={() => start(s.id)} disabled={pending} className="shrink-0">
-                        {pending && activeId === s.id ? 'Writing…' : 'Read this'}
-                      </Button>
-                    </CardTitle>
-                    <CardDescription>{s.blurb}</CardDescription>
-                  </CardHeader>
-                  {s.attribution && (
-                    <CardContent className="text-xs text-muted-foreground">{s.attribution}</CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
-          </div>
+          <SeedGroup key={source} label={SECTION_LABELS[source]} seeds={groups[source]} pending={pending} onPick={start} />
         ),
       )}
-      {error && <p className="text-sm text-destructive">{error}</p>}
+    </div>
+  );
+}
+
+function SeedGroup({
+  label,
+  seeds,
+  pending,
+  onPick,
+}: {
+  label: string;
+  seeds: StorySeed[];
+  pending: boolean;
+  onPick: (seedId: string) => void;
+}) {
+  const [page, setPage] = useState(0);
+  const pageCount = Math.ceil(seeds.length / SEEDS_PER_PAGE);
+  const visible = seeds.slice(page * SEEDS_PER_PAGE, page * SEEDS_PER_PAGE + SEEDS_PER_PAGE);
+
+  return (
+    <div className="grid gap-2">
+      <h3 className="text-sm font-medium text-muted-foreground">{label}</h3>
+      <div className="grid gap-3">
+        {visible.map((s) => (
+          <Card key={s.id}>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between text-base">
+                <span>
+                  {s.title} <span className="text-muted-foreground">· {s.titleEn}</span>
+                </span>
+                <Button onClick={() => onPick(s.id)} disabled={pending} className="shrink-0">
+                  Read this
+                </Button>
+              </CardTitle>
+              <CardDescription>{s.blurb}</CardDescription>
+            </CardHeader>
+            {s.attribution && (
+              <CardContent className="text-xs text-muted-foreground">{s.attribution}</CardContent>
+            )}
+          </Card>
+        ))}
+      </div>
+      {pageCount > 1 && (
+        <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={page === 0}
+            onClick={() => setPage((p) => p - 1)}
+            aria-label="Previous page"
+          >
+            ‹ Prev
+          </Button>
+          <span>
+            Page {page + 1} of {pageCount}
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={page >= pageCount - 1}
+            onClick={() => setPage((p) => p + 1)}
+            aria-label="Next page"
+          >
+            Next ›
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

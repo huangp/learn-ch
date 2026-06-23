@@ -33,4 +33,16 @@ describe('validateChars (§8.2)', () => {
     expect(r.ok).toBe(false);
     expect(r.evasions.some((e) => e.char === 'ǐ')).toBe(true);
   });
+
+  test('relaxed mode tolerates out-of-vocab Han chars but still lists them', () => {
+    const r = validateChars('我爱你', allowed, { relaxed: true }); // 爱 not allowed
+    expect(r.ok).toBe(true); // out-of-vocab no longer fails under relaxed
+    expect(r.violations).toEqual([{ char: '爱', index: 1 }]); // still collected for diagnostics
+  });
+
+  test('relaxed mode still fails on evasions', () => {
+    const r = validateChars('我hao你', allowed, { relaxed: true });
+    expect(r.ok).toBe(false);
+    expect(r.evasions.map((e) => e.char)).toEqual(['h', 'a', 'o']);
+  });
 });

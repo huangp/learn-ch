@@ -74,7 +74,9 @@ async function main() {
           records.push({
             fixture: fx.name,
             theme,
-            success: true,
+            // A below-target draft is returned (not thrown) but did NOT pass the gates — count it
+            // as a non-success so the regression gate isn't masked by best-effort output.
+            success: !meta.belowTarget,
             repairIterations: meta.repairIterations,
             fallbackUsed: meta.fallbackUsed,
             knownCoverage: meta.knownCoverage,
@@ -84,8 +86,13 @@ async function main() {
             costUsd: meta.costUsd,
             title: story.title,
             body: story.body,
+            error: meta.belowTarget ? meta.shortfalls?.join('; ') : undefined,
           });
-          console.log(`ok (repairs ${meta.repairIterations}${meta.fallbackUsed ? '+fallback' : ''}, cov ${meta.knownCoverage.toFixed(2)})`);
+          console.log(
+            meta.belowTarget
+              ? `below target (${meta.shortfalls?.join('; ')})`
+              : `ok (repairs ${meta.repairIterations}${meta.fallbackUsed ? '+fallback' : ''}, cov ${meta.knownCoverage.toFixed(2)})`,
+          );
         } catch (e) {
           const meta = e instanceof GenerationFailed ? e.meta : undefined;
           records.push({

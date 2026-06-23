@@ -43,11 +43,11 @@ export interface FixtureSpec {
 export const FIXTURE_SPECS: FixtureSpec[] = [
   { name: 'hsk1-early', hsk: 1, targets: 2, maxDue: 2, lengthChars: 70, themes: ['friendship', 'mystery'] },
   { name: 'hsk2', hsk: 2, targets: 3, maxDue: 3, lengthChars: 90, themes: ['adventure'] },
-  { name: 'hsk3', hsk: 3, targets: 3, maxDue: 3, lengthChars: 100, themes: ['history (Mulan retold)'] },
-  { name: 'hsk4-mid', hsk: 4, targets: 3, maxDue: 4, lengthChars: 120, themes: ['sci-fi'] },
+  { name: 'hsk3', hsk: 3, targets: 3, maxDue: 3, lengthChars: 200, themes: ['history (Mulan retold)'] },
+  { name: 'hsk4-mid', hsk: 4, targets: 3, maxDue: 4, lengthChars: 350, themes: ['sci-fi'] },
   { name: 'bootstrap', bootstrapKnown: 30, targets: 2, maxDue: 0, lengthChars: 50, themes: ['friendship'] },
   // Seed-driven (§17.2): retell a history plot skeleton through the existing engine.
-  { name: 'hsk3-seed-mulan', hsk: 3, targets: 3, maxDue: 3, lengthChars: 100, themes: [''], seedId: 'mulan' },
+  { name: 'hsk3-seed-mulan', hsk: 3, targets: 3, maxDue: 3, lengthChars: 300, themes: [''], seedId: 'mulan' },
 ];
 
 /** Materialize every spec into a runnable fixture (creates learners in `db`). */

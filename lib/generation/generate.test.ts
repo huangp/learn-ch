@@ -64,13 +64,21 @@ describe('generateGradedStory — generate → validate → repair (§8.1)', () 
     expect(res.meta.knownCoverage).toBeGreaterThanOrEqual(0.9);
   });
 
-  test('exhausts repairs, runs the fallback, then throws GenerationFailed', async () => {
-    const llm = new MockLlmProvider(() => dirtyJson); // always dirty
+  test('exhausts repairs + fallback, then returns the best draft flagged belowTarget', async () => {
+    const llm = new MockLlmProvider(() => dirtyJson); // always dirty (out-of-vocab 龘, strict learner)
+    const res = await generateGradedStory(t.db, llm, learnerId, { targetCharIds, maxRepairs: 1 });
+    // 1 initial + 1 repair + 1 fallback
+    expect(llm.calls.length).toBe(3);
+    expect(res.meta.belowTarget).toBe(true);
+    expect(res.meta.shortfalls?.length ?? 0).toBeGreaterThan(0);
+    expect(res.story.body).toContain('龘');
+  });
+
+  test('throws GenerationFailed only when no attempt parses into a story', async () => {
+    const llm = new MockLlmProvider(() => 'not json at all'); // never parseable
     await expect(generateGradedStory(t.db, llm, learnerId, { targetCharIds, maxRepairs: 1 })).rejects.toBeInstanceOf(
       GenerationFailed,
     );
-    // 1 initial + 1 repair + 1 fallback
-    expect(llm.calls.length).toBe(3);
   });
 
   test('feeds the offending char into the repair prompt (§8.4)', async () => {
@@ -107,6 +115,28 @@ describe('generateGradedStory — generate → validate → repair (§8.1)', () 
     const userPrompt = llm.calls[0].messages.at(-1)!.content;
     expect(userPrompt).toContain('STORY TO RETELL');
     expect(userPrompt).toContain('1. The hero sets out.');
+  });
+
+  test('small-vocabulary learner: an out-of-vocab char within budget passes (relaxed mode)', async () => {
+    // HSK1 (< RELAX_KNOWN_THRESHOLD known chars) → relaxed: out-of-vocab chars are tolerated
+    // up to the distinct-unknown budget instead of failing validateChars.
+    const smallId = createLearner(t.db, 'Small', {}, NOW).id;
+    const known = selfDeclareHsk(t.db, 1);
+    seedLearner(t.db, smallId, known, 'hsk', NOW);
+    const knownSet = new Set(known);
+    const tIds = buildCurriculum(t.db).filter((id) => !knownSet.has(id)).slice(0, 1);
+
+    const { allowedChars, targetChars } = buildAllowlist(t.db, smallId, tIds);
+    const target = targetChars[0];
+    const [k1, k2] = [...allowedChars].filter((c) => c !== target);
+    // 龘 is NOT in the allowlist; relaxed mode permits it (distinct unknown = {target, 龘} = 2 ≤ 10).
+    const body = `${k1.repeat(10)}龘${target}。${k2.repeat(10)}${target}。`;
+    const json = JSON.stringify({ title: `${k1}${k2}`, body, targetCharsUsed: [target], comprehensionQuestions: [], choices: [] });
+
+    const res = await generateGradedStory(t.db, new MockLlmProvider([json]), smallId, { targetCharIds: tIds });
+    expect(res.meta.repairIterations).toBe(0);
+    expect(res.meta.belowTarget).toBeFalsy();
+    expect(res.story.body).toContain('龘');
   });
 
   test('a companion name passes validation and is recorded in meta (§11)', async () => {

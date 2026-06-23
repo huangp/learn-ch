@@ -14,3 +14,5 @@ evals/results/
 .codegraph/
 
 .next/
+
+tsconfig.tsbuildinfo

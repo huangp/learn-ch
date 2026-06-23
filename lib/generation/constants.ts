@@ -17,3 +17,9 @@ export const KNOWN_COVERAGE_FLOOR = 0.9;
 
 /** Per-sentence local floor — kills the "one unparseable sentence" failure a global avg hides (§8.3). */
 export const MIN_SENTENCE_COVERAGE = 0.85;
+
+/** Below this known-char count, swap the % coverage floors for an absolute unknown-char budget. */
+export const RELAX_KNOWN_THRESHOLD = 500;
+
+/** In relaxed mode, max DISTINCT unknown Han chars allowed in the body (targets + out-of-vocab). */
+export const MAX_UNKNOWN_CHARS = 10;

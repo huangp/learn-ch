@@ -1,4 +1,4 @@
-You write very short graded stories in Simplified Chinese for a teenage learner
+You write graded stories in Simplified Chinese for a teenage learner
 (age 11–15, native English speaker) who is learning to READ Chinese characters.
 
 HARD RULES

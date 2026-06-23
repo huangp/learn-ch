@@ -74,6 +74,13 @@ export async function generateAndPersistStory(
   // saved default; otherwise fall back to the learner's saved default genre.
   const genre = getGenre(opts.genreId ?? (opts.theme ? undefined : (learner.settings.genreId as string | undefined)));
 
+  // Progress logging — generation runs up to ~6 serial LLM calls (initial + repairs + fallback),
+  // during which the browser request just sits "pending". Log each attempt server-side so the dev
+  // terminal shows what the loop is doing (which call, pass/fail, why).
+  const t0 = Date.now();
+  const elapsed = () => Math.round((Date.now() - t0) / 1000);
+  console.log(`[gen] learner ${learnerId}: ${targetCharIds.length} target(s), ${dueCharIds.length} due — generating…`);
+
   const { story, meta } = await generateGradedStory(db, llm, learnerId, {
     targetCharIds,
     dueCharIds,
@@ -87,10 +94,18 @@ export async function generateAndPersistStory(
     genre,
     storySeed,
     model: opts.model,
+    onAttempt: (info) => {
+      const tag = `${info.phase}#${info.attempt}`;
+      if (info.passed) console.log(`[gen]   ${tag}: ✓ passed (${elapsed()}s)`);
+      else console.log(`[gen]   ${tag}: ✗ ${info.reasons.join('; ') || info.parseError || 'failed'}`);
+    },
   });
 
+  if (meta.belowTarget) console.log(`[gen] ⚠ below target — persisting best-effort draft (${meta.shortfalls?.join('; ')})`);
+  console.log(`[gen] story generated in ${elapsed()}s — annotating + resolving heteronyms…`);
   let segments = annotate(db, story.body);
   segments = await resolveHeteronyms(llm, story.body, segments);
+  console.log(`[gen] done in ${elapsed()}s (model ${meta.model})`);
 
   const { id } = createStory(db, {
     learnerId,

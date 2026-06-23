@@ -5,11 +5,22 @@ import { chooseBranchAction } from '@/app/actions';
 import type { Choice } from '@/lib/generation/types';
 import { Button } from '@/components/ui/button';
 
-export function Choices({ storyId, choices }: { storyId: number; choices: Choice[] }) {
+export function Choices({
+  storyId,
+  choices,
+  flushDwell,
+}: {
+  storyId: number;
+  choices: Choice[];
+  flushDwell: () => Promise<void>;
+}) {
   const [pending, startTransition] = useTransition();
 
   function pick(choice: Choice) {
     startTransition(async () => {
+      // Persist trailing dwell before branching — generating the next story grades this one, and
+      // grading is idempotent, so late dwell writes would otherwise be dropped.
+      await flushDwell();
       await chooseBranchAction(storyId, choice.seed, choice.label);
     });
   }

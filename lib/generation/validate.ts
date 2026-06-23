@@ -23,8 +23,16 @@ const PRECOMPOSED_TONE = new Set(
   [...'āáǎàĀÁǍÀ', ...'ēéěèĒÉĚÈ', ...'īíǐìĪÍǏÌ', ...'ōóǒòŌÓǑÒ', ...'ūúǔùŪÚǓÙ', ...'ǖǘǚǜǕǗǙǛ', ...'ńňǹŃŇǸ', ...'ḿ'],
 );
 
-/** Scan a hanzi-only body for out-of-vocab chars and evasion signals (§8.2). */
-export function validateChars(hanzi: string, allowedChars: Set<string>): ValidationResult {
+/** Scan a hanzi-only body for out-of-vocab chars and evasion signals (§8.2).
+ *
+ * In `relaxed` mode (small-vocabulary learners, §16.4-adjacent) out-of-vocab Han chars no
+ * longer fail validation — they're still collected for diagnostics, but the absolute
+ * unknown-char budget in checkCoverage is what bounds them. Evasions (latin/pinyin) always fail. */
+export function validateChars(
+  hanzi: string,
+  allowedChars: Set<string>,
+  opts: { relaxed?: boolean } = {},
+): ValidationResult {
   const violations: CharHit[] = [];
   const evasions: CharHit[] = [];
 
@@ -39,5 +47,6 @@ export function validateChars(hanzi: string, allowedChars: Set<string>): Validat
     index++;
   }
 
-  return { violations, evasions, ok: violations.length === 0 && evasions.length === 0 };
+  const ok = evasions.length === 0 && (opts.relaxed || violations.length === 0);
+  return { violations, evasions, ok };
 }
