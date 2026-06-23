@@ -3,7 +3,7 @@ import { makeTestDb } from '../lib/test-utils';
 import { createLlmProvider } from '../lib/llm/index';
 import { KNOWN_COVERAGE_TARGET } from '../lib/generation/constants';
 import { GenerationFailed, type AttemptDiagnostics } from '../lib/generation/types';
-import { judgeStory, JUDGE_MODEL } from '../evals/judge';
+import { judgeStory, JUDGE_MODEL, createJudgeProvider } from '../evals/judge';
 import { generateForProfile, type Profile } from './run-profile';
 
 // `pnpm story` — end-to-end driver. Give a learner profile, get back a validated, graded
@@ -145,13 +145,16 @@ async function main() {
     console.log(`repairs:          ${meta.repairIterations}${meta.fallbackUsed ? ' + fallback' : ''}`);
     console.log(`model:            ${meta.model}`);
     console.log(`latency:          ${(meta.latencyMs / 1000).toFixed(1)}s`);
-    console.log(`cost:             $${meta.costUsd.toFixed(4)}  (in ${meta.usage.inputTokens} / out ${meta.usage.outputTokens})`);
+    const cacheRead = meta.usage.cacheReadTokens ?? 0;
+    const cacheWrite = meta.usage.cacheWriteTokens ?? 0;
+    const cacheNote = cacheRead || cacheWrite ? ` / cacheRead ${cacheRead} / cacheWrite ${cacheWrite}` : '';
+    console.log(`cost:             $${meta.costUsd.toFixed(4)}  (in ${meta.usage.inputTokens} / out ${meta.usage.outputTokens}${cacheNote})`);
     console.log(`verdict:          ${pass ? '✓ PASS' : '⚠ WARN (valid story, below the quality bar)'}`);
 
     if (values.judge) {
       section('COHERENCE JUDGE');
       console.log(`(judge model: ${JUDGE_MODEL})`);
-      const judge = createLlmProvider({ model: JUDGE_MODEL });
+      const judge = createJudgeProvider();
       const r = await judgeStory(judge, story);
       console.log(`coherence:        ${r.coherence}/5`);
       console.log(`ageAppropriate:   ${r.ageAppropriateness}/5`);

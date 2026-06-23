@@ -13,11 +13,21 @@ export interface LlmGenerateOptions {
   model?: string;
   maxTokens?: number;
   temperature?: number;
+  /**
+   * Cache the stable prefix — the system prompt and the first user message — so a multi-turn
+   * thread (the generate → repair loop) reuses it instead of re-billing it every turn.
+   * Off by default: caching a one-shot prompt is a net loss (cache write, no read).
+   */
+  cache?: boolean;
 }
 
 export interface LlmUsage {
   inputTokens: number;
   outputTokens: number;
+  /** Tokens served from a prompt cache (billed at a discount). */
+  cacheReadTokens?: number;
+  /** Tokens written to a prompt cache (Anthropic surcharges these). */
+  cacheWriteTokens?: number;
 }
 
 export interface LlmResult {

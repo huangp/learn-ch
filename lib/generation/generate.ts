@@ -111,9 +111,14 @@ export async function generateGradedStory(
     targets: string[],
     phase: 'initial' | 'repair' | 'fallback',
   ): Promise<Attempt> => {
-    const res = await llm.generate({ system, messages, model: config.model });
+    // Cache the stable prefix (system + first user msg) on the multi-turn main thread, where
+    // repair turns reuse it. The fallback is a single fresh-thread shot — caching it only adds
+    // a cache-write surcharge with no read, so leave it off.
+    const res = await llm.generate({ system, messages, model: config.model, cache: phase !== 'fallback' });
     usage.inputTokens += res.usage.inputTokens;
     usage.outputTokens += res.usage.outputTokens;
+    usage.cacheReadTokens = (usage.cacheReadTokens ?? 0) + (res.usage.cacheReadTokens ?? 0);
+    usage.cacheWriteTokens = (usage.cacheWriteTokens ?? 0) + (res.usage.cacheWriteTokens ?? 0);
     model = res.model;
 
     let a: Attempt;

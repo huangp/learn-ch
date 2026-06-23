@@ -10,7 +10,16 @@ import { buildFixtures } from './fixtures';
 // 1–5. Run on demand: `pnpm eval:judge`. Subjective signal — not part of the CI gate.
 // `judgeStory` is reused by the story CLI's `--judge` flag.
 
+// The judge is a SEPARATE setup from story generation — its own provider + model, so you can
+// e.g. write with a cheap model and judge with a stronger one (even on a different provider).
+// LLM_JUDGE_PROVIDER falls back to LLM_PROVIDER (the story provider) when unset.
+export const JUDGE_PROVIDER = process.env.LLM_JUDGE_PROVIDER;
 export const JUDGE_MODEL = process.env.LLM_JUDGE_MODEL ?? 'claude-sonnet-4-6';
+
+/** Build the judge provider from its own LLM_JUDGE_PROVIDER / LLM_JUDGE_MODEL env (§12). */
+export function createJudgeProvider(): LlmProvider {
+  return createLlmProvider({ provider: JUDGE_PROVIDER, model: JUDGE_MODEL });
+}
 
 export const JUDGE_SYSTEM = `You are evaluating very short graded Chinese stories written for a teenage
 learner (age 11–15) who is learning to read Chinese. Rate two things from 1 (poor) to 5 (excellent):
@@ -40,7 +49,7 @@ export async function judgeStory(judge: LlmProvider, story: StoryJson): Promise<
 
 async function main() {
   const gen = createLlmProvider();
-  const judge = createLlmProvider({ model: JUDGE_MODEL });
+  const judge = createJudgeProvider();
   const t = makeTestDb();
   try {
     const fixtures = buildFixtures(t.db);

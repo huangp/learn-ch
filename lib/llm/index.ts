@@ -1,8 +1,10 @@
 import { AnthropicProvider } from './anthropic';
+import { OpenRouterProvider } from './openrouter';
 import type { LlmProvider } from './provider';
 
 export type { LlmProvider, LlmMessage, LlmGenerateOptions, LlmResult, LlmUsage } from './provider';
 export { AnthropicProvider, DEFAULT_MODEL } from './anthropic';
+export { OpenRouterProvider } from './openrouter';
 export { MockLlmProvider } from './mock';
 export { costUsd } from './pricing';
 
@@ -21,6 +23,8 @@ export function createLlmProvider(cfg: LlmConfig = {}): LlmProvider {
   switch (provider) {
     case 'anthropic':
       return new AnthropicProvider({ apiKey: cfg.apiKey, model: cfg.model });
+    case 'openrouter':
+      return new OpenRouterProvider({ apiKey: cfg.apiKey, model: cfg.model });
     default:
       throw new Error(`Unknown LLM provider: ${provider}`);
   }
