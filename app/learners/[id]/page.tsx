@@ -6,7 +6,8 @@ import { canAccessLearner } from '@/lib/auth/access';
 import { getSessionContext } from '@/lib/auth/session';
 import { getPersona } from '@/lib/persona/presets';
 import { getGenre } from '@/lib/genres/presets';
-import { listStoriesForLearner } from '@/lib/story/persist';
+import { listStoriesForLearner, type StoryRecord } from '@/lib/story/persist';
+import { flattenThread, groupIntoThreads } from '@/lib/story/thread';
 import { GenerateStoryForm } from '@/components/GenerateStoryForm';
 import { SeedLibrary } from '@/components/SeedLibrary';
 import { SignOutButton } from '@/components/SignOutButton';
@@ -15,6 +16,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Toaster } from '@/components/ui/toast';
 
 export const dynamic = 'force-dynamic';
+
+function StoryCard({ story, learnerId, part }: { story: StoryRecord; learnerId: number; part?: number }) {
+  return (
+    <Link href={`/learners/${learnerId}/read/${story.id}`}>
+      <Card className="transition-colors hover:bg-muted">
+        <CardHeader>
+          <CardTitle className="text-base">
+            {part != null ? <span className="mr-2 text-muted-foreground">Part {part}</span> : null}
+            {story.title ?? 'Untitled'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground">
+          targets: {story.targetChars.join(' ') || '—'}
+          {story.meta ? ` · coverage ${(story.meta.knownCoverage * 100).toFixed(0)}%` : ''}
+          {story.meta?.belowTarget ? ' · draft' : ''}
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
 
 export default async function LearnerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -25,6 +46,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
   if (!learner) notFound();
 
   const stories = listStoriesForLearner(db, learnerId);
+  const { threads, singletons } = groupIntoThreads(stories);
   const persona = getPersona(learner.settings.personaId);
   const genre = getGenre(learner.settings.genreId);
 
@@ -59,25 +81,34 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
       {stories.length === 0 ? (
         <p className="text-muted-foreground">No stories yet. Generate one above.</p>
       ) : (
-        <ul className="grid gap-3">
-          {stories.map((s) => (
-            <li key={s.id}>
-              <Link href={`/learners/${learnerId}/read/${s.id}`}>
-                <Card className="transition-colors hover:bg-muted">
-                  <CardHeader>
-                    <CardTitle className="text-base">{s.title ?? 'Untitled'}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground">
-                    targets: {s.targetChars.join(' ') || '—'}
-                    {s.meta ? ` · coverage ${(s.meta.knownCoverage * 100).toFixed(0)}%` : ''}
-                    {s.meta?.belowTarget ? ' · draft' : ''}
-                    {s.parentStoryId ? ' · branch' : ''}
-                  </CardContent>
-                </Card>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="grid gap-6">
+          {threads.map((thread) => {
+            const nodes = flattenThread(thread);
+            return (
+              <div key={thread.story.id} className="rounded-lg border p-3">
+                <p className="mb-2 text-sm font-medium text-muted-foreground">
+                  Series: {thread.story.title ?? 'Untitled'} · {nodes.length} parts
+                </p>
+                <ul className="grid gap-3">
+                  {nodes.map((node) => (
+                    <li key={node.story.id} style={{ marginLeft: (node.part - 1) * 16 }}>
+                      <StoryCard story={node.story} learnerId={learnerId} part={node.part} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+          {singletons.length > 0 ? (
+            <ul className="grid gap-3">
+              {singletons.map((s) => (
+                <li key={s.id}>
+                  <StoryCard story={s} learnerId={learnerId} />
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
       )}
     </main>
     </Toaster>

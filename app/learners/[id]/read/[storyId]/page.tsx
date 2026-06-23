@@ -5,7 +5,8 @@ import { getLearner } from '@/lib/learner/crud';
 import { canAccessLearner } from '@/lib/auth/access';
 import { getSessionContext } from '@/lib/auth/session';
 import { getPersona } from '@/lib/persona/presets';
-import { getStory } from '@/lib/story/persist';
+import { getStory, listStoriesForLearner } from '@/lib/story/persist';
+import { getThreadContext } from '@/lib/story/thread';
 import { Reader } from '@/components/Reader';
 import { Button } from '@/components/ui/button';
 
@@ -22,11 +23,39 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
 
   const persona = getPersona(learner.settings.personaId) ?? null;
 
+  const thread = getThreadContext(listStoriesForLearner(db, learnerId), story.id);
+  const inSeries = thread != null && (thread.parent != null || thread.children.length > 0);
+
   return (
     <main className="mx-auto max-w-2xl p-8">
       <div className="mb-6">
         <Button variant="ghost" render={<Link href={`/learners/${learnerId}`}>← {learner.displayName}</Link>} />
       </div>
+      {inSeries ? (
+        <div className="mb-6 space-y-1 text-sm">
+          <p className="font-medium text-muted-foreground">Part {thread.part}</p>
+          {thread.parent ? (
+            <p>
+              <Link href={`/learners/${learnerId}/read/${thread.parent.id}`} className="text-primary hover:underline">
+                ← Continues from: {thread.parent.title ?? 'Untitled'}
+              </Link>
+            </p>
+          ) : null}
+          {thread.children.length > 0 ? (
+            <p className="text-muted-foreground">
+              Continued in:{' '}
+              {thread.children.map((c, i) => (
+                <span key={c.id}>
+                  {i > 0 ? ' · ' : ''}
+                  <Link href={`/learners/${learnerId}/read/${c.id}`} className="text-primary hover:underline">
+                    {c.title ?? 'Untitled'} →
+                  </Link>
+                </span>
+              ))}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
       {story.meta?.belowTarget ? (
         <div className="mb-6 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
           This story was a best effort — a few characters may be new or harder than usual.
