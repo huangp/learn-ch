@@ -1,0 +1,1 @@
+ALTER TABLE `stories` ADD `deleted_at` integer;

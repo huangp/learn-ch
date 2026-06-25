@@ -1,10 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages';
 import type { LlmGenerateOptions, LlmProvider, LlmResult } from './provider';
-import { llmTimeoutMs } from './openrouter';
+import { llmTimeoutMs } from './openaiCompatible';
 
 export const DEFAULT_MODEL = 'claude-haiku-4-5';
-const DEFAULT_MAX_TOKENS = 2048;
+// Generous output cap — max_tokens is only a ceiling (billing is by tokens actually generated),
+// so set it high enough that even the longest graded story's JSON can't be truncated.
+const DEFAULT_MAX_TOKENS = 81920;
 
 const EPHEMERAL = { type: 'ephemeral' as const };
 
@@ -64,6 +66,7 @@ export class AnthropicProvider implements LlmProvider {
     return {
       text,
       model: res.model,
+      stopReason: res.stop_reason ?? undefined,
       usage: {
         inputTokens: res.usage.input_tokens,
         outputTokens: res.usage.output_tokens,

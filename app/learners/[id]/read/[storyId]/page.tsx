@@ -5,9 +5,12 @@ import { getLearner } from '@/lib/learner/crud';
 import { canAccessLearner } from '@/lib/auth/access';
 import { getSessionContext } from '@/lib/auth/session';
 import { getPersona } from '@/lib/persona/presets';
+import { getKnownChars } from '@/lib/allowlist/index';
 import { getStory, listStoriesForLearner } from '@/lib/story/persist';
+import { computeStoryStats } from '@/lib/story/stats';
 import { getThreadContext } from '@/lib/story/thread';
 import { Reader } from '@/components/Reader';
+import { StoryMeta } from '@/components/StoryMeta';
 import { Button } from '@/components/ui/button';
 
 export const dynamic = 'force-dynamic';
@@ -22,6 +25,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
   if (!learner || !story || story.learnerId !== learnerId) notFound();
 
   const persona = getPersona(learner.settings.personaId) ?? null;
+  const stats = computeStoryStats(story.hanzi, getKnownChars(db, learnerId));
 
   const thread = getThreadContext(listStoriesForLearner(db, learnerId), story.id);
   const inSeries = thread != null && (thread.parent != null || thread.children.length > 0);
@@ -61,6 +65,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
           This story was a best effort — a few characters may be new or harder than usual.
         </div>
       ) : null}
+      <StoryMeta stats={stats} model={story.meta?.model ?? null} />
       <Reader
         storyId={story.id}
         learnerId={learnerId}
@@ -70,6 +75,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
         choices={story.choices}
         bootstrap={learner.settings.bootstrap === true}
         persona={persona}
+        captureInteractions={ctx.kind === 'child'}
       />
     </main>
   );

@@ -7,8 +7,11 @@ import { getSessionContext } from '@/lib/auth/session';
 import { getPersona } from '@/lib/persona/presets';
 import { getGenre } from '@/lib/genres/presets';
 import { listStoriesForLearner, type StoryRecord } from '@/lib/story/persist';
+import { getStoryReadCounts } from '@/lib/interactions/stats';
+import { estimateReadingMinutes } from '@/lib/story/reading-time';
 import { flattenThread, groupIntoThreads } from '@/lib/story/thread';
 import { GenerateStoryForm } from '@/components/GenerateStoryForm';
+import { DeleteStoryButton } from '@/components/DeleteStoryButton';
 import { SeedLibrary } from '@/components/SeedLibrary';
 import { SignOutButton } from '@/components/SignOutButton';
 import { Button } from '@/components/ui/button';
@@ -17,23 +20,43 @@ import { Toaster } from '@/components/ui/toast';
 
 export const dynamic = 'force-dynamic';
 
-function StoryCard({ story, learnerId, part }: { story: StoryRecord; learnerId: number; part?: number }) {
+function StoryCard({
+  story,
+  learnerId,
+  part,
+  readCount,
+  permanent,
+}: {
+  story: StoryRecord;
+  learnerId: number;
+  part?: number;
+  readCount: number;
+  permanent: boolean;
+}) {
   return (
-    <Link href={`/learners/${learnerId}/read/${story.id}`}>
-      <Card className="transition-colors hover:bg-muted">
-        <CardHeader>
-          <CardTitle className="text-base">
-            {part != null ? <span className="mr-2 text-muted-foreground">Part {part}</span> : null}
-            {story.title ?? 'Untitled'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          targets: {story.targetChars.join(' ') || '—'}
-          {story.meta ? ` · coverage ${(story.meta.knownCoverage * 100).toFixed(0)}%` : ''}
-          {story.meta?.belowTarget ? ' · draft' : ''}
-        </CardContent>
-      </Card>
-    </Link>
+    <div className="relative">
+      <Link href={`/learners/${learnerId}/read/${story.id}`}>
+        <Card className="transition-colors hover:bg-muted">
+          <CardHeader>
+            <CardTitle className="pr-16 text-base">
+              {part != null ? <span className="mr-2 text-muted-foreground">Part {part}</span> : null}
+              {story.title ?? 'Untitled'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            {readCount > 0 ? `📖 Read${readCount > 1 ? ` · ${readCount}×` : ''} · ` : ''}
+            ~{estimateReadingMinutes(story.hanzi)} min
+            <br />
+            targets: {story.targetChars.join(' ') || '—'}
+            {story.meta ? ` · coverage ${(story.meta.knownCoverage * 100).toFixed(0)}%` : ''}
+            {story.meta?.belowTarget ? ' · draft' : ''}
+          </CardContent>
+        </Card>
+      </Link>
+      <div className="absolute right-2 top-2">
+        <DeleteStoryButton storyId={story.id} learnerId={learnerId} permanent={permanent} />
+      </div>
+    </div>
   );
 }
 
@@ -46,6 +69,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
   if (!learner) notFound();
 
   const stories = listStoriesForLearner(db, learnerId);
+  const readCounts = getStoryReadCounts(db, learnerId);
   const { threads, singletons } = groupIntoThreads(stories);
   const persona = getPersona(learner.settings.personaId);
   const genre = getGenre(learner.settings.genreId);
@@ -66,7 +90,10 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
         <div className="flex items-center gap-1">
           <Button variant="ghost" render={<Link href={`/learners/${learnerId}/progress`}>Progress</Link>} />
           {ctx.kind === 'adult' && (
-            <Button variant="ghost" render={<Link href="/">All learners</Link>} />
+            <>
+              <Button variant="ghost" render={<Link href={`/learners/${learnerId}/settings`}>Settings</Link>} />
+              <Button variant="ghost" render={<Link href="/">All learners</Link>} />
+            </>
           )}
           <SignOutButton />
         </div>
@@ -92,7 +119,13 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
                 <ul className="grid gap-3">
                   {nodes.map((node) => (
                     <li key={node.story.id} style={{ marginLeft: (node.part - 1) * 16 }}>
-                      <StoryCard story={node.story} learnerId={learnerId} part={node.part} />
+                      <StoryCard
+                        story={node.story}
+                        learnerId={learnerId}
+                        part={node.part}
+                        readCount={readCounts.get(node.story.id) ?? 0}
+                        permanent={ctx.kind === 'adult'}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -103,7 +136,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
             <ul className="grid gap-3">
               {singletons.map((s) => (
                 <li key={s.id}>
-                  <StoryCard story={s} learnerId={learnerId} />
+                  <StoryCard story={s} learnerId={learnerId} readCount={readCounts.get(s.id) ?? 0} permanent={ctx.kind === 'adult'} />
                 </li>
               ))}
             </ul>

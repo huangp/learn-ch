@@ -20,6 +20,15 @@ export const ChoiceSchema = z.object({
   seed: z.string().min(1),
 });
 
+// §8.5 soft-gloss: the model's explicit, SEPARATE declaration of the out-of-vocab words it
+// deliberately used for coherence. Kept distinct from the known/allowed vocabulary — these only
+// join the allowed set internally (to pass validateChars) and are surfaced with pinyin + gloss.
+// Pinyin is NEVER taken from the model; it's filled deterministically downstream (annotate).
+export const GlossaryEntrySchema = z.object({
+  word: z.string().min(1),
+  gloss: z.string().min(1),
+});
+
 export const StoryJsonSchema = z
   .object({
     title: z.string().min(1),
@@ -27,6 +36,7 @@ export const StoryJsonSchema = z
     targetCharsUsed: z.array(z.string()).default([]),
     comprehensionQuestions: z.array(ComprehensionQuestionSchema).default([]),
     choices: z.array(ChoiceSchema).default([]),
+    glossary: z.array(GlossaryEntrySchema).default([]),
   })
   // answer must index into its own options.
   .refine(
@@ -36,17 +46,27 @@ export const StoryJsonSchema = z
 
 export type ComprehensionQuestion = z.infer<typeof ComprehensionQuestionSchema>;
 export type Choice = z.infer<typeof ChoiceSchema>;
+export type GlossaryEntry = z.infer<typeof GlossaryEntrySchema>;
 export type StoryJson = z.infer<typeof StoryJsonSchema>;
+
+/** A story-length range in characters (§15 #4) — the model is asked to land between min and max. */
+export interface LengthBand {
+  min: number;
+  max: number;
+}
 
 /** Inputs to a single story generation. Targets/due are explicit charIds (Phase 6 selectors deferred). */
 export interface GenerationConfig {
   targetCharIds: number[];
   dueCharIds?: number[];
   theme?: string;
-  lengthChars?: number;
+  /** Target length range; derived per-learner via lib/story/length.ts, else DEFAULT_LENGTH_BAND. */
+  lengthChars?: LengthBand;
   maxWords?: number;
   maxRepairs?: number;
   k?: number;
+  /** Max out-of-vocab words the model may declare in `glossary` (default MAX_GLOSSED_WORDS). */
+  maxGlossed?: number;
   /** Override the global known-coverage hard gate (default KNOWN_COVERAGE_FLOOR). */
   coverageBand?: number;
   /** Override the per-sentence coverage floor (default MIN_SENTENCE_COVERAGE = 0.85). */
@@ -86,6 +106,8 @@ export interface GenerationMeta {
   genreId?: string;
   /** Story seed this story retold (§17.2), when generated from one — resolves back via getStorySeed. */
   seedId?: string;
+  /** Count of out-of-vocab words declared in the story's glossary (§8.5 soft-gloss). */
+  glossedCount?: number;
   /** True when the story was returned despite not passing all gates (best-effort draft). */
   belowTarget?: boolean;
   /** Human-readable shortfalls when belowTarget (reuses describeFailures output). */
@@ -105,6 +127,8 @@ export interface AttemptDiagnostics {
   /** Human-readable failure reasons (empty when passed). */
   reasons: string[];
   parseError?: string;
+  /** Provider stop reason (e.g. 'max_tokens'/'length' = truncated → likely the cause of bad JSON). */
+  stopReason?: string;
   knownCoverage?: number;
   targetCoverage?: number;
   perSentenceMin?: number;

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { OpenRouterProvider, type OpenAiLike } from './openrouter';
+import { OpenAiCompatibleProvider, type OpenAiLike } from './openaiCompatible';
 
 // A fake openai-shaped client: captures the request body and returns a canned completion.
 function fakeClient(usage?: Record<string, unknown>): { client: OpenAiLike; calls: any[] } {
@@ -21,10 +21,10 @@ function fakeClient(usage?: Record<string, unknown>): { client: OpenAiLike; call
   return { client, calls };
 }
 
-describe('OpenRouterProvider', () => {
+describe('OpenAiCompatibleProvider', () => {
   test('sends model, system+user messages and max_tokens', async () => {
     const { client, calls } = fakeClient();
-    const p = new OpenRouterProvider({ client, model: 'openai/gpt-4o-mini' });
+    const p = new OpenAiCompatibleProvider({ client, model: 'openai/gpt-4o-mini' });
     await p.generate({ system: 'SYS', messages: [{ role: 'user', content: 'U1' }], maxTokens: 512 });
 
     const body = calls[0];
@@ -36,7 +36,7 @@ describe('OpenRouterProvider', () => {
 
   test('cache:true on an anthropic/* model adds cache_control to system + first user msg only', async () => {
     const { client, calls } = fakeClient();
-    const p = new OpenRouterProvider({ client, model: 'anthropic/claude-haiku-4.5' });
+    const p = new OpenAiCompatibleProvider({ client, model: 'anthropic/claude-haiku-4.5' });
     await p.generate({
       system: 'SYS',
       messages: [
@@ -57,7 +57,7 @@ describe('OpenRouterProvider', () => {
 
   test('cache:true on a non-explicit-cache model leaves content as plain strings', async () => {
     const { client, calls } = fakeClient();
-    const p = new OpenRouterProvider({ client, model: 'openai/gpt-4o-mini' });
+    const p = new OpenAiCompatibleProvider({ client, model: 'openai/gpt-4o-mini' });
     await p.generate({ system: 'SYS', messages: [{ role: 'user', content: 'U1' }], cache: true });
 
     expect(calls[0].messages[0].content).toBe('SYS');
@@ -66,7 +66,7 @@ describe('OpenRouterProvider', () => {
 
   test('maps response text and usage (incl. cached tokens)', async () => {
     const { client } = fakeClient({ prompt_tokens_details: { cached_tokens: 80 } });
-    const p = new OpenRouterProvider({ client, model: 'anthropic/claude-haiku-4.5' });
+    const p = new OpenAiCompatibleProvider({ client, model: 'anthropic/claude-haiku-4.5' });
     const res = await p.generate({ system: 'SYS', messages: [{ role: 'user', content: 'U1' }] });
 
     expect(res.text).toBe('{"title":"x","body":"你好"}');
@@ -76,9 +76,22 @@ describe('OpenRouterProvider', () => {
 
   test('requests usage accounting from OpenRouter', async () => {
     const { client, calls } = fakeClient();
-    const p = new OpenRouterProvider({ client });
+    const p = new OpenAiCompatibleProvider({ client });
     await p.generate({ system: 'SYS', messages: [{ role: 'user', content: 'U1' }] });
     expect(calls[0].usage).toEqual({ include: true });
+  });
+
+  test('a non-OpenRouter base URL (e.g. Moonshot) omits the OpenRouter usage extension', async () => {
+    const { client, calls } = fakeClient({ prompt_tokens_details: { cached_tokens: 0 } });
+    const p = new OpenAiCompatibleProvider({ client, baseURL: 'https://api.moonshot.cn/v1', model: 'kimi-k2-0905-preview' });
+    const res = await p.generate({ system: 'SYS', messages: [{ role: 'user', content: 'U1' }] });
+
+    // No OpenRouter-only `usage:{include:true}` field on the request body...
+    expect(calls[0].usage).toBeUndefined();
+    // ...but standard text + token accounting still map.
+    expect(res.text).toBe('{"title":"x","body":"你好"}');
+    expect(res.model).toBe('kimi-k2-0905-preview');
+    expect(res.usage).toEqual({ inputTokens: 100, outputTokens: 20, cacheReadTokens: 0 });
   });
 
   describe('cacheMode (LLM_CACHE) with presets', () => {
@@ -87,7 +100,7 @@ describe('OpenRouterProvider', () => {
 
     test("cacheMode 'on' forces cache_control even on a bare @preset/slug model", async () => {
       const { client, calls } = fakeClient();
-      const p = new OpenRouterProvider({ client, model: '@preset/my-slug', cacheMode: 'on' });
+      const p = new OpenAiCompatibleProvider({ client, model: '@preset/my-slug', cacheMode: 'on' });
       await p.generate(cacheReq);
       expect(isCached(calls[0].messages[0])).toBe(true); // system
       expect(isCached(calls[0].messages[1])).toBe(true); // first user msg
@@ -95,7 +108,7 @@ describe('OpenRouterProvider', () => {
 
     test("cacheMode 'off' disables cache_control on an anthropic/* model", async () => {
       const { client, calls } = fakeClient();
-      const p = new OpenRouterProvider({ client, model: 'anthropic/claude-haiku-4.5', cacheMode: 'off' });
+      const p = new OpenAiCompatibleProvider({ client, model: 'anthropic/claude-haiku-4.5', cacheMode: 'off' });
       await p.generate(cacheReq);
       expect(calls[0].messages[0].content).toBe('SYS');
       expect(calls[0].messages[1].content).toBe('U1');
@@ -103,11 +116,11 @@ describe('OpenRouterProvider', () => {
 
     test("cacheMode 'auto' (default): anthropic/* caches, @preset/slug does not", async () => {
       const anth = fakeClient();
-      await new OpenRouterProvider({ client: anth.client, model: 'anthropic/claude-haiku-4.5' }).generate(cacheReq);
+      await new OpenAiCompatibleProvider({ client: anth.client, model: 'anthropic/claude-haiku-4.5' }).generate(cacheReq);
       expect(isCached(anth.calls[0].messages[0])).toBe(true);
 
       const preset = fakeClient();
-      await new OpenRouterProvider({ client: preset.client, model: '@preset/my-slug' }).generate(cacheReq);
+      await new OpenAiCompatibleProvider({ client: preset.client, model: '@preset/my-slug' }).generate(cacheReq);
       expect(preset.calls[0].messages[0].content).toBe('SYS');
     });
 
@@ -117,7 +130,7 @@ describe('OpenRouterProvider', () => {
       try {
         const { client, calls } = fakeClient();
         // auto + bare preset → no caching
-        await new OpenRouterProvider({ client, model: '@preset/my-slug' }).generate(cacheReq);
+        await new OpenAiCompatibleProvider({ client, model: '@preset/my-slug' }).generate(cacheReq);
         expect(calls[0].messages[0].content).toBe('SYS');
       } finally {
         if (prev === undefined) delete process.env.LLM_CACHE;

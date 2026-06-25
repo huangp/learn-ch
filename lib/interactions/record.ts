@@ -7,7 +7,7 @@ import { characters, interactions } from '../../db/schema';
 // Phase 7, which consumes these rows). Keeping capture and grading separate means the
 // raw signal is recorded faithfully now and graded later.
 
-export type InteractionType = 'reveal' | 'question_correct' | 'question_wrong' | 'dwell';
+export type InteractionType = 'reveal' | 'question_correct' | 'question_wrong' | 'dwell' | 'complete';
 
 export interface RecordInteractionInput {
   storyId: number;
@@ -75,6 +75,18 @@ export function recordDwell(
   if (values.length === 0) return { count: 0 };
   db.insert(interactions).values(values).run();
   return { count: values.length };
+}
+
+/**
+ * The learner concluded a reading of this story — clicking "I'm done reading" or picking a branch
+ * to continue (§11). A story-level event (null `charId`), so it's inert for FSRS grading
+ * (`gradeStory` skips null-char rows); its only consumer is the read-count display.
+ */
+export function recordCompletion(
+  db: Db,
+  args: { storyId: number; learnerId: number; now?: number },
+): { id: number } {
+  return recordInteraction(db, { ...args, type: 'complete' });
 }
 
 /** Comprehension answer outcome, tied to a tested char (§8.5 testsChars). */

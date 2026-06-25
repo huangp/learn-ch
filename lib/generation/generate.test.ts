@@ -26,13 +26,13 @@ beforeAll(() => {
   const knownSet = new Set(known);
   targetCharIds = buildCurriculum(t.db).filter((id) => !knownSet.has(id)).slice(0, 1);
 
-  // Build a passing body from the actual allowlist: two known-char-dense sentences,
-  // the target woven in once per sentence (≥K=2, spread → not clustered).
+  // Build a passing body from the actual allowlist: three known-char-dense sentences,
+  // the target woven in once per sentence (≥K=3, spread → not clustered).
   const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);
   const target = targetChars[0];
   const knownChars = [...allowedChars].filter((c) => c !== target);
   const [k1, k2] = knownChars;
-  const cleanBody = `${k1.repeat(12)}${target}。${k2.repeat(12)}${target}。`;
+  const cleanBody = `${k1.repeat(12)}${target}。${k2.repeat(12)}${target}。${k1.repeat(12)}${target}。`;
   const story = (body: string) => ({
     title: `${k1}${k2}`,
     body,
@@ -41,8 +41,8 @@ beforeAll(() => {
     choices: [],
   });
   cleanJson = JSON.stringify(story(cleanBody));
-  // Dirty: same shape but with an out-of-vocab Han char (龘) injected.
-  dirtyJson = JSON.stringify(story(`${k1.repeat(12)}龘${target}。${k2.repeat(12)}${target}。`));
+  // Dirty: same shape but with an out-of-vocab Han char (龘) injected — its only defect.
+  dirtyJson = JSON.stringify(story(`${k1.repeat(12)}龘${target}。${k2.repeat(12)}${target}。${k1.repeat(12)}${target}。`));
 });
 afterAll(() => t.cleanup());
 
@@ -103,7 +103,7 @@ describe('generateGradedStory — generate → validate → repair (§8.1)', () 
     const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);
     const target = targetChars[0];
     const [k1, k2] = [...allowedChars].filter((c) => c !== target);
-    const body = `${k1.repeat(10)}魑魅${target}。${k2.repeat(10)}魑魅${target}。`;
+    const body = `${k1.repeat(10)}魑魅${target}。${k2.repeat(10)}魑魅${target}。${k1.repeat(10)}${target}。`;
     const json = JSON.stringify({ title: `${k1}${k2}`, body, targetCharsUsed: [target], comprehensionQuestions: [], choices: [] });
 
     const llm = new MockLlmProvider([json]);
@@ -130,13 +130,52 @@ describe('generateGradedStory — generate → validate → repair (§8.1)', () 
     const target = targetChars[0];
     const [k1, k2] = [...allowedChars].filter((c) => c !== target);
     // 龘 is NOT in the allowlist; relaxed mode permits it (distinct unknown = {target, 龘} = 2 ≤ 10).
-    const body = `${k1.repeat(10)}龘${target}。${k2.repeat(10)}${target}。`;
+    const body = `${k1.repeat(10)}龘${target}。${k2.repeat(10)}${target}。${k1.repeat(10)}${target}。`;
     const json = JSON.stringify({ title: `${k1}${k2}`, body, targetCharsUsed: [target], comprehensionQuestions: [], choices: [] });
 
     const res = await generateGradedStory(t.db, new MockLlmProvider([json]), smallId, { targetCharIds: tIds });
     expect(res.meta.repairIterations).toBe(0);
     expect(res.meta.belowTarget).toBeFalsy();
     expect(res.story.body).toContain('龘');
+  });
+
+  test('a declared glossary word lets a strict learner use an out-of-vocab char (§8.5)', async () => {
+    // Same dirty body (out-of-vocab 龘) that fails for a strict HSK3 learner — but now 龘 is DECLARED
+    // in the glossary, so it validates and counts as covered. First pass, no repair.
+    const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);
+    const target = targetChars[0];
+    const [k1, k2] = [...allowedChars].filter((c) => c !== target);
+    const body = `${k1.repeat(12)}龘${target}。${k2.repeat(12)}${target}。${k1.repeat(12)}${target}。`;
+    const json = JSON.stringify({
+      title: `${k1}${k2}`,
+      body,
+      targetCharsUsed: [target],
+      comprehensionQuestions: [],
+      choices: [],
+      glossary: [{ word: '龘', gloss: 'a fearsome dragon' }],
+    });
+
+    const res = await generateGradedStory(t.db, new MockLlmProvider([json]), learnerId, { targetCharIds });
+    expect(res.meta.repairIterations).toBe(0);
+    expect(res.meta.belowTarget).toBeFalsy();
+    expect(res.meta.glossedCount).toBe(1);
+    expect(res.story.body).toContain('龘');
+  });
+
+  test('declaring more glossary words than the budget fails (§8.5)', async () => {
+    const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);
+    const target = targetChars[0];
+    const [k1, k2] = [...allowedChars].filter((c) => c !== target);
+    const body = `${k1.repeat(12)}${target}。${k2.repeat(12)}${target}。${k1.repeat(12)}${target}。`;
+    const glossary = [k1, k2, target, '山', '火'].map((w, i) => ({ word: w, gloss: `g${i}` })); // 5 > maxGlossed=2
+    const json = JSON.stringify({ title: `${k1}${k2}`, body, targetCharsUsed: [target], comprehensionQuestions: [], choices: [], glossary });
+
+    const llm = new MockLlmProvider(() => json); // always over budget
+    const res = await generateGradedStory(t.db, llm, learnerId, { targetCharIds, maxRepairs: 1, maxGlossed: 2 });
+    expect(res.meta.belowTarget).toBe(true);
+    expect(res.meta.shortfalls?.some((s) => s.includes('glossary'))).toBe(true);
+    // the over-budget repair instruction reached the model
+    expect(llm.calls[1].messages.at(-1)!.content).toContain('glossary words');
   });
 
   test('a companion name passes validation and is recorded in meta (§11)', async () => {
@@ -146,7 +185,7 @@ describe('generateGradedStory — generate → validate → repair (§8.1)', () 
     const [k1, k2] = [...allowedChars].filter((c) => c !== target);
     // body uses the companion name (chars not otherwise in the allowlist) — only the persona
     // injection makes this pass validateChars.
-    const body = `${k1.repeat(10)}${persona.name}${target}。${k2.repeat(10)}${persona.name}${target}。`;
+    const body = `${k1.repeat(10)}${persona.name}${target}。${k2.repeat(10)}${persona.name}${target}。${k1.repeat(10)}${target}。`;
     const json = JSON.stringify({ title: `${k1}${k2}`, body, targetCharsUsed: [target], comprehensionQuestions: [], choices: [] });
 
     const res = await generateGradedStory(t.db, new MockLlmProvider([json]), learnerId, { targetCharIds, persona });

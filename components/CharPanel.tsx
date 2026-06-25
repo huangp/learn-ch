@@ -1,17 +1,25 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { getCharDetailAction, getStrokeDataAction, recordInteractionAction } from '@/app/actions';
-import type { CharDetail } from '@/lib/char/detail';
+import { getWordDetailAction, getStrokeDataAction, recordInteractionAction } from '@/app/actions';
+import type { CharDetail, WordDetail } from '@/lib/char/detail';
 import type { StrokeData } from '@/lib/char/strokes';
 import type HanziWriterInstance from 'hanzi-writer';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export interface SelectedChar {
-  char: string;
-  pinyin: string;
+const HAN = /\p{Script=Han}/u;
+
+/** A tapped segment (word or single char) from the reader. */
+export interface SelectedWord {
+  /** The segment text — the whole word (蝴蝶) or a single char. */
+  text: string;
+  /** Per Han-char toned pinyin, aligned to the Han chars of `text`. */
+  pinyin: string[];
   gloss: string | null;
+  chars: string[];
+  /** §8.5 soft-gloss: an out-of-vocab word shown with always-on pinyin + gloss. */
+  oov?: boolean;
 }
 
 const ROLE_LABEL: Record<string, string> = {
@@ -76,67 +84,95 @@ function StrokeAnimation({ char }: { char: string }) {
   );
 }
 
+/** One character's breakdown inside a word: glyph + reading + components + stroke animation. */
+function CharBreakdown({ char, detail, showGlyph }: { char: string; detail?: CharDetail; showGlyph: boolean }) {
+  return (
+    <div className="border-t pt-3 first:border-t-0 first:pt-0">
+      {showGlyph && (
+        <div className="mb-1 flex items-baseline gap-3">
+          <span className="text-2xl">{char}</span>
+          {detail && <span className="text-sm text-muted-foreground">{detail.pinyin.join(' ')}</span>}
+          {detail?.gloss && <span className="text-sm">{detail.gloss}</span>}
+        </div>
+      )}
+      <StrokeAnimation char={char} />
+      {detail && detail.components.length > 0 && (
+        <div className="mt-2 text-sm text-muted-foreground">
+          <span className="mr-2 font-medium text-foreground">Components:</span>
+          {detail.components.map((c, i) => (
+            <span key={i} className="mr-3">
+              {c.char}
+              <span className="text-xs"> ({ROLE_LABEL[c.role] ?? c.role}{c.gloss ? `: ${c.gloss}` : ''})</span>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function CharPanel({
   selected,
   storyId,
   learnerId,
   onClose,
 }: {
-  selected: SelectedChar | null;
+  selected: SelectedWord | null;
   storyId: number;
   learnerId: number;
   onClose: () => void;
 }) {
-  const [detail, setDetail] = useState<CharDetail | null>(null);
-  const char = selected?.char;
+  const [detail, setDetail] = useState<WordDetail | null>(null);
+  const word = selected?.text;
 
   useEffect(() => {
-    if (!char) {
+    if (!selected || !word) {
       setDetail(null);
       return;
     }
     let active = true;
-    // Tap-to-reveal is a weakness signal (§10) — capture it, then load the breakdown.
-    void recordInteractionAction({ storyId, learnerId, char, type: 'reveal' });
-    void getCharDetailAction(char).then((d) => {
+    // Tap-to-reveal is a weakness signal (§10). The whole word is revealed, so record one reveal per
+    // Han char — FSRS grades at the char level (lib/srs), so every char in the word gets the signal.
+    for (const ch of selected.chars) {
+      if (HAN.test(ch)) void recordInteractionAction({ storyId, learnerId, char: ch, type: 'reveal' });
+    }
+    void getWordDetailAction(word).then((d) => {
       if (active) setDetail(d);
     });
     return () => {
       active = false;
     };
-  }, [char, storyId, learnerId]);
+  }, [word, selected, storyId, learnerId]);
 
   if (!selected) return null;
 
-  const pinyin = selected.pinyin || detail?.pinyin.join(' ') || '';
-  const gloss = selected.gloss ?? detail?.gloss ?? null;
+  const hanChars = selected.chars.filter((c) => HAN.test(c));
+  const headerPinyin = selected.pinyin.join(' ') || detail?.pinyin || '';
+  const headerGloss = selected.gloss ?? detail?.gloss ?? null;
+  const detailByChar = new Map((detail?.chars ?? []).map((d) => [d.char, d]));
 
   return (
     <div className="fixed inset-x-0 bottom-0 flex justify-center p-4">
-      <Card className="w-full max-w-md shadow-lg">
+      <Card className="max-h-[70vh] w-full max-w-md overflow-y-auto shadow-lg">
         <CardHeader className="flex flex-row items-start justify-between">
           <div className="flex items-baseline gap-3">
-            <CardTitle className="text-4xl">{selected.char}</CardTitle>
-            <span className="text-lg text-muted-foreground">{pinyin}</span>
+            <CardTitle className="text-4xl">{selected.text}</CardTitle>
+            <span className="text-lg text-muted-foreground">{headerPinyin}</span>
+            {selected.oov && (
+              <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">
+                new word
+              </span>
+            )}
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             Close
           </Button>
         </CardHeader>
         <CardContent className="grid gap-3">
-          <StrokeAnimation char={selected.char} />
-          {gloss && <p className="text-sm">{gloss}</p>}
-          {detail && detail.components.length > 0 && (
-            <div className="text-sm text-muted-foreground">
-              <span className="mr-2 font-medium text-foreground">Components:</span>
-              {detail.components.map((c, i) => (
-                <span key={i} className="mr-3">
-                  {c.char}
-                  <span className="text-xs"> ({ROLE_LABEL[c.role] ?? c.role}{c.gloss ? `: ${c.gloss}` : ''})</span>
-                </span>
-              ))}
-            </div>
-          )}
+          {headerGloss && <p className="text-sm">{headerGloss}</p>}
+          {hanChars.map((ch, i) => (
+            <CharBreakdown key={i} char={ch} detail={detailByChar.get(ch)} showGlyph={hanChars.length > 1} />
+          ))}
         </CardContent>
       </Card>
     </div>

@@ -28,7 +28,8 @@ Options:
                         tortoise-hare | gua-fu-sun. Plus the 成语/history seeds in data/seeds/topics.ts
                         (run pnpm gen:seeds to build them), e.g. shou-zhu-dai-tu | kong-rong-rang-li
   --persona <id>        companion persona (xiaolong | xiaoyue | afu)
-  --length <n>          approx story length in characters
+  --length-min <n>      min story length in characters (pair with --length-max)
+  --length-max <n>      max story length in characters; omit both to derive from the learner
   --max-words <n>       cap on the vocabulary list given to the model
   --min-sentence-coverage <0-1>  per-sentence known-coverage floor (default 0.85; lower = more lenient)
   --coverage-band <0-1>          global known-coverage hard gate (default 0.90)
@@ -42,6 +43,14 @@ function num(v: string | undefined): number | undefined {
   const n = Number(v);
   if (Number.isNaN(n)) throw new Error(`expected a number, got "${v}"`);
   return n;
+}
+
+/** A length band only when both --length-min and --length-max are given (else derive from learner). */
+function buildLengthBand(values: Record<string, string | boolean | undefined>): Profile['lengthChars'] {
+  const min = num(values['length-min'] as string | undefined);
+  const max = num(values['length-max'] as string | undefined);
+  if (min == null || max == null) return undefined;
+  return { min, max };
 }
 
 function buildProfile(values: Record<string, string | boolean | undefined>): Profile {
@@ -60,7 +69,7 @@ function buildProfile(values: Record<string, string | boolean | undefined>): Pro
     genreId: values.genre as string | undefined,
     personaId: values.persona as string | undefined,
     seedId: values.seed as string | undefined,
-    lengthChars: num(values.length as string | undefined),
+    lengthChars: buildLengthBand(values),
     maxWords: num(values['max-words'] as string | undefined),
     minSentenceCoverage: num(values['min-sentence-coverage'] as string | undefined),
     coverageBand: num(values['coverage-band'] as string | undefined),
@@ -85,7 +94,8 @@ async function main() {
       genre: { type: 'string' },
       seed: { type: 'string' },
       persona: { type: 'string' },
-      length: { type: 'string' },
+      'length-min': { type: 'string' },
+      'length-max': { type: 'string' },
       'max-words': { type: 'string' },
       'min-sentence-coverage': { type: 'string' },
       'coverage-band': { type: 'string' },
@@ -110,7 +120,8 @@ async function main() {
       ? (a: AttemptDiagnostics) => {
           const head = `  [attempt ${a.attempt} · ${a.phase}] ${a.passed ? '✓ passed' : '✗ failed'}`;
           const cov = a.knownCoverage != null ? ` (cov ${a.knownCoverage.toFixed(3)}, sentMin ${a.perSentenceMin?.toFixed(2)})` : '';
-          console.log(head + cov);
+          const stop = !a.passed && a.stopReason ? ` [stop: ${a.stopReason}]` : '';
+          console.log(head + cov + stop);
           for (const r of a.reasons) console.log(`      - ${r}`);
         }
       : undefined;

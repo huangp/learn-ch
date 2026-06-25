@@ -4,8 +4,9 @@ import { db } from '@/lib/db';
 import { getLearner } from '@/lib/learner/crud';
 import { canAccessLearner } from '@/lib/auth/access';
 import { getSessionContext } from '@/lib/auth/session';
-import { getLearnerProgress } from '@/lib/progress/index';
+import { getLearnerProgress, getReadingActivity } from '@/lib/progress/index';
 import { ProgressBar } from '@/components/ProgressBar';
+import { WeeklyActivity } from '@/components/WeeklyActivity';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -20,6 +21,7 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
   if (!learner) notFound();
 
   const p = getLearnerProgress(db, learnerId);
+  const activity = getReadingActivity(db, learnerId);
   const pct = (v: number) => `${Math.round(v * 100)}%`;
 
   return (
@@ -56,6 +58,8 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
             <p className="text-sm text-muted-foreground">{p.storiesRead} stories read</p>
           </CardContent>
         </Card>
+
+        <WeeklyActivity activity={activity} />
 
         {p.upcoming.length > 0 && (
           <Card>

@@ -20,6 +20,12 @@ export interface CoverageOptions {
   bootstrap?: boolean;
   /** Relaxed mode (small vocab): replace the % floors with a cap on DISTINCT unknown chars. */
   maxUnknownChars?: number;
+  /**
+   * §8.5 soft-gloss: chars of out-of-vocab words the model declared in its glossary. Counted as
+   * comprehensible (covered) here — they lift known-coverage and the per-sentence floor and don't
+   * consume the relaxed unknown-char budget, so one rare-but-glossed word can't make a story fail.
+   */
+  glossedChars?: Set<string>;
 }
 
 export interface CoverageResult {
@@ -52,11 +58,15 @@ export function checkCoverage(hanzi: string, opts: CoverageOptions): CoverageRes
   const minSentence = opts.minSentenceCoverage ?? MIN_SENTENCE_COVERAGE;
   const due = opts.due ?? [];
 
+  // Glossed (declared out-of-vocab) chars count as comprehensible, so fold them into the known set
+  // for all coverage math: global/per-sentence fraction and the distinct-unknown computation.
+  const known = opts.glossedChars?.size ? new Set([...opts.known, ...opts.glossedChars]) : opts.known;
+
   const bodyHan = hanChars(hanzi);
-  const knownCoverage = knownFraction(bodyHan, opts.known);
+  const knownCoverage = knownFraction(bodyHan, known);
 
   // Distinct Han chars the learner doesn't know yet (targets ∉ known, plus any out-of-vocab).
-  const unknownChars = [...new Set(bodyHan.filter((c) => !opts.known.has(c)))];
+  const unknownChars = [...new Set(bodyHan.filter((c) => !known.has(c)))];
 
   // Per-target occurrence counts over the whole body.
   const targetCounts: Record<string, number> = {};
@@ -87,7 +97,7 @@ export function checkCoverage(hanzi: string, opts: CoverageOptions): CoverageRes
 
   for (const sentence of sentences) {
     const sChars = hanChars(sentence);
-    const cov = knownFraction(sChars, opts.known);
+    const cov = knownFraction(sChars, known);
     if (cov < perSentenceMin) perSentenceMin = cov;
     if (cov < minSentence) lowCoverageSentences.push({ text: sentence, coverage: cov });
     const present = new Set(sChars);

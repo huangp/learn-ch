@@ -1,6 +1,9 @@
 import { eq } from 'drizzle-orm';
 import type { Db } from '../db';
-import { charComponents, characters } from '../../db/schema';
+import { charComponents, characters, words } from '../../db/schema';
+import { cedictToToned } from '../annotate/cedict';
+
+const HAN = /\p{Script=Han}/u;
 
 // Phase 5 — character detail for the tap-to-reveal panel (§6.3). Pure DB read: pinyin +
 // gloss for the char plus its component breakdown (the "妈 = 女 + 马" Socratic hook),
@@ -51,4 +54,30 @@ export function getCharDetail(db: Db, char: string): CharDetail | null {
     gloss: row.gloss,
     components,
   };
+}
+
+/** Word-level detail for the tap-to-reveal panel (§6.3) — word pinyin/gloss + per-char breakdown. */
+export interface WordDetail {
+  word: string;
+  /** Toned word reading from the lexicon (CC-CEDICT), when available. */
+  pinyin: string | null;
+  /** Word gloss from the lexicon, when available. */
+  gloss: string | null;
+  /** Per-character breakdown (Han chars only), for components + stroke animation. */
+  chars: CharDetail[];
+}
+
+/**
+ * Look up a whole word: its lexicon pinyin + gloss plus each Han character's detail. Context-aware
+ * tap-to-reveal resolves words (from the annotated segment) instead of bare chars, so 蝴蝶 shows
+ * "húdié — butterfly" with 蝴 and 蝶 broken out, not two unrelated single-char lookups.
+ */
+export function getWordDetail(db: Db, word: string): WordDetail {
+  const hanChars = [...word].filter((c) => HAN.test(c));
+  const chars = hanChars.map((c) => getCharDetail(db, c)).filter((d): d is CharDetail => d != null);
+
+  const row = db.select({ pinyin: words.pinyin, gloss: words.gloss }).from(words).where(eq(words.word, word)).get();
+  const pinyin = row?.pinyin ? (cedictToToned(row.pinyin, hanChars.length)?.join(' ') ?? null) : null;
+
+  return { word, pinyin, gloss: row?.gloss ?? null, chars };
 }

@@ -5,7 +5,7 @@ import { recordDwellAction } from '@/app/actions';
 import type { AnnotatedSegment } from '@/lib/annotate/index';
 import type { Choice, ComprehensionQuestion } from '@/lib/generation/types';
 import type { Persona } from '@/lib/persona/presets';
-import { CharPanel, type SelectedChar } from '@/components/CharPanel';
+import { CharPanel, type SelectedWord } from '@/components/CharPanel';
 import { Questions } from '@/components/Questions';
 import { Choices } from '@/components/Choices';
 import { FinishButton } from '@/components/FinishButton';
@@ -17,6 +17,12 @@ const HAN = /\p{Script=Han}/u;
 // A segment counts as "read past" once its on-screen time crosses this. Provisional, eval-tunable.
 const DWELL_THRESHOLD_MS = 1200;
 
+// Dwell events are buffered client-side and flushed in batches instead of one server call per
+// segment (a story-load burst would otherwise spam the server). Flush when the buffer reaches
+// DWELL_BATCH_CHARS distinct chars, or DWELL_DEBOUNCE_MS after the last enqueue (idle). Provisional.
+const DWELL_BATCH_CHARS = 40;
+const DWELL_DEBOUNCE_MS = 2000;
+
 function hanCharsOf(seg: AnnotatedSegment): string[] {
   return [...seg.chars].filter((c) => HAN.test(c));
 }
@@ -27,7 +33,7 @@ function hanCharsOf(seg: AnnotatedSegment): string[] {
  * time, emits one `dwell` interaction for its Han chars (deduped — at most once per segment). Returns
  * a per-index ref setter for the sentinels.
  */
-function useSegmentDwell(storyId: number, learnerId: number, segments: AnnotatedSegment[]) {
+function useSegmentDwell(storyId: number, learnerId: number, segments: AnnotatedSegment[], capture: boolean) {
   const els = useRef<(Element | null)[]>([]);
   const setRef = useCallback((i: number) => (el: Element | null) => { els.current[i] = el; }, []);
   // In-flight dwell writes + a handle to the current effect's flushAll, so callers (branch /
@@ -36,11 +42,39 @@ function useSegmentDwell(storyId: number, learnerId: number, segments: Annotated
   const flushAllRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
+    // Adult preview (capture=false): record nothing — no observer, no dwell calls. flushDwell stays
+    // a no-op (flushAllRef unset, pendingRef empty), so Choices/branch keep working.
+    if (!capture) return;
     const n = segments.length;
     const accum = new Array(n).fill(0); // accumulated visible ms
     const since = new Array(n).fill(0); // performance.now() when visibility began, 0 if hidden
     const emitted = new Array(n).fill(false);
     const indexOf = new Map<Element, number>();
+
+    // Coalesce dwell across segments: buffer chars (→ max ms seen) and flush in one batched call by
+    // size or after an idle debounce, instead of one server call per segment.
+    const buffer = new Map<string, number>();
+    let flushTimer: number | null = null;
+
+    function flushBuffer() {
+      if (flushTimer !== null) { window.clearTimeout(flushTimer); flushTimer = null; }
+      if (buffer.size === 0) return;
+      const chars = [...buffer.keys()];
+      let valueMs = 0;
+      for (const v of buffer.values()) if (v > valueMs) valueMs = v;
+      buffer.clear();
+      // valueMs is representative only (grading checks dwell-row presence, not the ms).
+      pendingRef.current.push(
+        recordDwellAction({ storyId, learnerId, chars, valueMs: Math.round(valueMs) }).catch(() => {}),
+      );
+    }
+
+    function enqueue(chars: string[], valueMs: number) {
+      for (const c of chars) buffer.set(c, Math.max(buffer.get(c) ?? 0, valueMs));
+      if (buffer.size >= DWELL_BATCH_CHARS) { flushBuffer(); return; }
+      if (flushTimer !== null) window.clearTimeout(flushTimer);
+      flushTimer = window.setTimeout(flushBuffer, DWELL_DEBOUNCE_MS);
+    }
 
     function flush(i: number, now: number) {
       if (since[i] !== 0) {
@@ -50,11 +84,7 @@ function useSegmentDwell(storyId: number, learnerId: number, segments: Annotated
       if (!emitted[i] && accum[i] >= DWELL_THRESHOLD_MS) {
         emitted[i] = true;
         const chars = hanCharsOf(segments[i]);
-        if (chars.length > 0) {
-          pendingRef.current.push(
-            recordDwellAction({ storyId, learnerId, chars, valueMs: Math.round(accum[i]) }).catch(() => {}),
-          );
-        }
+        if (chars.length > 0) enqueue(chars, Math.round(accum[i]));
       }
     }
 
@@ -85,6 +115,7 @@ function useSegmentDwell(storyId: number, learnerId: number, segments: Annotated
     function flushAll() {
       const now = performance.now();
       for (let i = 0; i < n; i++) flush(i, now);
+      flushBuffer(); // send whatever the per-segment sweep just buffered (also clears the timer)
     }
     flushAllRef.current = flushAll;
     const onVis = () => { if (document.visibilityState === 'hidden') flushAll(); };
@@ -96,7 +127,7 @@ function useSegmentDwell(storyId: number, learnerId: number, segments: Annotated
       observer.disconnect();
       document.removeEventListener('visibilitychange', onVis);
     };
-  }, [storyId, learnerId, segments]);
+  }, [storyId, learnerId, segments, capture]);
 
   // Emit any pending dwell, then await the writes — so a subsequent grade sees complete evidence.
   const flushDwell = useCallback(async () => {
@@ -117,6 +148,8 @@ interface ReaderProps {
   choices: Choice[];
   bootstrap: boolean;
   persona?: Pick<Persona, 'emoji' | 'name' | 'nameEn' | 'tagline'> | null;
+  /** False for adult preview: no dwell capture, no finish/grade (reading isn't the learner's). */
+  captureInteractions: boolean;
 }
 
 function SegmentView({
@@ -126,41 +159,42 @@ function SegmentView({
 }: {
   seg: AnnotatedSegment;
   showPinyin: boolean;
-  onPick: (c: SelectedChar) => void;
+  onPick: (w: SelectedWord) => void;
 }) {
-  let hanIdx = -1;
+  // Segments are either a single non-Han char (punctuation) or a run of Han (a word / single char).
+  const isHan = seg.chars.length > 0 && HAN.test(seg.chars[0]);
+  if (!isHan) {
+    return <span className="self-end pb-1 text-2xl text-muted-foreground">{seg.text}</span>;
+  }
+
+  // Context-aware reveal: the whole word is one tap target → the panel explains the word + each char.
+  // Out-of-vocab (glossed) words always show pinyin and are underlined so the reader spots them; the
+  // English gloss appears only in the tap panel (inline glosses break the wrap layout).
+  const showWordPinyin = showPinyin || seg.oov;
   return (
-    <>
-      {[...seg.chars].map((ch, i) => {
-        if (!HAN.test(ch)) {
-          return (
-            <span key={i} className="self-end pb-1 text-2xl text-muted-foreground">
-              {ch}
+    <button
+      type="button"
+      onClick={() => onPick({ text: seg.text, pinyin: seg.pinyin, gloss: seg.gloss, chars: seg.chars, oov: seg.oov })}
+      className="inline-flex flex-col items-center rounded px-0.5 hover:bg-muted"
+    >
+      <span className="flex items-end">
+        {[...seg.chars].map((ch, i) => (
+          <span key={i} className="inline-flex flex-col items-center">
+            <span className="h-4 text-xs leading-4 text-muted-foreground">
+              {showWordPinyin ? seg.pinyin[i] ?? '' : ''}
             </span>
-          );
-        }
-        hanIdx += 1;
-        const pinyin = seg.pinyin[hanIdx] ?? '';
-        return (
-          <button
-            key={i}
-            type="button"
-            onClick={() => onPick({ char: ch, pinyin, gloss: seg.gloss })}
-            className="inline-flex flex-col items-center rounded px-0.5 hover:bg-muted"
-          >
-            <span className="h-4 text-xs leading-4 text-muted-foreground">{showPinyin ? pinyin : ' '}</span>
-            <span className="text-2xl leading-snug">{ch}</span>
-          </button>
-        );
-      })}
-    </>
+            <span className={`text-2xl leading-snug ${seg.oov ? 'border-b border-dotted border-amber-500' : ''}`}>{ch}</span>
+          </span>
+        ))}
+      </span>
+    </button>
   );
 }
 
-export function Reader({ storyId, learnerId, title, segments, questions, choices, bootstrap, persona }: ReaderProps) {
+export function Reader({ storyId, learnerId, title, segments, questions, choices, bootstrap, persona, captureInteractions }: ReaderProps) {
   const [showPinyin, setShowPinyin] = useState(bootstrap); // off by default; on in bootstrap (§16.4)
-  const [selected, setSelected] = useState<SelectedChar | null>(null);
-  const { setRef: setDwellRef, flushDwell } = useSegmentDwell(storyId, learnerId, segments);
+  const [selected, setSelected] = useState<SelectedWord | null>(null);
+  const { setRef: setDwellRef, flushDwell } = useSegmentDwell(storyId, learnerId, segments, captureInteractions);
 
   return (
     <div className="pb-48">
@@ -204,9 +238,11 @@ export function Reader({ storyId, learnerId, title, segments, questions, choices
         </div>
       )}
 
-      <div className="mt-10">
-        <FinishButton storyId={storyId} learnerId={learnerId} flushDwell={flushDwell} />
-      </div>
+      {captureInteractions && (
+        <div className="mt-10">
+          <FinishButton storyId={storyId} learnerId={learnerId} flushDwell={flushDwell} />
+        </div>
+      )}
 
       <CharPanel selected={selected} storyId={storyId} learnerId={learnerId} onClose={() => setSelected(null)} />
     </div>

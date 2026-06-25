@@ -4,8 +4,9 @@ import type { AllowedWord } from '../allowlist/index';
 import type { Persona } from '../persona/presets';
 import type { Genre } from '../genres/presets';
 import type { StorySeed } from '../seeds/types';
-import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K } from './constants';
+import { DEFAULT_LENGTH_BAND, K as DEFAULT_K, MAX_GLOSSED_WORDS } from './constants';
 import type { CoverageResult } from './coverage';
+import type { LengthBand } from './types';
 import type { ValidationResult } from './validate';
 
 // Prompt assembly (§8.4/§8.6). The system prompt + repair shell live as templates in
@@ -18,11 +19,12 @@ const PROMPTS_DIR = join(process.cwd(), 'prompts');
 const SYSTEM_TEMPLATE = readFileSync(join(PROMPTS_DIR, 'generate.system.md'), 'utf8');
 const REPAIR_TEMPLATE = readFileSync(join(PROMPTS_DIR, 'repair.user.md'), 'utf8');
 
-export function buildSystemPrompt(opts: { k?: number; lengthChars?: number } = {}): string {
-  return SYSTEM_TEMPLATE.replaceAll('{K}', String(opts.k ?? DEFAULT_K)).replaceAll(
-    '{lengthChars}',
-    String(opts.lengthChars ?? DEFAULT_LENGTH_CHARS),
-  );
+export function buildSystemPrompt(opts: { k?: number; lengthChars?: LengthBand; maxGlossed?: number } = {}): string {
+  const band = opts.lengthChars ?? DEFAULT_LENGTH_BAND;
+  return SYSTEM_TEMPLATE.replaceAll('{K}', String(opts.k ?? DEFAULT_K))
+    .replaceAll('{lengthMin}', String(band.min))
+    .replaceAll('{lengthMax}', String(band.max))
+    .replaceAll('{maxGlossed}', String(opts.maxGlossed ?? MAX_GLOSSED_WORDS));
 }
 
 export interface UserPromptInput {
@@ -30,7 +32,7 @@ export interface UserPromptInput {
   targets: string[];
   due: string[];
   theme?: string;
-  lengthChars?: number;
+  lengthChars?: LengthBand;
   k?: number;
   priorStory?: string;
   seed?: string;
@@ -40,6 +42,8 @@ export interface UserPromptInput {
   /** Relaxed mode (small vocab): allow a small budget of chars outside the vocab list. */
   relaxed?: boolean;
   maxUnknown?: number;
+  /** §8.5 soft-gloss: max out-of-vocab words the model may declare in `glossary` (default MAX_GLOSSED_WORDS). */
+  maxGlossed?: number;
 }
 
 /** First allowed word containing `char`, for the "use this new char" example (§7). */
@@ -49,7 +53,7 @@ function exampleWord(char: string, allowedWords: AllowedWord[]): string | null {
 
 export function buildUserPrompt(input: UserPromptInput): string {
   const k = input.k ?? DEFAULT_K;
-  const lengthChars = input.lengthChars ?? DEFAULT_LENGTH_CHARS;
+  const length = input.lengthChars ?? DEFAULT_LENGTH_BAND;
   const vocab = input.allowedWords.map((w) => w.word).join(' ');
 
   const targetLines = input.targets.map((t) => {
@@ -69,19 +73,19 @@ export function buildUserPrompt(input: UserPromptInput): string {
   if (input.persona) {
     parts.push(`COMPANION: ${input.persona.promptInstruction} Use the name 「${input.persona.name}」 exactly; it is allowed vocabulary.`);
   }
-  parts.push(`LENGTH: about ${lengthChars} characters.`);
+  parts.push(`LENGTH: between ${length.min} and ${length.max} characters.`);
   parts.push('');
-  if (input.relaxed) {
-    parts.push('VOCABULARY (prefer these words):');
-    parts.push(vocab);
-    parts.push('');
-    parts.push(
-      `You may use up to ${input.maxUnknown ?? 10} different characters outside this list if needed for a natural story; they will be shown with pinyin.`,
-    );
-  } else {
-    parts.push('VOCABULARY (use ONLY these words):');
-    parts.push(vocab);
-  }
+  parts.push('VOCABULARY (prefer these words):');
+  parts.push(vocab);
+  parts.push('');
+  // §8.5 soft-gloss: coherence beats strict adherence. The model may reach for a few words outside
+  // the list, but must DECLARE each in `glossary` (English gloss only — pinyin is added for it).
+  const maxGlossed = input.maxGlossed ?? MAX_GLOSSED_WORDS;
+  parts.push(
+    `If a natural, coherent story truly needs a word outside this list, you may use up to ${maxGlossed} such words. ` +
+      `List EACH one in the "glossary" field as {"word","gloss"} with a short English gloss. ` +
+      `Do NOT write pinyin or English in the body — pinyin is added automatically. Use this sparingly; prefer the allowed vocabulary.`,
+  );
   parts.push('');
   parts.push(`TARGET CHARACTERS (weave each in naturally at least ${k} times, across different sentences):`);
   parts.push(targetLines.length > 0 ? targetLines.join('\n') : '(none)');
@@ -125,6 +129,8 @@ export function buildRepairPrompt(args: {
   k?: number;
   relaxed?: boolean;
   maxUnknown?: number;
+  /** §8.5 soft-gloss: set when the model declared more than the allowed number of glossary words. */
+  glossOver?: { count: number; max: number };
 }): string {
   const k = args.k ?? DEFAULT_K;
   const issues: string[] = [];
@@ -139,13 +145,18 @@ export function buildRepairPrompt(args: {
     if (!args.relaxed) {
       const bad = uniqueChars(v.violations);
       if (bad.length > 0) {
-        issues.push(`- These characters are NOT allowed: 「${bad.join('、')}」. Replace the words containing them with allowed vocabulary.`);
+        // These are UNDECLARED out-of-vocab chars (declared ones don't reach here): the model can
+        // either swap them for allowed vocab OR keep the word and declare it in `glossary` (§8.5).
+        issues.push(`- These characters are not in the vocabulary and were not glossed: 「${bad.join('、')}」. Either replace the words containing them with allowed vocabulary, or — if a word is truly needed — add that word to the "glossary" field with an English gloss.`);
       }
     }
     const ev = uniqueChars(v.evasions);
     if (ev.length > 0) {
       issues.push(`- Remove non-Chinese characters / pinyin from the body: 「${ev.join('、')}」. Write only allowed hanzi.`);
     }
+  }
+  if (args.glossOver) {
+    issues.push(`- You declared too many glossary words (${args.glossOver.count}); use at most ${args.glossOver.max}. Keep only the most essential out-of-vocab words and rewrite the rest with allowed vocabulary.`);
   }
   const c = args.coverage;
   if (c) {

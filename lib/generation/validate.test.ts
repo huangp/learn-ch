@@ -45,4 +45,22 @@ describe('validateChars (§8.2)', () => {
     expect(r.ok).toBe(false);
     expect(r.evasions.map((e) => e.char)).toEqual(['h', 'a', 'o']);
   });
+
+  test('a declared (glossed) out-of-vocab char passes and is not a violation (§8.5)', () => {
+    const r = validateChars('我爱你', allowed, { glossedChars: new Set('爱') }); // 爱 declared in glossary
+    expect(r.ok).toBe(true);
+    expect(r.violations).toEqual([]);
+  });
+
+  test('an UNDECLARED out-of-vocab char still fails in strict mode even with other chars glossed', () => {
+    const r = validateChars('我爱恨你', allowed, { glossedChars: new Set('爱') }); // 恨 not glossed
+    expect(r.ok).toBe(false);
+    expect(r.violations.map((v) => v.char)).toEqual(['恨']);
+  });
+
+  test('glossing does not rescue evasions', () => {
+    const r = validateChars('我hao爱', allowed, { glossedChars: new Set('爱') });
+    expect(r.ok).toBe(false);
+    expect(r.evasions.map((e) => e.char)).toEqual(['h', 'a', 'o']);
+  });
 });

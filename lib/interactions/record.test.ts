@@ -16,7 +16,7 @@ let storyId: number;
 beforeAll(() => {
   t = makeTestDb();
   learnerId = createLearner(t.db, 'interactions', {}, NOW).id;
-  const story: StoryJson = { title: 't', body: '好', targetCharsUsed: [], comprehensionQuestions: [], choices: [] };
+  const story: StoryJson = { title: 't', body: '好', targetCharsUsed: [], comprehensionQuestions: [], choices: [], glossary: [] };
   const meta = { model: 'm', repairIterations: 0, knownCoverage: 1, targetCoverage: 1, perSentenceMin: 1, fallbackUsed: false, usage: { inputTokens: 0, outputTokens: 0 }, costUsd: 0, latencyMs: 0 } satisfies GenerationMeta;
   const segments: AnnotatedSegment[] = [];
   storyId = createStory(t.db, { learnerId, story, meta, segments, now: NOW }).id;

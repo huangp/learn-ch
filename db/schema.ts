@@ -179,6 +179,7 @@ export const stories = sqliteTable('stories', {
   meta: text('meta'), // JSON: model, repairIterations, coverage, knownCoverage%
   createdAt: integer('created_at').notNull(), // epoch ms
   gradedAt: integer('graded_at'), // epoch ms; set once Phase 7 has consumed this story's interactions
+  deletedAt: integer('deleted_at'), // epoch ms; soft delete — hidden from the learner, stats kept
 });
 
 // interactions: reading events that drive SRS grading (definitions only in Phase 1)

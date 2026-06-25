@@ -1,6 +1,6 @@
 import { and, eq, inArray } from 'drizzle-orm';
 import type { Db } from '../db';
-import { characters, learnerChars } from '../../db/schema';
+import { characters, interactions, learnerChars } from '../../db/schema';
 import { getLearner } from '../learner/crud';
 import { buildCurriculum } from '../grading/curriculum';
 import { selectNewChars } from '../grading/select';
@@ -42,6 +42,72 @@ export interface LearnerProgress {
 }
 
 const isHan = (c: string) => /\p{Script=Han}/u.test(c);
+
+// Reading-time estimate (§11 activity view). Provisional, eval-tunable like the other
+// lib magic numbers: graded-reader pace for an 11–15yo learner, in hanzi/minute.
+export const READING_HANZI_PER_MIN = 120;
+
+export interface DailyActivity {
+  date: string; // 'YYYY-MM-DD' (local server day)
+  storiesRead: number; // # of `complete` events that day
+  uniqueChars: number; // distinct Han chars across the stories read
+  totalChars: number; // Han chars with repetition
+  readingMinutes: number; // totalChars / READING_HANZI_PER_MIN, rounded (≥1 if any chars)
+}
+
+// Local 'YYYY-MM-DD' for an epoch-ms instant. Bucketing uses server-local time — fine for a
+// single-family app; if multi-tz ever matters, pass a tz/offset in and format against it.
+function localDay(ms: number): string {
+  const d = new Date(ms);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * Per-day reading activity for the weekly calendar (§11). A "reading" = a `complete` interaction
+ * (story the learner finished); re-reading counts again. All four metrics key off the completed
+ * stories of that day so estimated reading-time (derived from chars) matches what was read. Pure
+ * DB read; only days with activity are returned, ascending by date (the UI fills empty days).
+ */
+export function getReadingActivity(db: Db, learnerId: number): DailyActivity[] {
+  const completes = db
+    .select({ storyId: interactions.storyId, createdAt: interactions.createdAt })
+    .from(interactions)
+    .where(and(eq(interactions.learnerId, learnerId), eq(interactions.type, 'complete')))
+    .all();
+  if (completes.length === 0) return [];
+
+  // storyId → hanzi body (cascade-delete keeps complete rows in sync, so no dangling refs).
+  const hanziById = new Map(listStoriesForLearner(db, learnerId).map((s) => [s.id, s.hanzi]));
+
+  const buckets = new Map<string, { stories: number; total: number; chars: Set<string> }>();
+  for (const c of completes) {
+    const day = localDay(c.createdAt);
+    let b = buckets.get(day);
+    if (!b) {
+      b = { stories: 0, total: 0, chars: new Set<string>() };
+      buckets.set(day, b);
+    }
+    b.stories++;
+    for (const ch of hanziById.get(c.storyId) ?? '') {
+      if (!isHan(ch)) continue;
+      b.total++;
+      b.chars.add(ch);
+    }
+  }
+
+  return [...buckets.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, b]) => ({
+      date,
+      storiesRead: b.stories,
+      uniqueChars: b.chars.size,
+      totalChars: b.total,
+      readingMinutes: b.total > 0 ? Math.max(1, Math.round(b.total / READING_HANZI_PER_MIN)) : 0,
+    }));
+}
 
 export function getLearnerProgress(db: Db, learnerId: number): LearnerProgress {
   const learner = getLearner(db, learnerId);

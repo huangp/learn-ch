@@ -1,7 +1,9 @@
-import { inArray } from 'drizzle-orm';
+import { and, count, eq, inArray } from 'drizzle-orm';
 import type { Db } from '../db';
-import { characters } from '../../db/schema';
+import { characters, learnerChars } from '../../db/schema';
 import type { LlmProvider } from '../llm/index';
+import type { LengthBand } from '../generation/types';
+import { deriveLengthBand } from './length';
 import { getLearner } from '../learner/crud';
 import { getPersona } from '../persona/presets';
 import { getGenre } from '../genres/presets';
@@ -24,7 +26,8 @@ export interface GenerateStoryOptions {
   targets?: number;
   /** Due review chars to weave in; defaults to 0 in bootstrap, else 3. */
   due?: number;
-  lengthChars?: number;
+  /** Override the learner-derived length band (§15 #4); defaults to deriveLengthBand(knownCount). */
+  lengthChars?: LengthBand;
   maxWords?: number;
   /** Branch continuation: the parent story body + its id (§8 priorStory / parentStoryId). */
   priorStory?: string;
@@ -39,6 +42,19 @@ export interface GenerateStoryOptions {
   seedId?: string;
   model?: string;
   now?: number;
+}
+
+// Statuses that count as "known" (can read) — same set as the allowlist (§7) / progress view.
+const KNOWN_STATUSES = ['learning', 'review', 'mastered'] as const;
+
+/** Count of characters the learner can already read — the §15 #4 length-curve input. */
+function countKnownChars(db: Db, learnerId: number): number {
+  const [row] = db
+    .select({ n: count() })
+    .from(learnerChars)
+    .where(and(eq(learnerChars.learnerId, learnerId), inArray(learnerChars.status, [...KNOWN_STATUSES])))
+    .all();
+  return row?.n ?? 0;
 }
 
 function resolveChars(db: Db, ids: number[]): string[] {
@@ -68,8 +84,15 @@ export async function generateAndPersistStory(
 
   const targetCharIds = selectNewChars(db, learnerId, targets);
   const dueCharIds = selectDueChars(db, learnerId, due);
-  const persona = getPersona(opts.personaId ?? (learner.settings.personaId as string | undefined));
+  // §15 #4: story length grows with the learner — derive the band from known-char count
+  // (post-grading, so it reflects the latest state). An explicit override still wins.
+  const lengthChars = opts.lengthChars ?? deriveLengthBand(countKnownChars(db, learnerId));
   const storySeed = getStorySeed(opts.seedId);
+  // §11: a seed where a recurring companion doesn't fit (real history, public-domain classics)
+  // suppresses the persona — content fit wins over the learner's saved/override persona.
+  const persona = storySeed?.suppressPersona
+    ? undefined
+    : getPersona(opts.personaId ?? (learner.settings.personaId as string | undefined));
   // Genre precedence (§17.1): explicit per-story genre wins; a custom free-text theme suppresses the
   // saved default; otherwise fall back to the learner's saved default genre.
   const genre = getGenre(opts.genreId ?? (opts.theme ? undefined : (learner.settings.genreId as string | undefined)));
@@ -85,7 +108,7 @@ export async function generateAndPersistStory(
     targetCharIds,
     dueCharIds,
     theme: opts.theme,
-    lengthChars: opts.lengthChars,
+    lengthChars,
     maxWords: opts.maxWords,
     bootstrap,
     priorStory: opts.priorStory,
@@ -97,7 +120,11 @@ export async function generateAndPersistStory(
     onAttempt: (info) => {
       const tag = `${info.phase}#${info.attempt}`;
       if (info.passed) console.log(`[gen]   ${tag}: ✓ passed (${elapsed()}s)`);
-      else console.log(`[gen]   ${tag}: ✗ ${info.reasons.join('; ') || info.parseError || 'failed'}`);
+      else {
+        const truncated = info.stopReason && info.stopReason !== 'end_turn' && info.stopReason !== 'stop';
+        const stop = info.stopReason ? ` [stop: ${info.stopReason}${truncated ? ' — output truncated, raise max_tokens' : ''}]` : '';
+        console.log(`[gen]   ${tag}: ✗ ${info.reasons.join('; ') || info.parseError || 'failed'}${stop}`);
+      }
     },
   });
 
@@ -105,6 +132,16 @@ export async function generateAndPersistStory(
   console.log(`[gen] story generated in ${elapsed()}s — annotating + resolving heteronyms…`);
   let segments = annotate(db, story.body);
   segments = await resolveHeteronyms(llm, story.body, segments);
+  // §8.5 soft-gloss: mark segments matching a declared out-of-vocab word so the reader surfaces them
+  // (always-on pinyin + gloss). Pinyin stays whatever the deterministic pipeline produced; the
+  // model's English gloss only backfills when the lexicon had none.
+  if (story.glossary.length > 0) {
+    const glossByWord = new Map(story.glossary.map((g) => [g.word, g.gloss]));
+    segments = segments.map((seg) => {
+      const g = glossByWord.get(seg.text);
+      return g == null ? seg : { ...seg, oov: true, gloss: seg.gloss ?? g };
+    });
+  }
   console.log(`[gen] done in ${elapsed()}s (model ${meta.model})`);
 
   const { id } = createStory(db, {

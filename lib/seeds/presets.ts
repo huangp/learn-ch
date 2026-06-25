@@ -74,6 +74,7 @@ export const STORY_SEEDS: StorySeed[] = [
     ],
     themeHints: ['history', 'courage'],
     allowNames: ['木兰'],
+    suppressPersona: true,
     source: 'history',
   },
   {
@@ -91,6 +92,7 @@ export const STORY_SEEDS: StorySeed[] = [
     ],
     themeHints: ['history', 'cleverness'],
     allowNames: ['司马光'],
+    suppressPersona: true,
     source: 'history',
   },
   {
@@ -107,6 +109,7 @@ export const STORY_SEEDS: StorySeed[] = [
       'The guide finds them, and together they reach a bustling foreign market.',
     ],
     themeHints: ['history', 'adventure'],
+    suppressPersona: true,
     source: 'history',
   },
 
@@ -126,6 +129,7 @@ export const STORY_SEEDS: StorySeed[] = [
     ],
     themeHints: ['mythology', 'adventure'],
     allowNames: ['孙悟空'],
+    suppressPersona: true,
     source: 'work',
     publicDomain: true,
     attribution: '《西游记》 (Journey to the West), 吴承恩 — public domain',
@@ -144,6 +148,7 @@ export const STORY_SEEDS: StorySeed[] = [
       'The tortoise keeps going and crosses the finish line first.',
     ],
     themeHints: ['fable', 'perseverance'],
+    suppressPersona: true,
     source: 'work',
     publicDomain: true,
     attribution: "Aesop's Fables — public domain",
@@ -163,6 +168,7 @@ export const STORY_SEEDS: StorySeed[] = [
     ],
     themeHints: ['mythology', 'courage'],
     allowNames: ['夸父'],
+    suppressPersona: true,
     source: 'work',
     publicDomain: true,
     attribution: '《山海经》 (Classic of Mountains and Seas) — public domain',

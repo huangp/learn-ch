@@ -34,6 +34,12 @@ export interface LlmResult {
   text: string;
   model: string;
   usage: LlmUsage;
+  /**
+   * Why the model stopped. A truncated response (Anthropic `max_tokens`, OpenAI/OpenRouter
+   * `length`) yields incomplete — often unparseable — JSON, so the generation loop logs this
+   * to distinguish "hit the output cap" from "the model returned genuinely bad JSON".
+   */
+  stopReason?: string;
 }
 
 export interface LlmProvider {

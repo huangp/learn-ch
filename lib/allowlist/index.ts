@@ -15,6 +15,17 @@ export const DEFAULT_MAX_WORDS = 600;
 // Statuses that count as "known" vocabulary the learner can already read (§7).
 const KNOWN_STATUSES = ['learning', 'review', 'mastered'] as const;
 
+/** The Han chars a learner can already read (learner_chars status learning/review/mastered). */
+export function getKnownChars(db: Db, learnerId: number): Set<string> {
+  const rows = db
+    .select({ char: characters.char })
+    .from(learnerChars)
+    .innerJoin(characters, eq(learnerChars.charId, characters.id))
+    .where(and(eq(learnerChars.learnerId, learnerId), inArray(learnerChars.status, [...KNOWN_STATUSES])))
+    .all();
+  return new Set(rows.map((r) => r.char));
+}
+
 export interface AllowedWord {
   word: string;
   pinyin: string | null;
@@ -45,12 +56,7 @@ export function buildAllowlist(
   const maxWords = opts.maxWords ?? DEFAULT_MAX_WORDS;
 
   // 1. Known chars: learner_chars (learning/review/mastered) → characters.char.
-  const knownRows = db
-    .select({ char: characters.char })
-    .from(learnerChars)
-    .innerJoin(characters, eq(learnerChars.charId, characters.id))
-    .where(and(eq(learnerChars.learnerId, learnerId), inArray(learnerChars.status, [...KNOWN_STATUSES])))
-    .all();
+  const knownChars = getKnownChars(db, learnerId);
 
   // 2. Target chars: resolve ids → strings, preserving the caller's order (curriculum order).
   const targetRows =
@@ -61,7 +67,7 @@ export function buildAllowlist(
   const targetChars = targetCharIds.map((id) => idToChar.get(id)).filter((c): c is string => c != null);
 
   // 3. allowedChars = known ∪ target.
-  const allowedChars = new Set<string>([...knownRows.map((r) => r.char), ...targetChars]);
+  const allowedChars = new Set<string>([...knownChars, ...targetChars]);
 
   // 4. Filter the lexicon to words whose every char is allowed (full in-memory scan).
   const allWords = db

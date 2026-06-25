@@ -5,12 +5,13 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { createLlmProvider } from '@/lib/llm/index';
 import { onboardLearner, type OnboardMethod } from '@/lib/learner/onboard';
+import { updateLearner } from '@/lib/learner/crud';
 import { setChildCredentials, CredentialError } from '@/lib/learner/credentials';
 import { generateAndPersistStory } from '@/lib/story/generate';
-import { getStory } from '@/lib/story/persist';
-import { recordDwell, recordInteraction, type InteractionType } from '@/lib/interactions/record';
+import { getStory, hardDeleteStory, softDeleteStory } from '@/lib/story/persist';
+import { recordCompletion, recordDwell, recordInteraction, type InteractionType } from '@/lib/interactions/record';
 import { gradeStory } from '@/lib/srs/grade';
-import { getCharDetail, type CharDetail } from '@/lib/char/detail';
+import { getCharDetail, getWordDetail, type CharDetail, type WordDetail } from '@/lib/char/detail';
 import { getStrokeData, type StrokeData } from '@/lib/char/strokes';
 import { assertLearnerAccess, assertStoryAccess } from '@/lib/auth/access';
 import { requireAdult, requireSession } from '@/lib/auth/session';
@@ -68,9 +69,12 @@ export async function generateFromSeedAction(learnerId: number, seedId: string):
 }
 
 export async function chooseBranchAction(storyId: number, seed: string, label: string): Promise<void> {
-  assertStoryAccess(db, await requireSession(), storyId);
+  const ctx = await requireSession();
+  assertStoryAccess(db, ctx, storyId);
   const parent = getStory(db, storyId);
   if (!parent) throw new Error(`story ${storyId} not found`);
+  // An adult is previewing/curating, not the learner — don't record their reading as a completion.
+  if (ctx.kind !== 'adult') recordCompletion(db, { storyId, learnerId: parent.learnerId }); // branching concludes the parent reading
   const llm = createLlmProvider();
   const next = await generateAndPersistStory(db, llm, parent.learnerId, {
     theme: label,
@@ -82,6 +86,8 @@ export async function chooseBranchAction(storyId: number, seed: string, label: s
   redirect(`/learners/${parent.learnerId}/read/${next.id}`);
 }
 
+// Reading-signal capture is the LEARNER's. An adult session owns/reviews the learner but isn't the
+// learner, so its reading must never pollute their stats/FSRS — these actions no-op for adults.
 export async function recordInteractionAction(input: {
   storyId: number;
   learnerId: number;
@@ -92,6 +98,7 @@ export async function recordInteractionAction(input: {
   const ctx = await requireSession();
   assertLearnerAccess(db, ctx, input.learnerId);
   assertStoryAccess(db, ctx, input.storyId);
+  if (ctx.kind === 'adult') return; // adult is previewing — don't record reading signals
   recordInteraction(db, input);
 }
 
@@ -104,6 +111,7 @@ export async function recordDwellAction(input: {
   const ctx = await requireSession();
   assertLearnerAccess(db, ctx, input.learnerId);
   assertStoryAccess(db, ctx, input.storyId);
+  if (ctx.kind === 'adult') return; // adult is previewing — don't record reading signals
   recordDwell(db, input);
 }
 
@@ -111,8 +119,39 @@ export async function gradeStoryAction(learnerId: number, storyId: number): Prom
   const ctx = await requireSession();
   assertLearnerAccess(db, ctx, learnerId);
   assertStoryAccess(db, ctx, storyId);
+  if (ctx.kind === 'adult') return; // adult preview — no completion / grading
+  recordCompletion(db, { storyId, learnerId }); // a concluded reading (counts toward read total)
   gradeStory(db, learnerId, storyId);
   revalidatePath(`/learners/${learnerId}`);
+}
+
+/**
+ * Delete a story. An adult (curating) deletes permanently — the row + its interactions cascade away.
+ * A child (the learner) soft-deletes — hidden from their list/reader, but interactions + progress kept.
+ */
+export async function deleteStoryAction(learnerId: number, storyId: number): Promise<void> {
+  const ctx = await requireSession();
+  assertLearnerAccess(db, ctx, learnerId);
+  assertStoryAccess(db, ctx, storyId);
+  if (ctx.kind === 'adult') hardDeleteStory(db, storyId);
+  else softDeleteStory(db, storyId);
+  revalidatePath(`/learners/${learnerId}`);
+}
+
+/** Adult edits a learner's display name + default persona / genre (no schema; merges settings). */
+export async function updateLearnerSettingsAction(
+  learnerId: number,
+  patch: { displayName?: string; personaId?: string; genreId?: string },
+): Promise<void> {
+  const ctx = await requireAdult();
+  assertLearnerAccess(db, ctx, learnerId);
+  const displayName = patch.displayName?.trim() || undefined;
+  updateLearner(db, learnerId, {
+    displayName,
+    settings: { personaId: patch.personaId, genreId: patch.genreId ?? '' },
+  });
+  revalidatePath(`/learners/${learnerId}`);
+  revalidatePath(`/learners/${learnerId}/settings`);
 }
 
 /** Adult sets/resets a child's direct-login username + PIN. Returns an error string or null. */
@@ -135,6 +174,10 @@ export async function setChildCredentialsAction(
 
 export async function getCharDetailAction(char: string): Promise<CharDetail | null> {
   return getCharDetail(db, char);
+}
+
+export async function getWordDetailAction(word: string): Promise<WordDetail> {
+  return getWordDetail(db, word);
 }
 
 export async function getStrokeDataAction(char: string): Promise<StrokeData | null> {

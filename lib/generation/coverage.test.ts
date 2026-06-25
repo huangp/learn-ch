@@ -73,6 +73,20 @@ describe('checkCoverage (§8.3)', () => {
     expect(r.ok).toBe(false);
   });
 
+  test('glossed (declared OOV) chars count as covered, rescuing a low-coverage sentence (§8.5)', () => {
+    // The short second sentence holds a rare char 龘; un-glossed it sinks both the per-sentence floor
+    // and the global coverage. Declaring 龘 in the glossary makes it comprehensible → the story passes.
+    const body = '我和你他去学校看书兰。看龘。';
+    const strict = checkCoverage(body, { known, targets: ['兰'], k: 1 });
+    expect(strict.ok).toBe(false);
+    expect(strict.lowCoverageSentences.length).toBeGreaterThan(0);
+
+    const glossed = checkCoverage(body, { known, targets: ['兰'], k: 1, glossedChars: new Set('龘') });
+    expect(glossed.lowCoverageSentences).toEqual([]);
+    expect(glossed.unknownChars).not.toContain('龘'); // glossed chars don't consume the unknown budget
+    expect(glossed.ok).toBe(true);
+  });
+
   test('bootstrap mode skips the global known-coverage gate', () => {
     // Low known coverage, but every non-target char IS allowed; targets met & spread.
     const body = '兰去。兰来。';

@@ -43,6 +43,13 @@
       "when": 1782011728290,
       "tag": "0005_secret_black_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1782367903590,
+      "tag": "0006_secret_raza",
+      "breakpoints": true
     }
   ]
 }

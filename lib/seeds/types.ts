@@ -27,6 +27,13 @@ export interface StorySeed {
    * absorbed by repetition, NOT SRS targets, so they join the allowed/known set — never targets.
    */
   allowNames?: string[];
+  /**
+   * Drop the learner's companion persona for stories from this seed (§11). A per-seed flag, NOT tied
+   * to `source`: a recurring fictional companion intrudes on a faithful retelling (real history, a
+   * public-domain classic), so those seeds set this true. When set, generation runs persona-free
+   * regardless of the learner's saved persona. Authored/original seeds leave it unset (persona on).
+   */
+  suppressPersona?: boolean;
   source: 'authored' | 'history' | 'work';
   /** True for `work` seeds — the public-domain gate (§17.2 / copyright rule). */
   publicDomain?: boolean;

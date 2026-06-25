@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import type { Db } from '../db';
 import { stories } from '../../db/schema';
 import { listLearnersByOwner, getLearner, type Learner } from '../learner/crud';
@@ -31,7 +31,13 @@ export function canAccessLearner(db: Db, ctx: SessionContext, learnerId: number)
 }
 
 export function canAccessStory(db: Db, ctx: SessionContext, storyId: number): boolean {
-  const row = db.select({ learnerId: stories.learnerId }).from(stories).where(eq(stories.id, storyId)).get();
+  // A soft-deleted story (deletedAt set) is inaccessible — the reader 404s and grade/branch/record
+  // actions reject it, so no new writes land on a hidden story.
+  const row = db
+    .select({ learnerId: stories.learnerId })
+    .from(stories)
+    .where(and(eq(stories.id, storyId), isNull(stories.deletedAt)))
+    .get();
   return row != null && canAccessLearner(db, ctx, row.learnerId);
 }
 

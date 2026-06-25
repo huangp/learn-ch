@@ -14,6 +14,7 @@ const story: StoryJson = {
   targetCharsUsed: ['好'],
   comprehensionQuestions: [{ q: '谁好？', options: ['你', '他'], answer: 0, testsChars: ['好'] }],
   choices: [{ label: '继续', seed: 'next' }],
+  glossary: [],
 };
 const meta: GenerationMeta = {
   model: 'mock',

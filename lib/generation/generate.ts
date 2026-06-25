@@ -4,7 +4,7 @@ import type { Db } from '../db';
 import { characters } from '../../db/schema';
 import { costUsd } from '../llm/pricing';
 import type { LlmMessage, LlmProvider, LlmUsage } from '../llm/provider';
-import { DEFAULT_LENGTH_CHARS, K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MAX_REPAIRS, MAX_UNKNOWN_CHARS, RELAX_KNOWN_THRESHOLD } from './constants';
+import { DEFAULT_LENGTH_BAND, K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MAX_GLOSSED_WORDS, MAX_REPAIRS, MAX_UNKNOWN_CHARS, RELAX_KNOWN_THRESHOLD } from './constants';
 import { checkCoverage, type CoverageResult } from './coverage';
 import { buildRepairPrompt, buildSystemPrompt, buildUserPrompt } from './prompt';
 import { parseStoryJson, StoryParseError } from './parse';
@@ -20,22 +20,28 @@ interface Attempt {
   parseError?: string;
   validation?: ValidationResult;
   coverage?: CoverageResult;
+  /** §8.5: model declared more glossary words than the budget allows. */
+  glossOver?: boolean;
   passed: boolean;
 }
+
+const HAN = /\p{Script=Han}/u;
 
 const uniq = (hits: { char: string }[]): string => [...new Set(hits.map((h) => h.char))].join('、');
 
 /** Human-readable reasons an attempt failed its gates (empty = passed). */
-function describeFailures(a: Attempt, k: number, bootstrap: boolean, maxUnknown?: number): string[] {
+function describeFailures(a: Attempt, k: number, bootstrap: boolean, maxUnknown?: number, maxGlossed = MAX_GLOSSED_WORDS): string[] {
   const relaxed = maxUnknown != null;
   const reasons: string[] = [];
   if (a.parseError) reasons.push(`bad JSON: ${a.parseError}`);
   const v = a.validation;
   if (v) {
-    // Out-of-vocab chars are permitted in relaxed mode (bounded by the unknown-char budget below).
-    if (v.violations.length && !relaxed) reasons.push(`out-of-vocab chars: 「${uniq(v.violations)}」`);
+    // Remaining violations are UNDECLARED out-of-vocab chars (glossed ones aren't violations).
+    // Permitted in relaxed mode (bounded by the unknown-char budget below).
+    if (v.violations.length && !relaxed) reasons.push(`undeclared out-of-vocab chars: 「${uniq(v.violations)}」`);
     if (v.evasions.length) reasons.push(`evasions (latin/pinyin): 「${uniq(v.evasions)}」`);
   }
+  if (a.glossOver) reasons.push(`too many glossary words (max ${maxGlossed}): ${a.story?.glossary.length ?? 0}`);
   const c = a.coverage;
   if (c) {
     if (c.targetsMissing.length) reasons.push(`targets below ${k}×: 「${c.targetsMissing.join('、')}」`);
@@ -76,8 +82,9 @@ export async function generateGradedStory(
 ): Promise<GenerationResult> {
   const start = Date.now();
   const k = config.k ?? DEFAULT_K;
-  const lengthChars = config.lengthChars ?? DEFAULT_LENGTH_CHARS;
+  const lengthChars = config.lengthChars ?? DEFAULT_LENGTH_BAND;
   const maxRepairs = config.maxRepairs ?? MAX_REPAIRS;
+  const maxGlossed = config.maxGlossed ?? MAX_GLOSSED_WORDS;
 
   const { allowedChars, allowedWords, targetChars } = buildAllowlist(db, learnerId, config.targetCharIds, {
     maxWords: config.maxWords,
@@ -138,7 +145,12 @@ export async function generateGradedStory(
     let a: Attempt;
     try {
       const story = parseStoryJson(res.text);
-      const validation = validateChars(story.body, allowedChars, { relaxed });
+      // §8.5 soft-gloss: the chars of the model's DECLARED out-of-vocab words pass validation and
+      // count as comprehensible in coverage; the count is bounded by maxGlossed.
+      const glossedChars = new Set<string>();
+      for (const g of story.glossary) for (const c of g.word) if (HAN.test(c)) glossedChars.add(c);
+      const glossOver = story.glossary.length > maxGlossed;
+      const validation = validateChars(story.body, allowedChars, { relaxed, glossedChars });
       const coverage = checkCoverage(story.body, {
         known,
         targets,
@@ -148,8 +160,9 @@ export async function generateGradedStory(
         minSentenceCoverage: config.minSentenceCoverage,
         bootstrap: config.bootstrap,
         maxUnknownChars: maxUnknown,
+        glossedChars,
       });
-      a = { raw: res.text, story, validation, coverage, passed: validation.ok && coverage.ok };
+      a = { raw: res.text, story, validation, coverage, glossOver, passed: validation.ok && coverage.ok && !glossOver };
     } catch (e) {
       if (e instanceof StoryParseError) a = { raw: res.text, parseError: e.message, passed: false };
       else throw e;
@@ -159,8 +172,9 @@ export async function generateGradedStory(
       phase,
       attempt: attemptIndex++,
       passed: a.passed,
-      reasons: a.passed ? [] : describeFailures(a, k, config.bootstrap ?? false, maxUnknown),
+      reasons: a.passed ? [] : describeFailures(a, k, config.bootstrap ?? false, maxUnknown, maxGlossed),
       parseError: a.parseError,
+      stopReason: res.stopReason,
       knownCoverage: a.coverage?.knownCoverage,
       targetCoverage: a.coverage?.targetCoverage,
       perSentenceMin: a.coverage?.perSentenceMin,
@@ -189,14 +203,15 @@ export async function generateGradedStory(
     personaId: config.persona?.id,
     genreId: config.genre?.id,
     seedId: config.storySeed?.id,
+    glossedCount: a.story?.glossary.length ?? 0,
     belowTarget,
     shortfalls,
   });
 
   // --- Main loop: initial generation + up to maxRepairs targeted repairs. ---
-  const system = buildSystemPrompt({ k, lengthChars });
+  const system = buildSystemPrompt({ k, lengthChars, maxGlossed });
   const messages: LlmMessage[] = [
-    { role: 'user', content: buildUserPrompt({ allowedWords, targets: targetChars, due, theme: config.theme, lengthChars, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona, genre: config.genre, storySeed: config.storySeed, relaxed, maxUnknown }) },
+    { role: 'user', content: buildUserPrompt({ allowedWords, targets: targetChars, due, theme: config.theme, lengthChars, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona, genre: config.genre, storySeed: config.storySeed, relaxed, maxUnknown, maxGlossed }) },
   ];
 
   let best: Attempt | null = null;
@@ -208,23 +223,34 @@ export async function generateGradedStory(
     messages.push({ role: 'assistant', content: a.raw });
     messages.push({
       role: 'user',
-      content: buildRepairPrompt({ validation: a.validation, coverage: a.coverage, parseError: a.parseError, k, relaxed, maxUnknown }),
+      content: buildRepairPrompt({
+        validation: a.validation,
+        coverage: a.coverage,
+        parseError: a.parseError,
+        k,
+        relaxed,
+        maxUnknown,
+        glossOver: a.glossOver ? { count: a.story?.glossary.length ?? 0, max: maxGlossed } : undefined,
+      }),
     });
   }
 
   // --- Fallback (§8.1): reduce ambition — one target, shorter — fresh thread. ---
   const fbTargets = targetChars.slice(0, 1);
-  const fbLength = Math.max(40, Math.round(lengthChars * 0.7));
-  const fbSystem = buildSystemPrompt({ k, lengthChars: fbLength });
+  const fbLength = {
+    min: Math.max(40, Math.round(lengthChars.min * 0.7)),
+    max: Math.max(60, Math.round(lengthChars.max * 0.7)),
+  };
+  const fbSystem = buildSystemPrompt({ k, lengthChars: fbLength, maxGlossed });
   const fbMessages: LlmMessage[] = [
-    { role: 'user', content: buildUserPrompt({ allowedWords, targets: fbTargets, due, theme: config.theme, lengthChars: fbLength, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona, genre: config.genre, storySeed: config.storySeed, relaxed, maxUnknown }) },
+    { role: 'user', content: buildUserPrompt({ allowedWords, targets: fbTargets, due, theme: config.theme, lengthChars: fbLength, k, priorStory: config.priorStory, seed: config.seed, persona: config.persona, genre: config.genre, storySeed: config.storySeed, relaxed, maxUnknown, maxGlossed }) },
   ];
   const fb = await runAttempt(fbMessages, fbSystem, fbTargets, 'fallback');
   best = pickBest(best, fb);
   if (fb.passed) return { story: fb.story!, meta: buildMeta(maxRepairs + 1, true, fb) };
 
   const bestAttempt = best ?? fb;
-  const shortfalls = describeFailures(bestAttempt, k, config.bootstrap ?? false, maxUnknown);
+  const shortfalls = describeFailures(bestAttempt, k, config.bootstrap ?? false, maxUnknown, maxGlossed);
 
   // Keep the best draft rather than dead-ending: if any attempt parsed into a story, return it
   // flagged belowTarget so the caller can persist + surface it. Only throw when nothing parsed.

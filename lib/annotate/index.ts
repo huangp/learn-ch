@@ -28,6 +28,12 @@ export interface AnnotatedSegment {
   candidates: string[][];
   /** per Han char: where the chosen pinyin came from. */
   source: PinyinSource[];
+  /**
+   * §8.5 soft-gloss: true when this segment is an out-of-vocab word the model declared in its
+   * glossary. Set by a post-pass in lib/story/generate.ts (annotate() itself has no glossary).
+   * The reader shows these always-on with pinyin + gloss.
+   */
+  oov?: boolean;
 }
 
 /** Annotate a hanzi-only body into render-ready segments. `join` of texts === body. */

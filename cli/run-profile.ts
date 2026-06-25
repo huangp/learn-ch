@@ -8,10 +8,11 @@ import { buildCurriculum } from '../lib/grading/curriculum';
 import { selectDueChars, selectNewChars } from '../lib/grading/select';
 import { buildAllowlist } from '../lib/allowlist/index';
 import { generateGradedStory } from '../lib/generation/generate';
+import { deriveLengthBand } from '../lib/story/length';
 import { getPersona } from '../lib/persona/presets';
 import { getGenre } from '../lib/genres/presets';
 import { getStorySeed } from '../lib/seeds/presets';
-import type { AttemptDiagnostics, GenerationMeta, StoryJson } from '../lib/generation/types';
+import type { AttemptDiagnostics, GenerationMeta, LengthBand, StoryJson } from '../lib/generation/types';
 import type { LlmProvider } from '../lib/llm/index';
 
 // End-to-end orchestration: a learner profile → a scored, validated story. Pure glue
@@ -28,7 +29,7 @@ export interface Profile {
   targets: number;
   due: number;
   theme?: string;
-  lengthChars?: number;
+  lengthChars?: LengthBand;
   maxWords?: number;
   minSentenceCoverage?: number;
   coverageBand?: number;
@@ -91,18 +92,24 @@ export async function generateForProfile(
 
   const { allowedChars, targetChars } = buildAllowlist(db, learnerId, targetCharIds, { maxWords: profile.maxWords });
 
+  // §11: a seed where a companion doesn't fit (real history, public-domain classics) suppresses
+  // the persona — same rule as the UI path (lib/story/generate.ts).
+  const storySeed = getStorySeed(profile.seedId);
+  const persona = storySeed?.suppressPersona ? undefined : getPersona(profile.personaId);
+
   const { story, meta } = await generateGradedStory(db, llm, learnerId, {
     targetCharIds,
     dueCharIds,
     theme: profile.theme,
-    lengthChars: profile.lengthChars,
+    // Like the UI path: derive the length band from the seeded known set unless overridden.
+    lengthChars: profile.lengthChars ?? deriveLengthBand(known.length),
     maxWords: profile.maxWords,
     minSentenceCoverage: profile.minSentenceCoverage,
     coverageBand: profile.coverageBand,
     bootstrap,
-    persona: getPersona(profile.personaId),
+    persona,
     genre: getGenre(profile.genreId),
-    storySeed: getStorySeed(profile.seedId),
+    storySeed,
     model: profile.model,
     onAttempt: opts.onAttempt,
   });

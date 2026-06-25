@@ -17,6 +17,7 @@ function ToastList() {
       toast={toast}
       className={cn(
         "rounded-lg border bg-popover p-3 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10",
+        "data-[type=loading]:border-primary data-[type=loading]:bg-primary data-[type=loading]:text-primary-foreground",
         "data-[type=error]:border-destructive data-[type=error]:text-destructive",
       )}
     >

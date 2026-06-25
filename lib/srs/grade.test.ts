@@ -45,7 +45,7 @@ function row(learnerId: number, charId: number) {
 }
 
 function makeStory(learnerId: number, body: string, targets: string[], dueChars: string[]): number {
-  const story: StoryJson = { title: 't', body, targetCharsUsed: targets, comprehensionQuestions: [], choices: [] };
+  const story: StoryJson = { title: 't', body, targetCharsUsed: targets, comprehensionQuestions: [], choices: [], glossary: [] };
   return createStory(t.db, { learnerId, story, meta: META, segments: [], dueChars, now: NOW }).id;
 }
 

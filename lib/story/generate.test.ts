@@ -16,8 +16,8 @@ let t: TestDb;
 
 /**
  * Build a story body + JSON tuned to whatever target `selectNewChars` currently picks for the
- * learner (targets:1) — two known-dense sentences, the single target woven in once per sentence
- * (≥K spread). Because Phase 7 catch-up grading advances the frontier between generations, the
+ * learner (targets:1) — three known-dense sentences, the single target woven in once per sentence
+ * (≥K=3 spread). Because Phase 7 catch-up grading advances the frontier between generations, the
  * target is recomputed per call rather than fixed.
  */
 function buildPassingJson(learnerId: number): { json: string; body: string; target: string } {
@@ -25,7 +25,7 @@ function buildPassingJson(learnerId: number): { json: string; body: string; targ
   const { allowedChars, targetChars } = buildAllowlist(t.db, learnerId, targetCharIds);
   const target = targetChars[0];
   const [k1, k2] = [...allowedChars].filter((c) => c !== target);
-  const body = `${k1.repeat(12)}${target}。${k2.repeat(12)}${target}。`;
+  const body = `${k1.repeat(12)}${target}。${k2.repeat(12)}${target}。${k1.repeat(12)}${target}。`;
   const json = JSON.stringify({
     title: `${k1}${k2}`,
     body,
@@ -117,6 +117,27 @@ describe('generateAndPersistStory', () => {
     // seedId round-trips through persistence (no schema migration — rides in meta JSON)
     expect(rec.meta?.seedId).toBe('mulan');
     expect(getStory(t.db, rec.id)?.meta?.seedId).toBe('mulan');
+  });
+
+  test('a suppressPersona seed drops the companion even with a saved persona (§11)', async () => {
+    const learnerId = createLearner(t.db, 'gen-suppress', { personaId: 'xiaolong' }, NOW).id;
+    seedLearner(t.db, learnerId, selfDeclareHsk(t.db, 3), 'hsk', NOW); // merges, preserving personaId
+
+    // 'mulan' is source:history with suppressPersona:true.
+    const suppressed = await generateAndPersistStory(t.db, new MockLlmProvider([buildPassingJson(learnerId).json]), learnerId, {
+      seedId: 'mulan',
+      targets: 1,
+      due: 0,
+      now: NOW,
+    });
+    expect(suppressed.meta?.personaId).toBeUndefined();
+
+    // Contrast: an authored seed (no suppression) keeps the saved companion.
+    gradeUngradedStories(t.db, learnerId, NOW); // advance frontier so the next body targets the new char
+    const llm = new MockLlmProvider([buildPassingJson(learnerId).json]);
+    const kept = await generateAndPersistStory(t.db, llm, learnerId, { seedId: 'lost-dog', targets: 1, due: 0, now: NOW + 1 });
+    expect(kept.meta?.personaId).toBe('xiaolong');
+    expect(llm.calls[0].messages.at(-1)!.content).toContain('COMPANION:');
   });
 
   test('records parentStoryId for a branch continuation', async () => {
