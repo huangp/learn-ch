@@ -8,6 +8,7 @@ export type Db = BetterSQLite3Database<typeof schema>;
 /** Open a Drizzle handle on a SQLite file (defaults to the seeded hanzi.db). */
 export function openDb(path: string = DB_PATH): Db {
   const sqlite = new Database(path);
+  sqlite.pragma('busy_timeout = 5000'); // wait, don't fail, when another opener holds the lock
   sqlite.pragma('journal_mode = WAL');
   sqlite.pragma('foreign_keys = ON'); // required for learner_chars ON DELETE CASCADE
   return drizzle(sqlite, { schema });

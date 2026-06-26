@@ -18,6 +18,9 @@ RUN pnpm install --frozen-lockfile
 FROM base AS build
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# next build imports server modules (which open the DB at import) across parallel workers;
+# give them a real, complete DB at the default path so page-data collection succeeds.
+RUN mkdir -p data && cp seed/hanzi.db data/hanzi.db
 RUN pnpm build
 
 # --- run: minimal runtime image ---
@@ -37,6 +40,11 @@ COPY --from=build /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
 COPY --from=build /app/db ./db
 # Prompt templates are read from disk at runtime (lib/generation/prompt.ts), not bundled.
 COPY --from=build /app/prompts ./prompts
+# Prebuilt SQLite DB (reference tables + any seeded state). The entrypoint copies it onto the
+# mounted volume on first boot only; on redeploys the existing volume DB is kept.
+COPY --from=build /app/seed ./seed
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
