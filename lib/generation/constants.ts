@@ -37,4 +37,4 @@ export const MAX_UNKNOWN_CHARS = 15;
  * Their chars count as comprehensible (covered) in checkCoverage, so a single rare word no longer
  * fails the per-sentence floor. Complementary to the small-vocab relaxed char budget above.
  */
-export const MAX_GLOSSED_WORDS = 6;
+export const MAX_GLOSSED_WORDS = 10;

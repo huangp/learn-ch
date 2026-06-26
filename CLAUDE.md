@@ -186,7 +186,7 @@ state; failures surface in `GenerateStoryForm`.
   changes — Phase 5 is capture-only; all `learner_chars` updates are Phase 7.
 
 Stroke animation — **done**: `CharPanel.tsx` plays a hanzi-writer animation on char tap (+ Replay).
-Data is local (`characters.stroke_data` column, migration 0003, seeded from makemeahanzi graphics.txt
+Data is local (`characters.stroke_data` column, seeded from makemeahanzi graphics.txt
 by `parseGraphics`/`build.ts`); `lib/char/strokes.ts` `getStrokeData` → `getStrokeDataAction` feeds
 hanzi-writer via `charDataLoader`. (Toggle-grid placement, progress view + reward-text unlock, and
 the "characters you can now read" counter also shipped since this list was written.)
@@ -215,8 +215,8 @@ module `lib/srs/` (pure DB; unit-tested with `makeTestDb`, no LLM):
   exposures **and** a correct; `review→mastered` past the stability threshold; **self-correction**: a
   weak signal demotes an over-claimed `mastered`→`review` and counts an FSRS lapse).
 
-Schema: added nullable `stories.gradedAt` (idempotency flag) — migration `db/migrations/0002_*`,
-applied with `pnpm db:migrate` (NOT `data:build`).
+Schema: nullable `stories.gradedAt` (idempotency flag), applied with `pnpm db:migrate` (NOT
+`data:build`).
 
 Triggers (both): **catch-up** — `generateAndPersistStory` (`lib/story/generate.ts`) calls
 `gradeUngradedStories` **before** selecting targets/due, so selection reflects everything read so far;
@@ -277,7 +277,7 @@ actions: `generateStoryAction(learnerId, theme?, genreId?)`, `generateFromSeedAc
 - **Settings page** — no post-onboarding UI to edit a learner's saved **default persona / genre**
   (or display name). Both are set once at onboarding and stored in `learners.settings`;
   `updateLearner(db, id, { settings })` (`lib/learner/crud.ts`) already merge-patches settings, so
-  this is a UI + server-action task (e.g. `app/learners/[id]/settings`), no schema work.
+  this is a UI + server-action task (e.g. `app/learners/[id]/settings`), no schema work. (done)
 - **Re-running placement** (§16.1, a *separate* feature from the settings page) — no UI to let an
   existing learner re-run placement (declare HSK / paste / toggle-grid / zero) to correct or expand
   their known-character set. Unlike persona/genre (a pure settings overwrite), this re-derives the
