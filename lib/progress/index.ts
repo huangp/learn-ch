@@ -1,6 +1,6 @@
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNotNull } from 'drizzle-orm';
 import type { Db } from '../db';
-import { characters, interactions, learnerChars } from '../../db/schema';
+import { characters, interactions, learnerChars, words } from '../../db/schema';
 import { getLearner } from '../learner/crud';
 import { buildCurriculum } from '../grading/curriculum';
 import { selectNewChars } from '../grading/select';
@@ -107,6 +107,81 @@ export function getReadingActivity(db: Db, learnerId: number): DailyActivity[] {
       totalChars: b.total,
       readingMinutes: b.total > 0 ? Math.max(1, Math.round(b.total / READING_HANZI_PER_MIN)) : 0,
     }));
+}
+
+// §11 inventory view — every HSK-level char/word laid out and colored by mastery, so a
+// learner/parent can scan coverage. Color: green = mastered, yellow = learning/review (in
+// progress), grey = not started. Words have no per-learner status, so a word's color is
+// derived from its chars (any grey → grey; all green → green; else yellow). Chars/words with
+// a null HSK level aren't shown (no band to tab under). Pure DB read.
+export type InventoryColor = 'green' | 'yellow' | 'grey';
+export interface InventoryItem {
+  text: string;
+  color: InventoryColor;
+}
+export interface InventoryLevel {
+  level: number; // 1..7 (7 = HSK 7-9 band)
+  label: string;
+  chars: InventoryItem[];
+  words: InventoryItem[];
+}
+
+// Sort by frequency rank asc, nulls last — common items first.
+const byFreq = (a: number | null, b: number | null) => (a ?? Infinity) - (b ?? Infinity);
+
+const hskLabel = (level: number) => (level === 7 ? 'HSK 7–9' : `HSK ${level}`);
+
+export function getKnownInventory(db: Db, learnerId: number): InventoryLevel[] {
+  // Known-char colors (any HSK, incl. null) — needed to derive word colors too.
+  const knownRows = db
+    .select({ char: characters.char, status: learnerChars.status })
+    .from(learnerChars)
+    .innerJoin(characters, eq(learnerChars.charId, characters.id))
+    .where(and(eq(learnerChars.learnerId, learnerId), inArray(learnerChars.status, [...KNOWN_STATUSES])))
+    .all();
+  const mastered = new Set<string>();
+  const known = new Set<string>();
+  for (const r of knownRows) {
+    known.add(r.char);
+    if (r.status === 'mastered') mastered.add(r.char);
+  }
+  const colorOf = (c: string): InventoryColor => (mastered.has(c) ? 'green' : known.has(c) ? 'yellow' : 'grey');
+
+  const charRows = db
+    .select({ char: characters.char, hsk: characters.hskLevel, freq: characters.freqRank })
+    .from(characters)
+    .where(isNotNull(characters.hskLevel))
+    .all();
+  const wordRows = db
+    .select({ word: words.word, hsk: words.hskLevel, freq: words.freqRank })
+    .from(words)
+    .where(isNotNull(words.hskLevel))
+    .all();
+
+  const levels = new Map<number, InventoryLevel>();
+  const levelFor = (n: number) => {
+    let g = levels.get(n);
+    if (!g) {
+      g = { level: n, label: hskLabel(n), chars: [], words: [] };
+      levels.set(n, g);
+    }
+    return g;
+  };
+
+  for (const r of charRows.sort((a, b) => byFreq(a.freq, b.freq))) {
+    levelFor(r.hsk!).chars.push({ text: r.char, color: colorOf(r.char) });
+  }
+  for (const r of wordRows.sort((a, b) => byFreq(a.freq, b.freq))) {
+    const colors = [...r.word].map(colorOf);
+    const color: InventoryColor = colors.includes('grey')
+      ? 'grey'
+      : colors.every((c) => c === 'green')
+        ? 'green'
+        : 'yellow';
+    levelFor(r.hsk!).words.push({ text: r.word, color });
+  }
+
+  return [...levels.values()].sort((a, b) => a.level - b.level);
 }
 
 export function getLearnerProgress(db: Db, learnerId: number): LearnerProgress {

@@ -56,6 +56,11 @@ export default async function ProgressPage({ params }: { params: Promise<{ id: s
               <span className="block text-xs">Mastered grows as you read and answer questions.</span>
             </p>
             <p className="text-sm text-muted-foreground">{p.storiesRead} stories read</p>
+            <Button
+              variant="link"
+              className="h-auto justify-start p-0"
+              render={<Link href={`/learners/${learnerId}/inventory`}>View all characters &amp; vocabulary →</Link>}
+            />
           </CardContent>
         </Card>
 
