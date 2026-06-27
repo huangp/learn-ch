@@ -106,6 +106,10 @@ export class OpenAiCompatibleProvider implements LlmProvider {
       // Standard OpenAI/Moonshot return `usage` by default for non-streaming calls and may reject
       // this unknown field, so only send it when actually on OpenRouter.
       ...(this.isOpenRouter ? { usage: { include: true } } : {}),
+      // OpenRouter extension: turn off reasoning/thinking when the caller doesn't want it (saves
+      // tokens, no leaked <think>). Gated on OpenRouter so other endpoints don't reject the field.
+      // (A few mandatory-reasoning models reject this and will error — pick a different model.)
+      ...(opts.reasoning === false && this.isOpenRouter ? { reasoning: { enabled: false } } : {}),
     } as ChatCompletionCreateParamsNonStreaming;
 
     const res = await this.client.chat.completions.create(body);

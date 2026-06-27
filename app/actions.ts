@@ -8,6 +8,7 @@ import { onboardLearner, type OnboardMethod } from '@/lib/learner/onboard';
 import { updateLearner } from '@/lib/learner/crud';
 import { setChildCredentials, CredentialError } from '@/lib/learner/credentials';
 import { generateAndPersistStory } from '@/lib/story/generate';
+import { markWordsKnown } from '@/lib/learner/mark-known';
 import { getStory, hardDeleteStory, softDeleteStory } from '@/lib/story/persist';
 import { recordCompletion, recordDwell, recordInteraction, type InteractionType } from '@/lib/interactions/record';
 import { gradeStory } from '@/lib/srs/grade';
@@ -49,15 +50,29 @@ export async function onboardLearnerAction(formData: FormData): Promise<void> {
   redirect(`/learners/${learner.id}`);
 }
 
-export async function generateStoryAction(learnerId: number, theme?: string, genreId?: string): Promise<void> {
+export async function generateStoryAction(
+  learnerId: number,
+  theme?: string,
+  genreId?: string,
+): Promise<{ storyId: number }> {
   assertLearnerAccess(db, await requireSession(), learnerId);
   const llm = createLlmProvider();
   const story = await generateAndPersistStory(db, llm, learnerId, {
     theme: theme?.trim() || undefined,
     genreId: genreId || undefined,
   });
+  // Don't redirect here — the waiting-modal slideshow stays open until the learner clicks
+  // "Start reading" (the client navigates). Returns the new story id for that navigation.
   revalidatePath(`/learners/${learnerId}`);
-  redirect(`/learners/${learnerId}/read/${story.id}`);
+  return { storyId: story.id };
+}
+
+/** Mark slideshow words as known (additive placement refinement; see lib/learner/mark-known). */
+export async function markWordsKnownAction(learnerId: number, knownWords: string[]): Promise<void> {
+  assertLearnerAccess(db, await requireSession(), learnerId);
+  if (knownWords.length === 0) return;
+  markWordsKnown(db, learnerId, knownWords);
+  revalidatePath(`/learners/${learnerId}`);
 }
 
 export async function generateFromSeedAction(learnerId: number, seedId: string): Promise<void> {

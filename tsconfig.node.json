@@ -12,5 +12,5 @@
     "noEmit": true,
     "paths": { "@/*": ["./*"] }
   },
-  "include": ["db", "data", "lib", "evals", "cli", "drizzle.config.ts", "vitest.config.ts"]
+  "include": ["db", "data", "lib", "evals", "cli", "art", "drizzle.config.ts", "vitest.config.ts"]
 }

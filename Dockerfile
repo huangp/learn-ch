@@ -33,6 +33,9 @@ WORKDIR /app
 # Standalone server bundle + static assets.
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
+# public/ is NOT included in Next's standalone output — copy it so committed static assets
+# (the mnemonic art under public/art/words/*.webp) are served at runtime.
+COPY --from=build /app/public ./public
 # better-sqlite3 is externalized (next.config serverExternalPackages); ensure the native
 # addon is present in the runtime image even if output-tracing misses it.
 COPY --from=build /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3

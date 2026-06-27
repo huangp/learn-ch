@@ -10,6 +10,7 @@ import { listStoriesForLearner, type StoryRecord } from '@/lib/story/persist';
 import { getStoryReadCounts } from '@/lib/interactions/stats';
 import { estimateReadingMinutes } from '@/lib/story/reading-time';
 import { flattenThread, groupIntoThreads } from '@/lib/story/thread';
+import { selectSlideshowWords } from '@/lib/slideshow/select';
 import { GenerateStoryForm } from '@/components/GenerateStoryForm';
 import { DeleteStoryButton } from '@/components/DeleteStoryButton';
 import { SeedLibrary } from '@/components/SeedLibrary';
@@ -73,6 +74,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
   const { threads, singletons } = groupIntoThreads(stories);
   const persona = getPersona(learner.settings.personaId);
   const genre = getGenre(learner.settings.genreId);
+  const slides = selectSlideshowWords(db, learnerId);
 
   return (
     <Toaster>
@@ -100,7 +102,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
       </div>
 
       <div className="mb-8 grid gap-8">
-        <GenerateStoryForm learnerId={learnerId} />
+        <GenerateStoryForm learnerId={learnerId} slides={slides} />
         <SeedLibrary learnerId={learnerId} />
       </div>
 

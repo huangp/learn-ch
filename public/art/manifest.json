@@ -1,0 +1,4486 @@
+{
+  "version": 1,
+  "images": {
+    "一些": {
+      "id": 234,
+      "path": "/art/words/234.webp",
+      "bytes": 28582,
+      "sha256": "75b8289ccd6cb4fd79c31e579c187fe0ed4804925cd9ed5754697650e9c318a6",
+      "sentence": "我想买一些苹果。"
+    },
+    "一会儿": {
+      "id": 502,
+      "path": "/art/words/502.webp",
+      "bytes": 29856,
+      "sha256": "4c966124e3c43c488a4987a7662a6bc1556a128be979b2391708936c55dd09ae",
+      "sentence": "我休息一会儿。"
+    },
+    "一切": {
+      "id": 273,
+      "path": "/art/words/273.webp",
+      "bytes": 34474,
+      "sha256": "fdb66edf5d926ad8973ddcd5273e3aef7afc076ce09773ea4ea23b1a4cb7efa0",
+      "sentence": "一切都会好的。"
+    },
+    "一半": {
+      "id": 286,
+      "path": "/art/words/286.webp",
+      "bytes": 13686,
+      "sha256": "6fe3c12e65f5a0593bc425ab3a2e162ad25959ca9196c079004bbfdd6773de04",
+      "sentence": "我吃了一半苹果。"
+    },
+    "一定": {
+      "id": 384,
+      "path": "/art/words/384.webp",
+      "bytes": 30286,
+      "sha256": "c0fe5195c7861c73fde7e41695329eb64f9dae5babae965b29952e60ebaaf0d1",
+      "sentence": "我一定会去。"
+    },
+    "一样": {
+      "id": 534,
+      "path": "/art/words/534.webp",
+      "bytes": 30770,
+      "sha256": "0f55ffd68c158c4d0b05ceb2bd6cab68e94faa8ca281bd896afea2cf8ea29d9a",
+      "sentence": "我和你一样。"
+    },
+    "一生": {
+      "id": 579,
+      "path": "/art/words/579.webp",
+      "bytes": 47044,
+      "sha256": "2611a7d046ca6118765247adac9eaf7057bc1d5d82a47e21003962acd21daf83",
+      "sentence": "他一生都在教书。"
+    },
+    "一直": {
+      "id": 595,
+      "path": "/art/words/595.webp",
+      "bytes": 27978,
+      "sha256": "9ac7ff4ed039d6081c215398edac864d81d48c3b30af3b9da07b1a6316a95bde",
+      "sentence": "我一直爱你。"
+    },
+    "一般": {
+      "id": 680,
+      "path": "/art/words/680.webp",
+      "bytes": 27540,
+      "sha256": "dc08e5f23724c35f72fa4256b555d4d8e73a47228e056deaa07917c627fd6661",
+      "sentence": "我一般早上喝咖啡。"
+    },
+    "一起": {
+      "id": 741,
+      "path": "/art/words/741.webp",
+      "bytes": 38524,
+      "sha256": "6bd037f27f873e75e39b0a053a46d97fa8f5e61603ca91bec80c56cc4c8fe017",
+      "sentence": "我们一起去公园。"
+    },
+    "一边": {
+      "id": 777,
+      "path": "/art/words/777.webp",
+      "bytes": 28334,
+      "sha256": "32b172a1fef5b78899648ad8609613b3271af13edad6cedac96db1e32f7e3b2d",
+      "sentence": "他一边吃饭一边看书。"
+    },
+    "上午": {
+      "id": 1404,
+      "path": "/art/words/1404.webp",
+      "bytes": 25708,
+      "sha256": "250dd0ae5e172399ed6c12923aaf369e86fec8fc486a10e3a42b0f65709f3b4a",
+      "sentence": "我上午去学校。"
+    },
+    "上周": {
+      "id": 1426,
+      "path": "/art/words/1426.webp",
+      "bytes": 18320,
+      "sha256": "3128be0bf4db9482cd92840da4ba493714d0c49bc24c6175522e416de83ce20c",
+      "sentence": "我上周去北京了。"
+    },
+    "上班": {
+      "id": 1551,
+      "path": "/art/words/1551.webp",
+      "bytes": 21348,
+      "sha256": "056957d699feab16d40dd28390b9544ed03dae6b72123d93c3ffe3e32adfa301",
+      "sentence": "我每天去上班。"
+    },
+    "下午": {
+      "id": 1702,
+      "path": "/art/words/1702.webp",
+      "bytes": 23290,
+      "sha256": "d193bf06b52d229130ba44b20bf8f640b94aaa202d668fa8a84ffbdad91edff9",
+      "sentence": "我下午去公园。"
+    },
+    "下去": {
+      "id": 1712,
+      "path": "/art/words/1712.webp",
+      "bytes": 11352,
+      "sha256": "a612cfcb1b1bf928b01665e87525276efd1ceaefd1a128ec4615434f1d13b85d",
+      "sentence": "我们走下去了。"
+    },
+    "下来": {
+      "id": 1693,
+      "path": "/art/words/1693.webp",
+      "bytes": 25098,
+      "sha256": "25db186cbc9c2d16d00774622fe896f2824b763a7d5193b301673c3f11cd7be9",
+      "sentence": "请坐下来。"
+    },
+    "下次": {
+      "id": 1770,
+      "path": "/art/words/1770.webp",
+      "bytes": 25412,
+      "sha256": "115adf3c50852ddc23702bd97eb94f06eb9885feab61f98f4e18b594ef35214c",
+      "sentence": "我们下次再见。"
+    },
+    "不再": {
+      "id": 1986,
+      "path": "/art/words/1986.webp",
+      "bytes": 17856,
+      "sha256": "c48ab670a44b0f259dad27c3e21d777bc04ad39027459761513f252b4661ff62",
+      "sentence": "我不再喝咖啡了。"
+    },
+    "不同": {
+      "id": 2107,
+      "path": "/art/words/2107.webp",
+      "bytes": 11426,
+      "sha256": "80f6c6f0d8b2b11a30b551faf43c77594277249ac536d134eefee9bdc4dbc1c5",
+      "sentence": "我们的想法不同。"
+    },
+    "不够": {
+      "id": 2151,
+      "path": "/art/words/2151.webp",
+      "bytes": 19588,
+      "sha256": "4a2cafa0587092425fd3ac2026741291a9e88873bb3df744f9f732629125c558",
+      "sentence": "我的钱不够。"
+    },
+    "不少": {
+      "id": 2207,
+      "path": "/art/words/2207.webp",
+      "bytes": 49318,
+      "sha256": "7713e36d2b63c1c2ee24672691a4238575c29ea6cc77bfe76073b8020c0e55d0",
+      "sentence": "他有不少朋友。"
+    },
+    "不用": {
+      "id": 2438,
+      "path": "/art/words/2438.webp",
+      "bytes": 21982,
+      "sha256": "b84b4a2b7dab667fd9a39148ba68b1ae381bbf32ce0b81629c2b7e49c6b1c2e3",
+      "sentence": "你不用去。"
+    },
+    "不管": {
+      "id": 2520,
+      "path": "/art/words/2520.webp",
+      "bytes": 25770,
+      "sha256": "cce372a90ee0bd88daeda957dbc2b9a488e12d7e58f20da408923e76df00111a",
+      "sentence": "不管下雨，我都要去。"
+    },
+    "不行": {
+      "id": 2584,
+      "path": "/art/words/2584.webp",
+      "bytes": 26310,
+      "sha256": "5bb60e4bc57dabfa09803d825291c825b9ec92e1dacca177a4ca9ea41c6bb222",
+      "sentence": "现在不行。"
+    },
+    "不要": {
+      "id": 2587,
+      "path": "/art/words/2587.webp",
+      "bytes": 21892,
+      "sha256": "0e608022d80054ba5f6d05d813321693f0b6f04f2759be83b8739a076319d07b",
+      "sentence": "不要跑。"
+    },
+    "不过": {
+      "id": 2693,
+      "path": "/art/words/2693.webp",
+      "bytes": 22290,
+      "sha256": "b00015fc255c1ce28926fd6d9ff61534279d7f8001b702d62e5e238f6174dc20",
+      "sentence": "他很好，不过有点矮。"
+    },
+    "不错": {
+      "id": 2710,
+      "path": "/art/words/2710.webp",
+      "bytes": 12464,
+      "sha256": "bda8ae1dc87de010caed8ba08c1ddb63f62ba7be6de49e7685149a4e0d9cd543",
+      "sentence": "这个电影不错。"
+    },
+    "专家": {
+      "id": 32640,
+      "path": "/art/words/32640.webp",
+      "bytes": 30946,
+      "sha256": "9e0f10822110fd9dc29ff42ebec6e8672548dc87241dbe4cd8169bbd9ebd6fce",
+      "sentence": "他是医学专家。"
+    },
+    "世界": {
+      "id": 2792,
+      "path": "/art/words/2792.webp",
+      "bytes": 28872,
+      "sha256": "c12ed2e244c1d88caae245f056ee65c461e9efa74217ce41e15953ea3ffa4021",
+      "sentence": "世界很大。"
+    },
+    "东西": {
+      "id": 54340,
+      "path": "/art/words/54340.webp",
+      "bytes": 33970,
+      "sha256": "bd76d3e036cc0cbc036bbd9a04ab7acd0c790cb6f79b147a423558d5e15d9a77",
+      "sentence": "我买了一些东西。"
+    },
+    "严重": {
+      "id": 22631,
+      "path": "/art/words/22631.webp",
+      "bytes": 18118,
+      "sha256": "8a8169c8e46b3d0b1cd10d4de1fb45cbb540b0ca31edd98359926013733c779e",
+      "sentence": "他的病很严重。"
+    },
+    "个人": {
+      "id": 8146,
+      "path": "/art/words/8146.webp",
+      "bytes": 20020,
+      "sha256": "0d0f9408494a87b064e4131738b675e08d50b9803c3d8515bcc52bf813d5c813",
+      "sentence": "这是我的个人房间。"
+    },
+    "中国": {
+      "id": 3053,
+      "path": "/art/words/3053.webp",
+      "bytes": 17244,
+      "sha256": "2ef9282686d97152b30fc22915cbaa6a7e1e0a6ffd7b8b7b20db2098b4f270fe",
+      "sentence": "我去中国玩。"
+    },
+    "中心": {
+      "id": 3289,
+      "path": "/art/words/3289.webp",
+      "bytes": 22692,
+      "sha256": "2c17880128a9b1e924eda57f4e872e5bb83589ff21c4be3788b0d1dec76c4c9e",
+      "sentence": "这是城市的中心。"
+    },
+    "中间": {
+      "id": 3523,
+      "path": "/art/words/3523.webp",
+      "bytes": 17540,
+      "sha256": "524bdd05cd4ae7aa0a2ed56870957160dd69c0480bbb0c5a9790bf7981292e28",
+      "sentence": "猫在桌子中间。"
+    },
+    "为了": {
+      "id": 66853,
+      "path": "/art/words/66853.webp",
+      "bytes": 23782,
+      "sha256": "ed0cd6db5027af894e3c59eccbea2242e2814a91df04c94866205f5f2245374c",
+      "sentence": "为了你，我愿意。"
+    },
+    "为什么": {
+      "id": 66858,
+      "path": "/art/words/66858.webp",
+      "bytes": 17052,
+      "sha256": "b85cad334c39ad8da885432a38e60a09668bd107ae28ba7c09ea3b95913d00ab",
+      "sentence": "这是为什么？"
+    },
+    "主人": {
+      "id": 3645,
+      "path": "/art/words/3645.webp",
+      "bytes": 34284,
+      "sha256": "01106cecb3888851cf4e7ec1fb0925d0c4ae81671882228dd9f4e6ddb55fabb4",
+      "sentence": "他是这只狗的主人。"
+    },
+    "主要": {
+      "id": 3754,
+      "path": "/art/words/3754.webp",
+      "bytes": 26790,
+      "sha256": "67ca8ce1d5555668820e984e36d956c2ef4ce484410d1c712d4bc1ac1ee76c49",
+      "sentence": "这是主要原因。"
+    },
+    "举行": {
+      "id": 89013,
+      "path": "/art/words/89013.webp",
+      "bytes": 23182,
+      "sha256": "1170d8d3573c9d14ce04fa83f7c7b5b9e17115721cb424769125924b028c83f7",
+      "sentence": "我们明天举行聚会。"
+    },
+    "之一": {
+      "id": 3849,
+      "path": "/art/words/3849.webp",
+      "bytes": 22844,
+      "sha256": "9afe741beeec65875a75caee543cc417f26199be5baa1379597bb264db088bb0",
+      "sentence": "他是我的朋友之一。"
+    },
+    "之前": {
+      "id": 3855,
+      "path": "/art/words/3855.webp",
+      "bytes": 25410,
+      "sha256": "587fc7790260ea787e62701548a02a2deee02c97a45f53ca1976027eb7d6f2c1",
+      "sentence": "我之前去过北京。"
+    },
+    "之后": {
+      "id": 3859,
+      "path": "/art/words/3859.webp",
+      "bytes": 20804,
+      "sha256": "a11bd43ef04a33443dd0cd394b8cb53c3b045437442c67398a23b77d02990f45",
+      "sentence": "吃完饭之后，我回家了。"
+    },
+    "之间": {
+      "id": 3862,
+      "path": "/art/words/3862.webp",
+      "bytes": 10996,
+      "sha256": "07d91381977dd2fe12a17b832d439720f99053dc774e3eee7cd6f831c712c22d",
+      "sentence": "我们之间是好朋友。"
+    },
+    "也许": {
+      "id": 4087,
+      "path": "/art/words/4087.webp",
+      "bytes": 33776,
+      "sha256": "c67a2f475f40c3b7d96ca9f1441dfeaf416c1cb49b6419cd2da7a5748c1ba71b",
+      "sentence": "也许明天会下雨。"
+    },
+    "习惯": {
+      "id": 85060,
+      "path": "/art/words/85060.webp",
+      "bytes": 32028,
+      "sha256": "c17c789c7ac06b01ac0b1860a8d79f45b1e65d87693d03021f22be9b2d50c7f3",
+      "sentence": "我习惯了早起。"
+    },
+    "了": {
+      "id": 4299,
+      "path": "/art/words/4299.webp",
+      "bytes": 21622,
+      "sha256": "8dc1bd87280d51e031ab3d052d6034551790f30dca5f720e8c4245a0c81a02c3"
+    },
+    "了解": {
+      "id": 4322,
+      "path": "/art/words/4322.webp",
+      "bytes": 30968,
+      "sha256": "49ccd5b1c5da5bcd33b30d8fd3a2314733fa74c3c92c65e87c17ff1d5b123a9b",
+      "sentence": "我了解你的意思。"
+    },
+    "事件": {
+      "id": 4335,
+      "path": "/art/words/4335.webp",
+      "bytes": 26926,
+      "sha256": "20c5b888b7192cf1bd89db5f2ebef7b747446e8a6625c1f868e715bd5104ba14",
+      "sentence": "这是一个重要事件。"
+    },
+    "事实": {
+      "id": 4359,
+      "path": "/art/words/4359.webp",
+      "bytes": 26450,
+      "sha256": "5d92643effd1644efa787c6260bedb1ff53f0ed496dc2c459b3c399dde429bf7",
+      "sentence": "这是事实。"
+    },
+    "事情": {
+      "id": 4372,
+      "path": "/art/words/4372.webp",
+      "bytes": 24620,
+      "sha256": "55eded9342136086cbb968d71e214a623b8ddd17e7f39ca5edde273ecb3a0b96",
+      "sentence": "我有几件事情。"
+    },
+    "交易": {
+      "id": 5127,
+      "path": "/art/words/5127.webp",
+      "bytes": 13942,
+      "sha256": "2f9ba5205acc64114c89ca6724cf1f34faee5d789600c3ad182f8b790b098c08",
+      "sentence": "这笔交易很公平。"
+    },
+    "交给": {
+      "id": 5158,
+      "path": "/art/words/5158.webp",
+      "bytes": 18276,
+      "sha256": "0762680a6fa03ec1b07ef5a23ec08bdbff2891ad3ae82671da07a1cfa59f4c8f",
+      "sentence": "请把这本书交给他。"
+    },
+    "交通": {
+      "id": 5179,
+      "path": "/art/words/5179.webp",
+      "bytes": 32886,
+      "sha256": "45eba1d99eb1de915770d293ef3357502df2f4bd59e3730260d98e87c0b7f7cb",
+      "sentence": "这里的交通很方便。"
+    },
+    "享受": {
+      "id": 5248,
+      "path": "/art/words/5248.webp",
+      "bytes": 25270,
+      "sha256": "eef9b8b96a0df2a170bbc44990627593fb10b749e7eab371296ac61712b2b6a1",
+      "sentence": "我很享受生活。"
+    },
+    "人们": {
+      "id": 5368,
+      "path": "/art/words/5368.webp",
+      "bytes": 8576,
+      "sha256": "8bf6ad826a6771e25a8f215b8155ad0b51c744d17c104c227aa6ac0099ef5fb1",
+      "sentence": "人们在公园里散步。"
+    },
+    "人员": {
+      "id": 5403,
+      "path": "/art/words/5403.webp",
+      "bytes": 28244,
+      "sha256": "c2c65bdcf2fd237ac63dc79277dab60650fb2b7046d254eef6af932d35332910",
+      "sentence": "这里有五名工作人员。"
+    },
+    "人民": {
+      "id": 5510,
+      "path": "/art/words/5510.webp",
+      "bytes": 45448,
+      "sha256": "62b012d0f41e50e60c0f3757402dab755252aacdcf9b7788fa89a47f7836d3de",
+      "sentence": "人民都很高兴。"
+    },
+    "人生": {
+      "id": 5559,
+      "path": "/art/words/5559.webp",
+      "bytes": 17448,
+      "sha256": "af17d987d0a7d4cd4e3825407a6e0cb52697bee4a8fb0ed25060a08942a3cc47",
+      "sentence": "人生很短。"
+    },
+    "人类": {
+      "id": 5662,
+      "path": "/art/words/5662.webp",
+      "bytes": 36026,
+      "sha256": "f1825572f60337cb5465982566423acc0719b41d75a74db85897a72b9cb7a667",
+      "sentence": "人类用语言交流。"
+    },
+    "什么": {
+      "id": 5695,
+      "path": "/art/words/5695.webp",
+      "bytes": 16672,
+      "sha256": "47a15d76493e926a8afea441437d9f1240cd0976507f8d106ba33d96e0fca611",
+      "sentence": "这是什么？"
+    },
+    "什么样": {
+      "id": 5701,
+      "path": "/art/words/5701.webp",
+      "bytes": 18022,
+      "sha256": "7290beaa3a82cd51b6d97e1d32f5f817dbb91ba5ad3e08e9f9c32f88cdcd613f",
+      "sentence": "他是什么样的人？"
+    },
+    "今天": {
+      "id": 5777,
+      "path": "/art/words/5777.webp",
+      "bytes": 29946,
+      "sha256": "757591b2ec186fc8cb72bc01725ecd73d6406f75b60570b98e2d111293c7836f",
+      "sentence": "今天天气很好。"
+    },
+    "今年": {
+      "id": 5778,
+      "path": "/art/words/5778.webp",
+      "bytes": 24282,
+      "sha256": "205823d190784298900bda7e6c5ca0ea1b424a15f8c7b6aa9d587a355d722a30",
+      "sentence": "今年我很忙。"
+    },
+    "介绍": {
+      "id": 5815,
+      "path": "/art/words/5815.webp",
+      "bytes": 20870,
+      "sha256": "4b852318e40c653ae4f7d805e92b6b8703529c9029b2ea2acb5dfa77b35e1a9c",
+      "sentence": "我来介绍一下我的朋友。"
+    },
+    "仍然": {
+      "id": 5827,
+      "path": "/art/words/5827.webp",
+      "bytes": 18272,
+      "sha256": "70691c4a2c116cae667af594a50399bd6edd7ae8da6f8187982bf6b6d2c1d6b5",
+      "sentence": "他仍然在学习。"
+    },
+    "他们": {
+      "id": 5846,
+      "path": "/art/words/5846.webp",
+      "bytes": 26208,
+      "sha256": "c4331a4c4d15a2a52a6a1034db5f49309044f12f75e00698ca28957252751185",
+      "sentence": "他们是学生。"
+    },
+    "代表": {
+      "id": 6030,
+      "path": "/art/words/6030.webp",
+      "bytes": 29058,
+      "sha256": "90256fd653a047cc5716dbe20914517710dba4713f8eef41693120ee78ee96df",
+      "sentence": "他代表我们公司。"
+    },
+    "以上": {
+      "id": 6085,
+      "path": "/art/words/6085.webp",
+      "bytes": 10982,
+      "sha256": "2f7ea99d93ffd8cf6f8a16202d84373471f816e3294064fa6338b3475a6e3675",
+      "sentence": "十八岁以上的人可以入场。"
+    },
+    "以下": {
+      "id": 6086,
+      "path": "/art/words/6086.webp",
+      "bytes": 26136,
+      "sha256": "05b3b5a33a0bb858f4255eebcd5c98e9220143070fb58013c1a66cb3b7378c2a",
+      "sentence": "以下是今天的菜单。"
+    },
+    "以为": {
+      "id": 6159,
+      "path": "/art/words/6159.webp",
+      "bytes": 22122,
+      "sha256": "160893a1c53452e5ea036ef320771afae622c318420be0c50155024359ee3c50",
+      "sentence": "我以为今天是星期六。"
+    },
+    "以前": {
+      "id": 6106,
+      "path": "/art/words/6106.webp",
+      "bytes": 43348,
+      "sha256": "e7498305b5794f26079009437af2d650ae8558448353a33f56a16b0b46f0c2ba",
+      "sentence": "以前的事情都过去了。"
+    },
+    "以及": {
+      "id": 6110,
+      "path": "/art/words/6110.webp",
+      "bytes": 11720,
+      "sha256": "f456c7360567cdf389ea7327b61ad46673d19d8ecf845e0af17bc581c521849b",
+      "sentence": "我买苹果以及香蕉。"
+    },
+    "以后": {
+      "id": 6130,
+      "path": "/art/words/6130.webp",
+      "bytes": 23574,
+      "sha256": "ac2663ecc6460ab827641283ffa2dbe11afaca80ba6c23d8006e4e648836803f",
+      "sentence": "以后，我要做很多事情。"
+    },
+    "以来": {
+      "id": 6092,
+      "path": "/art/words/6092.webp",
+      "bytes": 27426,
+      "sha256": "fa9e5164ad1ca3d6c4383a5bee402bb99e899f31711da18894acb9bb4fe8e856",
+      "sentence": "自从去年以来，我一直很忙。"
+    },
+    "价值": {
+      "id": 9623,
+      "path": "/art/words/9623.webp",
+      "bytes": 16356,
+      "sha256": "18731fc3ef6c7912c2128cae23af3d52c7c032625f51800babab93a6ad65c10e",
+      "sentence": "这本书很有价值。"
+    },
+    "任何": {
+      "id": 6254,
+      "path": "/art/words/6254.webp",
+      "bytes": 29244,
+      "sha256": "ea917f19640b5a6d7ce9e6601e170f12d5ca031df81f45b8689941bbd7426a83",
+      "sentence": "我没有任何问题。"
+    },
+    "任务": {
+      "id": 6260,
+      "path": "/art/words/6260.webp",
+      "bytes": 28270,
+      "sha256": "a963127da78c138cfebaaf03cc3ac2ec8b9774b8eb13938cb7cc7ed72b7f53c5",
+      "sentence": "这是我的任务。"
+    },
+    "休息": {
+      "id": 6528,
+      "path": "/art/words/6528.webp",
+      "bytes": 19896,
+      "sha256": "f48d71e28279ac99cbcd544cb704f5eb675495807954e8e2954c0d9c92801aeb",
+      "sentence": "我需要休息。"
+    },
+    "会议": {
+      "id": 52701,
+      "path": "/art/words/52701.webp",
+      "bytes": 31238,
+      "sha256": "c68662de29edba0e711440f5a0340f63e5c04ce7fe9391c4a76900bdec937124",
+      "sentence": "会议开始了。"
+    },
+    "似乎": {
+      "id": 6676,
+      "path": "/art/words/6676.webp",
+      "bytes": 38548,
+      "sha256": "82188bfa8d6896718dc15e685ef86f413e99af4b77208cd55badfb478bdc115d",
+      "sentence": "他似乎很累。"
+    },
+    "但是": {
+      "id": 6713,
+      "path": "/art/words/6713.webp",
+      "bytes": 33076,
+      "sha256": "ba216252d74e06f2a70e2c0cd0081578c6285cb8de445f08c2fba28b08b98196",
+      "sentence": "我喜欢猫，但是不喜欢狗。"
+    },
+    "位置": {
+      "id": 6750,
+      "path": "/art/words/6750.webp",
+      "bytes": 24104,
+      "sha256": "b2923bb0eb9b9f969595190ee408bdf0a2451b694606db0b65135983b36e253e",
+      "sentence": "这个位置是我的。"
+    },
+    "体育": {
+      "id": 116987,
+      "path": "/art/words/116987.webp",
+      "bytes": 44332,
+      "sha256": "7ae411056ee241f56fbeea8ab29179dadc5bd54089031fdcfac4de419b8c1411",
+      "sentence": "我很喜欢体育。"
+    },
+    "作为": {
+      "id": 7094,
+      "path": "/art/words/7094.webp",
+      "bytes": 32400,
+      "sha256": "829d7b4a80792206a1349fa40ec653e03b406a7acb4ecc8e35147bd11cb87da8",
+      "sentence": "作为学生，我要好好学习。"
+    },
+    "作用": {
+      "id": 7096,
+      "path": "/art/words/7096.webp",
+      "bytes": 24000,
+      "sha256": "c1ac8157c6bb5429eb75a28f9617b5e5d6741d7c8f804053e0248a743c9c9680",
+      "sentence": "这种药有很好的作用。"
+    },
+    "你": {
+      "id": 7133,
+      "path": "/art/words/7133.webp",
+      "bytes": 13168,
+      "sha256": "cb3a15a6f49d15c49ffe631a95e4c76c41eed77c70e1525897d2e65261fc246d"
+    },
+    "你们": {
+      "id": 7135,
+      "path": "/art/words/7135.webp",
+      "bytes": 20446,
+      "sha256": "0646a2ca29644bc6f9921689f4dc8aca44225b1e62dafbc07c2ffb66f6d06904",
+      "sentence": "你们好。"
+    },
+    "使用": {
+      "id": 7243,
+      "path": "/art/words/7243.webp",
+      "bytes": 26150,
+      "sha256": "27f5d5da76de2fa26f0d2270a4ff183a5eb17ac5aa3a13123467efe09114136d",
+      "sentence": "我会使用电脑。"
+    },
+    "保护": {
+      "id": 7802,
+      "path": "/art/words/7802.webp",
+      "bytes": 16882,
+      "sha256": "afce62f5ba38663c39e89346c9884dba9e72b110d5a35b3d1977cb50ba79d905",
+      "sentence": "我们要保护环境。"
+    },
+    "保持": {
+      "id": 7752,
+      "path": "/art/words/7752.webp",
+      "bytes": 22104,
+      "sha256": "b0806abd27ead5496413e3083ec3526278548b1f7f60bc5adaf88d37d50e296b",
+      "sentence": "请保持安静。"
+    },
+    "保证": {
+      "id": 7799,
+      "path": "/art/words/7799.webp",
+      "bytes": 24558,
+      "sha256": "6564335e954112a072f27525174d3a37b200573f2fdeab17559b2defbd40588d",
+      "sentence": "我保证明天来。"
+    },
+    "信号": {
+      "id": 7952,
+      "path": "/art/words/7952.webp",
+      "bytes": 24614,
+      "sha256": "cf4f0ea353c3b7cb7833b64b4e78298bd62c59fce4c98e9c14f3cf2cc6da56c2",
+      "sentence": "手机没有信号。"
+    },
+    "信心": {
+      "id": 7900,
+      "path": "/art/words/7900.webp",
+      "bytes": 18234,
+      "sha256": "1885756b4a13b731673ecb6b5f7334006763527927fbbe807a539bd123c0e464",
+      "sentence": "我对考试有信心。"
+    },
+    "信息": {
+      "id": 7903,
+      "path": "/art/words/7903.webp",
+      "bytes": 28560,
+      "sha256": "1bee5331b74fabed7d635cf23b152345cd56b2f08d739299dfe8739159a4581d",
+      "sentence": "我收到你的信息了。"
+    },
+    "值得": {
+      "id": 8486,
+      "path": "/art/words/8486.webp",
+      "bytes": 20842,
+      "sha256": "d1f9915545142565802692ff32f3a401a0ba66abbe27168a5fe82870025f3fa0",
+      "sentence": "这本书很值得看。"
+    },
+    "做到": {
+      "id": 8731,
+      "path": "/art/words/8731.webp",
+      "bytes": 24360,
+      "sha256": "a3d48f3a27c2bc4f173d1f3d6653a53997f6702d803a327a7954076060ed0a8d",
+      "sentence": "我做到了。"
+    },
+    "健康": {
+      "id": 8874,
+      "path": "/art/words/8874.webp",
+      "bytes": 22104,
+      "sha256": "a9d13b2b5d8152848657b29e3abab69695640edd252c79d2137b3f8ad7f60c82",
+      "sentence": "运动对身体很健康。"
+    },
+    "儿子": {
+      "id": 10427,
+      "path": "/art/words/10427.webp",
+      "bytes": 26978,
+      "sha256": "a5748a743690ec03c370818084cc5964ee50d97d14b76666ba0bc76817ff4a64",
+      "sentence": "他是我的儿子。"
+    },
+    "兄弟": {
+      "id": 9924,
+      "path": "/art/words/9924.webp",
+      "bytes": 26830,
+      "sha256": "03fc30115ba28cfc90678f600015922296a149182741f1f57aae1b452462e5ad",
+      "sentence": "他是我的兄弟。"
+    },
+    "先生": {
+      "id": 10058,
+      "path": "/art/words/10058.webp",
+      "bytes": 18490,
+      "sha256": "f9fd6caf59f9c0d5cdaca71a427b652105310e9cfadac4eac5e08b1584f31196",
+      "sentence": "他是王先生。"
+    },
+    "全国": {
+      "id": 10789,
+      "path": "/art/words/10789.webp",
+      "bytes": 25974,
+      "sha256": "8ea3dc4f97991cc0e4a54556ff51a6bd21321dee99325a5bf8998580ff4ba54a",
+      "sentence": "全国的人都喜欢他。"
+    },
+    "全部": {
+      "id": 10945,
+      "path": "/art/words/10945.webp",
+      "bytes": 18494,
+      "sha256": "82466aba01ec399f1d69f572730b9c36c38818f13f2ffddf212adc91325877be",
+      "sentence": "我全部吃完了。"
+    },
+    "公司": {
+      "id": 11286,
+      "path": "/art/words/11286.webp",
+      "bytes": 28892,
+      "sha256": "8f5947d96db7f57dbc0d07b0e23fec8ae9e11a5935f74844003f88e75d341827",
+      "sentence": "他在公司工作。"
+    },
+    "公园": {
+      "id": 11301,
+      "path": "/art/words/11301.webp",
+      "bytes": 18738,
+      "sha256": "4c98f2b68a8bea1b0fc4ec91b1552e0492ea1dc960735454e1bc201c617cf640",
+      "sentence": "我去公园散步。"
+    },
+    "公平": {
+      "id": 11336,
+      "path": "/art/words/11336.webp",
+      "bytes": 8416,
+      "sha256": "b29492f8372f51d5c27ed25d860b6f06879935bee662bda3b75c2526c6dbadc9",
+      "sentence": "这很公平。"
+    },
+    "公路": {
+      "id": 11470,
+      "path": "/art/words/11470.webp",
+      "bytes": 24048,
+      "sha256": "f07dba10727c31ed05ff727915f9ea4129b8ab297275ddbcc8fcc92cc4425520",
+      "sentence": "公路上有很多车。"
+    },
+    "关于": {
+      "id": 109783,
+      "path": "/art/words/109783.webp",
+      "bytes": 29192,
+      "sha256": "3db99365662438a4d92e674eadf34bd72abfd4e310471c0d20dd37c8d22ae362",
+      "sentence": "这是一本关于历史的书。"
+    },
+    "关心": {
+      "id": 109775,
+      "path": "/art/words/109775.webp",
+      "bytes": 30828,
+      "sha256": "bf56092bd5fe1dbd067a57c8cb083a1297978386d63b7313f5599e62b0fa3dfc",
+      "sentence": "妈妈很关心我。"
+    },
+    "关注": {
+      "id": 109792,
+      "path": "/art/words/109792.webp",
+      "bytes": 27240,
+      "sha256": "6eb08ac160010df68985ae9f86f91dc8b41f28046fc959fcc5ba02dc7e6ed6d7",
+      "sentence": "请关注我的账号。"
+    },
+    "关系": {
+      "id": 109740,
+      "path": "/art/words/109740.webp",
+      "bytes": 17658,
+      "sha256": "a9fc7e9597bf70f9488ebb66b0da351b54a08e0c279bad7067b3bda08238aee8",
+      "sentence": "我和他是好朋友，关系很好。"
+    },
+    "关键": {
+      "id": 109821,
+      "path": "/art/words/109821.webp",
+      "bytes": 33616,
+      "sha256": "1dedf94c4c9d4ee517ff97613680d3ee7a4d99dcf0b6eba3c4091f2a382d9ac4",
+      "sentence": "坚持是成功的关键。"
+    },
+    "其中": {
+      "id": 11709,
+      "path": "/art/words/11709.webp",
+      "bytes": 28578,
+      "sha256": "c4a42de21d396b7a43dd8edc75cb8c057ffb7c667bdd2fc87be91bed295e2d0b",
+      "sentence": "其中一个人很高。"
+    },
+    "其他": {
+      "id": 11711,
+      "path": "/art/words/11711.webp",
+      "bytes": 18150,
+      "sha256": "7c046f47db59cdc7dc29586a1446d2d9ab9dd51d7a2db74e7ad8c8dd8ca4f733",
+      "sentence": "你想吃其他菜吗？"
+    },
+    "其实": {
+      "id": 11717,
+      "path": "/art/words/11717.webp",
+      "bytes": 27820,
+      "sha256": "3efec1b82a27a1a23bb05b6768267939e5629145f1fb2b9e09f827964ea13bc1",
+      "sentence": "其实我不喜欢吃苹果。"
+    },
+    "再次": {
+      "id": 11833,
+      "path": "/art/words/11833.webp",
+      "bytes": 13026,
+      "sha256": "3fd85074a3af72c0a6b00f449f63e89e99db57f67e7338062f60d61755e07e36",
+      "sentence": "我再次尝试。"
+    },
+    "再见": {
+      "id": 11858,
+      "path": "/art/words/11858.webp",
+      "bytes": 25706,
+      "sha256": "34a319d650f318f9a6cff3407b0683c4756161edd974ec207ffe7458e07e1ecb",
+      "sentence": "明天见，再见！"
+    },
+    "最后": {
+      "id": 52609,
+      "path": "/art/words/52609.webp",
+      "bytes": 29742,
+      "sha256": "aa8be8471b95923d5b307467e81da4a404e0b45bf5b32356f1e5e6e3e1a2b343",
+      "sentence": "这是我的最后通牒。"
+    },
+    "最好": {
+      "id": 52597,
+      "path": "/art/words/52597.webp",
+      "bytes": 45822,
+      "sha256": "2b6b711c116d0a1454099cb86b33ff0875b6b014c8094ba408b961cbd294c7eb",
+      "sentence": "你最好早点来。"
+    },
+    "最终": {
+      "id": 52620,
+      "path": "/art/words/52620.webp",
+      "bytes": 19578,
+      "sha256": "0cc497fe569686b8a5a51497fb064840db124e2b39ef7e4bf7f40a931e82fa72",
+      "sentence": "他最终成功了。"
+    },
+    "最近": {
+      "id": 52622,
+      "path": "/art/words/52622.webp",
+      "bytes": 28554,
+      "sha256": "fe45e9d9cff395cfacc1f8397df3a364ff4a82acf8a67e6ec55ceaa6d5c7102d",
+      "sentence": "我最近很忙。"
+    },
+    "冠军": {
+      "id": 11969,
+      "path": "/art/words/11969.webp",
+      "bytes": 21018,
+      "sha256": "b232234c7aee05ef6ae0af9ec2f11af24e53b6796c7015646163656be95c34ff",
+      "sentence": "他是比赛的冠军。"
+    },
+    "决定": {
+      "id": 60648,
+      "path": "/art/words/60648.webp",
+      "bytes": 31578,
+      "sha256": "d82bc36e539cc3ede66aafcaa33cf52b542174db43e719b0f0a2b79177811bf3",
+      "sentence": "我决定去北京。"
+    },
+    "准备": {
+      "id": 64646,
+      "path": "/art/words/64646.webp",
+      "bytes": 21466,
+      "sha256": "84f661638e17dd5b36f43b554ff415b779602703588c923fe3dc18ebd4039970",
+      "sentence": "我准备好了。"
+    },
+    "几乎": {
+      "id": 36652,
+      "path": "/art/words/36652.webp",
+      "bytes": 15416,
+      "sha256": "326a48e70f3661bbf502697cef193b157b727f5dc4d0d622c1349ff096ebbed7",
+      "sentence": "他几乎每天都喝咖啡。"
+    },
+    "出去": {
+      "id": 12577,
+      "path": "/art/words/12577.webp",
+      "bytes": 11960,
+      "sha256": "6e7fbe5a3e8908404a0af8df709363243b22a539ef78efacf0cebecbcaa7f047",
+      "sentence": "我们出去吧。"
+    },
+    "出发": {
+      "id": 12695,
+      "path": "/art/words/12695.webp",
+      "bytes": 26348,
+      "sha256": "e773e2caa4aa705bdcbb5b46fa2d577fbf698b53de4f26539b52d796f6a7a477",
+      "sentence": "我们明天出发。"
+    },
+    "出口": {
+      "id": 12578,
+      "path": "/art/words/12578.webp",
+      "bytes": 21654,
+      "sha256": "2bd4873c8ccc9e1972fb38ea20822a4110c280cbc8a3989e144714ef08e9f2c1",
+      "sentence": "出口在左边。"
+    },
+    "出来": {
+      "id": 12557,
+      "path": "/art/words/12557.webp",
+      "bytes": 10092,
+      "sha256": "9c954f41a7b1e14fa7160a9fe0c0ee12ff126a787c8fa94d6450481b11945fa0",
+      "sentence": "他出来了。"
+    },
+    "出现": {
+      "id": 12682,
+      "path": "/art/words/12682.webp",
+      "bytes": 15938,
+      "sha256": "6724163bb1b5635d233cbc4bec4c2c8fa33f5bb972931b4892de8ddfd52c8d9d",
+      "sentence": "太阳出现了。"
+    },
+    "出生": {
+      "id": 12683,
+      "path": "/art/words/12683.webp",
+      "bytes": 16490,
+      "sha256": "ef1fe85b80015b1f6c9fa2f7030799da0d0f63033d6b74f791c93a7647a75ecc",
+      "sentence": "我在北京出生。"
+    },
+    "分析": {
+      "id": 12962,
+      "path": "/art/words/12962.webp",
+      "bytes": 29200,
+      "sha256": "9ecb1df0cc03b22cf5bc07ebb07308c2d27eac4d70e6a7bd51e7991eaa70512d",
+      "sentence": "我们在分析这个问题。"
+    },
+    "分钟": {
+      "id": 13083,
+      "path": "/art/words/13083.webp",
+      "bytes": 24516,
+      "sha256": "6cd745383bcfdba1b8bd458e2c3732f6c509d196a42e86ee3ebf9675c666be48",
+      "sentence": "我等了十分钟。"
+    },
+    "刚刚": {
+      "id": 14017,
+      "path": "/art/words/14017.webp",
+      "bytes": 27182,
+      "sha256": "91c879150bf980c17579d99ca115c1431e6d055083c423b16a3eb7aefbb00688",
+      "sentence": "他刚刚走了。"
+    },
+    "刚才": {
+      "id": 14028,
+      "path": "/art/words/14028.webp",
+      "bytes": 18312,
+      "sha256": "f1119af83b3df8ae56713f42e0c9e316dfcfefb45b64d2a813cb270c842d519a",
+      "sentence": "他刚才回家了。"
+    },
+    "利用": {
+      "id": 13517,
+      "path": "/art/words/13517.webp",
+      "bytes": 40850,
+      "sha256": "45763ad88ae587e1300cea7fdc4fec1c80ad8ad6876f76fc96e694304abbcd4f",
+      "sentence": "我利用周末时间学习。"
+    },
+    "别人": {
+      "id": 13384,
+      "path": "/art/words/13384.webp",
+      "bytes": 22056,
+      "sha256": "0cfe7de5d5d2d2d57530b02df316726d504b87d8a71f481106fa2b42cc1597bd",
+      "sentence": "我不认识别人。"
+    },
+    "别的": {
+      "id": 13417,
+      "path": "/art/words/13417.webp",
+      "bytes": 23574,
+      "sha256": "b784d6d3a022ffe34fefd2b549d91b0bda10a8878d99b621fb5b265f658a12d7",
+      "sentence": "我不要这个，我要别的。"
+    },
+    "到处": {
+      "id": 13599,
+      "path": "/art/words/13599.webp",
+      "bytes": 56510,
+      "sha256": "9277a2fa3b31e72dc322610095d9db885c68cb5277d529fd9f440bd235873c43",
+      "sentence": "到处都是人。"
+    },
+    "到底": {
+      "id": 13583,
+      "path": "/art/words/13583.webp",
+      "bytes": 20302,
+      "sha256": "201aba1ef092299a24a2cf6af4635e8dde3cf0c14562e4a80d7e7c3056e0d6a3",
+      "sentence": "你到底去不去？"
+    },
+    "力量": {
+      "id": 14488,
+      "path": "/art/words/14488.webp",
+      "bytes": 28752,
+      "sha256": "fbcb071e360b6f023bf642e6b145081c16496e55e51cfa2ae3cfdfba2bbf00ce",
+      "sentence": "他有很大的力量。"
+    },
+    "办公室": {
+      "id": 102727,
+      "path": "/art/words/102727.webp",
+      "bytes": 16264,
+      "sha256": "759794cc2c9b60bc85ec97fc264e3aae22fb4ca1f7d4f90dd4d7ea74c4c437c5",
+      "sentence": "我在办公室工作。"
+    },
+    "办法": {
+      "id": 102741,
+      "path": "/art/words/102741.webp",
+      "bytes": 17686,
+      "sha256": "87ae9ab949d652d6910d8ed6bff3d345a4fcf9e41dd0139b17d6c59592505772",
+      "sentence": "我有办法。"
+    },
+    "加入": {
+      "id": 14560,
+      "path": "/art/words/14560.webp",
+      "bytes": 17212,
+      "sha256": "dd3589d8f4a0d2da10e7102fd7658f261b4887da39eb1be1f0af5ad32d55b87d",
+      "sentence": "我想加入这个俱乐部。"
+    },
+    "加油": {
+      "id": 14657,
+      "path": "/art/words/14657.webp",
+      "bytes": 20334,
+      "sha256": "2d028f8bb9f3f3f78e44c20e1610c4a4755c392d2ef44d31947c03bb412409c4",
+      "sentence": "考试加油！"
+    },
+    "动作": {
+      "id": 14935,
+      "path": "/art/words/14935.webp",
+      "bytes": 13942,
+      "sha256": "47f6ce92f3a92ef596a2197b572f97615ae830a27e9a43a84d564d5d90b482cf",
+      "sentence": "他的动作很快。"
+    },
+    "动物": {
+      "id": 14990,
+      "path": "/art/words/14990.webp",
+      "bytes": 36384,
+      "sha256": "a164ea0be72414df78bf80de528c69c60354849fb29e2bb59bb9d97314d8a509",
+      "sentence": "我喜欢动物。"
+    },
+    "努力": {
+      "id": 14792,
+      "path": "/art/words/14792.webp",
+      "bytes": 22872,
+      "sha256": "48f120469169601f4e41dd637e8ac04ae24a64db6b353374d464fe72be599ab5",
+      "sentence": "我努力学习中文。"
+    },
+    "包括": {
+      "id": 15350,
+      "path": "/art/words/15350.webp",
+      "bytes": 24810,
+      "sha256": "87ecd074bf0a11711be72df425d5641276b9c209b3aedef4af19983a1136deb9",
+      "sentence": "早餐包括牛奶和面包。"
+    },
+    "医生": {
+      "id": 106406,
+      "path": "/art/words/106406.webp",
+      "bytes": 19890,
+      "sha256": "4a1244001201d4d0ed893ce23c79b125505243cdf4a80a328b184f5a1a588add",
+      "sentence": "我爸爸是医生。"
+    },
+    "医院": {
+      "id": 106426,
+      "path": "/art/words/106426.webp",
+      "bytes": 14128,
+      "sha256": "8cf40c89b492aa5b85d6a7af3d506e4719e3514a6d02b9b0c80bb0dbb71a0ea9",
+      "sentence": "他在医院工作。"
+    },
+    "十分": {
+      "id": 15908,
+      "path": "/art/words/15908.webp",
+      "bytes": 33862,
+      "sha256": "1e64d31d43906e1ab041e254017a2c8e68f788be008ad4a41613deb2b4c5bd4c",
+      "sentence": "我十分高兴。"
+    },
+    "单位": {
+      "id": 21837,
+      "path": "/art/words/21837.webp",
+      "bytes": 24826,
+      "sha256": "64a148669af52b784ac7796b2815e972e733c62247275c5035f58d2d387e40f4",
+      "sentence": "他在单位工作。"
+    },
+    "即使": {
+      "id": 17022,
+      "path": "/art/words/17022.webp",
+      "bytes": 25434,
+      "sha256": "6a04db220cd0852085083287e34454d923897fc527ad4fc2eff9f442654f851c",
+      "sentence": "即使下雨，我也要去。"
+    },
+    "历史": {
+      "id": 58575,
+      "path": "/art/words/58575.webp",
+      "bytes": 47074,
+      "sha256": "0b5a94fa0128c51654c5c60c9111635fe1e7e182bda375bd0eceddc5d81ee861",
+      "sentence": "我喜欢学习历史。"
+    },
+    "压力": {
+      "id": 25701,
+      "path": "/art/words/25701.webp",
+      "bytes": 20282,
+      "sha256": "49cc622b39b457286b326f89838255d4d7be5bb2c1313888b51ee209f70f3232",
+      "sentence": "工作压力很大。"
+    },
+    "原因": {
+      "id": 17210,
+      "path": "/art/words/17210.webp",
+      "bytes": 15262,
+      "sha256": "f017f3ec2c89d8224cdb5e4d55f4d7d3083a7330943bc470737dd15b11fb45f5",
+      "sentence": "这是失败的原因。"
+    },
+    "原来": {
+      "id": 17191,
+      "path": "/art/words/17191.webp",
+      "bytes": 23274,
+      "sha256": "9257cec3af231ab1bea9ab9e437fb59b67117050e56f5e01a41a140c8fa453e4",
+      "sentence": "原来是你！"
+    },
+    "去年": {
+      "id": 17366,
+      "path": "/art/words/17366.webp",
+      "bytes": 26324,
+      "sha256": "2903ba29b87cbf66614d27b8d3d7fa9755199b31d0051350123ee06f73b1990a",
+      "sentence": "去年我去了北京。"
+    },
+    "参与": {
+      "id": 17439,
+      "path": "/art/words/17439.webp",
+      "bytes": 43866,
+      "sha256": "d5c7b16671295b83dd67fb0380fdef48378fad7bde7b03b459b8b187a4c7550b",
+      "sentence": "我参与了这个活动。"
+    },
+    "参加": {
+      "id": 17404,
+      "path": "/art/words/17404.webp",
+      "bytes": 51914,
+      "sha256": "f711c9323b3853d0ebcf7d78899de06e65c479ca8349fa3234d64ed141c23591",
+      "sentence": "我想参加比赛。"
+    },
+    "反应": {
+      "id": 17627,
+      "path": "/art/words/17627.webp",
+      "bytes": 14522,
+      "sha256": "325fcbe6c1d3d85a48ce53c0126f80b4c661b8b1600975f91c812e8341a7e819",
+      "sentence": "他的反应很快。"
+    },
+    "发展": {
+      "id": 73472,
+      "path": "/art/words/73472.webp",
+      "bytes": 33168,
+      "sha256": "631c0b986a2aa46eea3a09fa4f7f09cd196e1e1c9622f35d886e318e4659abf1",
+      "sentence": "城市发展很快。"
+    },
+    "发现": {
+      "id": 73541,
+      "path": "/art/words/73541.webp",
+      "bytes": 25482,
+      "sha256": "d2018b0e4d64f52aa57f9130c3352c93737c50f05a83d8f4861dfb647f7a1b57",
+      "sentence": "我发现了一个问题。"
+    },
+    "发生": {
+      "id": 73546,
+      "path": "/art/words/73546.webp",
+      "bytes": 18962,
+      "sha256": "602ef727e205946d56b05d4251d481e0a1d7877c092ce49be065627d5cd0b1c6",
+      "sentence": "昨天发生了一件好事。"
+    },
+    "取得": {
+      "id": 17814,
+      "path": "/art/words/17814.webp",
+      "bytes": 13322,
+      "sha256": "1a64f97b925bd8b9824ec26e65ff67e8964e0d7752c40957d4c4ea98c007b3d9",
+      "sentence": "我们取得了好成绩。"
+    },
+    "受到": {
+      "id": 17863,
+      "path": "/art/words/17863.webp",
+      "bytes": 37150,
+      "sha256": "8f9414700ca48cce95450a172305a4b05e17a065219a81dfdf97401ab01c5c9e",
+      "sentence": "他受到了老师的表扬。"
+    },
+    "变成": {
+      "id": 98546,
+      "path": "/art/words/98546.webp",
+      "bytes": 22352,
+      "sha256": "ffb25c7cae4d164eed442913053a684c64c33fa16bf45fbca93354906bc283cb",
+      "sentence": "水变成了冰。"
+    },
+    "另外": {
+      "id": 18279,
+      "path": "/art/words/18279.webp",
+      "bytes": 25774,
+      "sha256": "ac7581b6577560af64e86e2c1dc620014633fa0df1465613672d97cd1f07361f",
+      "sentence": "另外买一个苹果。"
+    },
+    "只是": {
+      "id": 18321,
+      "path": "/art/words/18321.webp",
+      "bytes": 10616,
+      "sha256": "2ce465bd090697b3b7b0e247da988b00931431d208a9aa8659a61b022511bf94",
+      "sentence": "我只是有点累。"
+    },
+    "只有": {
+      "id": 18322,
+      "path": "/art/words/18322.webp",
+      "bytes": 10426,
+      "sha256": "3ee604491073c80ee8ec43bb63f6390e7ea97680b1fc3e7a072054fe99e28d48",
+      "sentence": "我只有一本书。"
+    },
+    "只能": {
+      "id": 18329,
+      "path": "/art/words/18329.webp",
+      "bytes": 26956,
+      "sha256": "3dd64260f106797d107d6611ee42efae115c7bad40227ee43df25244b68f8516",
+      "sentence": "我只能喝水。"
+    },
+    "只要": {
+      "id": 18330,
+      "path": "/art/words/18330.webp",
+      "bytes": 31292,
+      "sha256": "a96c09c48c5b445435116210e0cf238e3a4e2fb2ddc99fd09339e58161c03c46",
+      "sentence": "只要努力，就会成功。"
+    },
+    "可以": {
+      "id": 18400,
+      "path": "/art/words/18400.webp",
+      "bytes": 18276,
+      "sha256": "6dda84c5a490cb5ef44d8ee1061f00f7ed57cd537b85220336c44a3871ab2061",
+      "sentence": "我可以帮你。"
+    },
+    "可怕": {
+      "id": 18448,
+      "path": "/art/words/18448.webp",
+      "bytes": 12608,
+      "sha256": "3c7cb1c014f629a2f3bdd4336245a9c8e67b85fbc7403e42910bf2f206d59c67",
+      "sentence": "那个故事很可怕。"
+    },
+    "可是": {
+      "id": 18484,
+      "path": "/art/words/18484.webp",
+      "bytes": 32614,
+      "sha256": "77c94d3478dbdb5183e339acd2752fe8e1e4f06db0a2762416457284824085fe",
+      "sentence": "我喜欢猫，可是不喜欢狗。"
+    },
+    "可爱": {
+      "id": 18458,
+      "path": "/art/words/18458.webp",
+      "bytes": 19416,
+      "sha256": "e012ca0c98ce793953d0c6d7eabf190093d06ea1f59c6060f1ca19459184a69b",
+      "sentence": "小猫很可爱。"
+    },
+    "可能": {
+      "id": 18519,
+      "path": "/art/words/18519.webp",
+      "bytes": 23692,
+      "sha256": "11b3d3f12d11d4337c4fc4e6a4b23ccc2dd735726b805df30bb0f9f2ff394cee",
+      "sentence": "明天可能会下雨。"
+    },
+    "司机": {
+      "id": 18722,
+      "path": "/art/words/18722.webp",
+      "bytes": 31886,
+      "sha256": "74169570a6c80867d492b2f2a14538065440ed260632ee2f6004c306aa911919",
+      "sentence": "他是出租车司机。"
+    },
+    "吃饭": {
+      "id": 18870,
+      "path": "/art/words/18870.webp",
+      "bytes": 25382,
+      "sha256": "14ec0a212aec0a0c8f33e3954fd2be151f67ea96de952d1645a6fcc9bf05dbf6",
+      "sentence": "我现在去吃饭。"
+    },
+    "各位": {
+      "id": 18884,
+      "path": "/art/words/18884.webp",
+      "bytes": 27960,
+      "sha256": "f0a6a5b5d9d4d2dc66645d2e148fa593114ef4224d123dde684977b6fad072a6",
+      "sentence": "各位早上好。"
+    },
+    "合作": {
+      "id": 18940,
+      "path": "/art/words/18940.webp",
+      "bytes": 26904,
+      "sha256": "e9ed363933151f0726fb336c638de167ce78220c32d6164a5def543072088621",
+      "sentence": "我们一起合作吧。"
+    },
+    "合适": {
+      "id": 19076,
+      "path": "/art/words/19076.webp",
+      "bytes": 17934,
+      "sha256": "e34689db0553ae53e1887f52ed9d8f8c4a34f8ee726b9423aefb70e606ee08a4",
+      "sentence": "这双鞋很合适。"
+    },
+    "同事": {
+      "id": 19246,
+      "path": "/art/words/19246.webp",
+      "bytes": 30884,
+      "sha256": "25103a7443cae958046b63cfd9012d6e8a7b603bea110aa429805fd708e59706",
+      "sentence": "他是我的同事。"
+    },
+    "同学": {
+      "id": 19285,
+      "path": "/art/words/19285.webp",
+      "bytes": 15136,
+      "sha256": "c4ab151d784856408dc4c862562739949193bbc53ab288d45483c7240f1339f5",
+      "sentence": "他是我的同学。"
+    },
+    "同意": {
+      "id": 19312,
+      "path": "/art/words/19312.webp",
+      "bytes": 16990,
+      "sha256": "7265b26be18bdddc12f7d6779e0f4b531be7961ff8cde2c5a5970d62c28a0305",
+      "sentence": "我同意你的看法。"
+    },
+    "同时": {
+      "id": 19320,
+      "path": "/art/words/19320.webp",
+      "bytes": 28970,
+      "sha256": "a31a645897ea361883eb92eb7c4648066800806b08518021b4ee413e0454dd32",
+      "sentence": "我同时喜欢唱歌和跳舞。"
+    },
+    "同样": {
+      "id": 19333,
+      "path": "/art/words/19333.webp",
+      "bytes": 24734,
+      "sha256": "ee33c89577564fb9f740249254dd5561e62e11d89022e544203a11737544192e",
+      "sentence": "我也同样喜欢这本书。"
+    },
+    "名单": {
+      "id": 19452,
+      "path": "/art/words/19452.webp",
+      "bytes": 17376,
+      "sha256": "16a4d89adb475a661d24e0c8e921075a9fbbe74242b40c070ceae9265c3f177e",
+      "sentence": "这是会议的名单。"
+    },
+    "名字": {
+      "id": 19462,
+      "path": "/art/words/19462.webp",
+      "bytes": 33494,
+      "sha256": "0829d3d80eebc974ce9d0dc2c5b2ee397291c52a6d827f9d1617bc4219b19cf5",
+      "sentence": "我的名字是王明。"
+    },
+    "后来": {
+      "id": 38389,
+      "path": "/art/words/38389.webp",
+      "bytes": 11520,
+      "sha256": "31e836b15f59897f0629638163c1c97d70df78efe112fe846100e88398d27eb2",
+      "sentence": "后来他去了北京。"
+    },
+    "听到": {
+      "id": 86365,
+      "path": "/art/words/86365.webp",
+      "bytes": 18816,
+      "sha256": "05a435a7c736c636a8c9daababed81f8258faa0d8460c880227c97bf6f726d0d",
+      "sentence": "我听到音乐了。"
+    },
+    "听说": {
+      "id": 86406,
+      "path": "/art/words/86406.webp",
+      "bytes": 24314,
+      "sha256": "b1a4ef027b2367e1882887eb0f295471500e59b8e1813d3e6d4e711707e924b9",
+      "sentence": "听说她明天来。"
+    },
+    "告诉": {
+      "id": 20079,
+      "path": "/art/words/20079.webp",
+      "bytes": 36358,
+      "sha256": "99b1c698a5f3c9acb361a933fe79eb2721edfda7136f797821bc61a22317b40e",
+      "sentence": "请告诉我。"
+    },
+    "周末": {
+      "id": 104099,
+      "path": "/art/words/104099.webp",
+      "bytes": 20228,
+      "sha256": "41ea5f8614091ded0c7afbe7b64f296ae798a274a63d1ea91f4e4b02fa20ba97",
+      "sentence": "我喜欢周末。"
+    },
+    "味道": {
+      "id": 20232,
+      "path": "/art/words/20232.webp",
+      "bytes": 17966,
+      "sha256": "bb327f88a96eea065f19f2724c5a022d7713dbf9c30e9303b8147fdcdcbbb262",
+      "sentence": "这个菜的味道很好。"
+    },
+    "咱们": {
+      "id": 20582,
+      "path": "/art/words/20582.webp",
+      "bytes": 22594,
+      "sha256": "b28f8d7c88638e4680522be0276e6027547c95dfbae98909fcf0332617379a59",
+      "sentence": "咱们一起吃饭吧。"
+    },
+    "哥哥": {
+      "id": 20892,
+      "path": "/art/words/20892.webp",
+      "bytes": 14808,
+      "sha256": "1d3c7844dfc2792f797d9783ecd9270c190f75cbb89cab6d139be739b8d30520",
+      "sentence": "哥哥喜欢吃苹果。"
+    },
+    "哪里": {
+      "id": 20946,
+      "path": "/art/words/20946.webp",
+      "bytes": 34576,
+      "sha256": "10c00eaf8d6cd97fa1bf511190d5a6993a1d5d77b93043778cce555a9a2240de",
+      "sentence": "你去哪里？"
+    },
+    "唯一": {
+      "id": 21161,
+      "path": "/art/words/21161.webp",
+      "bytes": 16334,
+      "sha256": "90286fe9b997deaa3c8877f11f74c0bdf3f2466bc043abbf8897cc2d6ebf96b2",
+      "sentence": "他是我的唯一朋友。"
+    },
+    "喜欢": {
+      "id": 21691,
+      "path": "/art/words/21691.webp",
+      "bytes": 26624,
+      "sha256": "d4879e5a63c48f1e6a893df314f771197e63827f26249ebccbe8eacbf7fea0d8",
+      "sentence": "我喜欢吃苹果。"
+    },
+    "回到": {
+      "id": 22892,
+      "path": "/art/words/22892.webp",
+      "bytes": 11762,
+      "sha256": "a46e5f7804372c244d079c2b63a9ae78d37a28f0735d0dda12621865dc3b484b",
+      "sentence": "我回到家里了。"
+    },
+    "回去": {
+      "id": 22896,
+      "path": "/art/words/22896.webp",
+      "bytes": 13874,
+      "sha256": "328d2399e814fae187a9433dcabb448256b366c8370267d3f1103d3b069efe06",
+      "sentence": "我要回去。"
+    },
+    "回家": {
+      "id": 22921,
+      "path": "/art/words/22921.webp",
+      "bytes": 28344,
+      "sha256": "675d3c81915a7532498e385a033e228eb0d07d88dbb5d4ee771e5063b2990612",
+      "sentence": "我现在回家。"
+    },
+    "回来": {
+      "id": 22884,
+      "path": "/art/words/22884.webp",
+      "bytes": 17596,
+      "sha256": "ab3f410b670b0a0b3a88ec78099ee5bc29abdab9994b3161ecdbdc1e858c6012",
+      "sentence": "他明天回来。"
+    },
+    "回答": {
+      "id": 22983,
+      "path": "/art/words/22983.webp",
+      "bytes": 31096,
+      "sha256": "ec2976101b77ca7ba6f62ff25781af6b93b8c54c9ab559223c8843d76f9ee3b2",
+      "sentence": "请你回答我的问题。"
+    },
+    "因为": {
+      "id": 23075,
+      "path": "/art/words/23075.webp",
+      "bytes": 23134,
+      "sha256": "22352fac97ce497e448583a3ec6197699d0b78f837f48f53827a3465afeac123",
+      "sentence": "因为他生病了，所以没来。"
+    },
+    "因此": {
+      "id": 23074,
+      "path": "/art/words/23074.webp",
+      "bytes": 33588,
+      "sha256": "ac100ca79c0bd4a8acfbc19b76395c2f3cbba463bc096887a8caceb0e93c558b",
+      "sentence": "下雨了，因此我没有出门。"
+    },
+    "困难": {
+      "id": 23121,
+      "path": "/art/words/23121.webp",
+      "bytes": 21150,
+      "sha256": "9c2549f64587d6a7b927d29266e03673564f10e3fbbea919d8dab1559e291879",
+      "sentence": "学习中文很困难。"
+    },
+    "国家": {
+      "id": 23263,
+      "path": "/art/words/23263.webp",
+      "bytes": 36378,
+      "sha256": "51641130475ed022840410af210bbbe061118314b4f462925b5b4b4a368ca9f4",
+      "sentence": "我爱我的国家。"
+    },
+    "国际": {
+      "id": 23449,
+      "path": "/art/words/23449.webp",
+      "bytes": 21924,
+      "sha256": "a3f0222a5952aadfc143be973f327df2dedd50763e464f5fbba39bfa4aa5f209",
+      "sentence": "这是一个国际会议。"
+    },
+    "在家": {
+      "id": 23911,
+      "path": "/art/words/23911.webp",
+      "bytes": 18106,
+      "sha256": "6d29158d5f483b5c19f3b5f29cf48182799d51aac53a01b9d132ea6737e9467b",
+      "sentence": "我在家吃饭。"
+    },
+    "地上": {
+      "id": 23965,
+      "path": "/art/words/23965.webp",
+      "bytes": 17664,
+      "sha256": "a238f5195143ec509168024d818c95e6ea33c395ff86359f07b71197692ecde8",
+      "sentence": "地上有一本书。"
+    },
+    "地区": {
+      "id": 24000,
+      "path": "/art/words/24000.webp",
+      "bytes": 24960,
+      "sha256": "ffa3395f6387fe87779ae2b89c994141ce1e389939d2fc26636937eabb7f729d",
+      "sentence": "这个地区很安静。"
+    },
+    "地址": {
+      "id": 24014,
+      "path": "/art/words/24014.webp",
+      "bytes": 20266,
+      "sha256": "35dbd0e9d146def25ee82b0d28a20f17b893615cc0972b245c3ba1b3979e409b",
+      "sentence": "你的地址是什么？"
+    },
+    "地方": {
+      "id": 24053,
+      "path": "/art/words/24053.webp",
+      "bytes": 31508,
+      "sha256": "05641dfb372586086fcc00613a6eaedf7e35d15c1c774e9fa40059bf9f4c2824",
+      "sentence": "这个地方很好。"
+    },
+    "地点": {
+      "id": 24205,
+      "path": "/art/words/24205.webp",
+      "bytes": 22040,
+      "sha256": "4fa8e4f07b231e955f385c87ac11c0aba654cbc5a4cec2f1b124969c10b92911",
+      "sentence": "这是一个很好的地点。"
+    },
+    "地球": {
+      "id": 24095,
+      "path": "/art/words/24095.webp",
+      "bytes": 19232,
+      "sha256": "1826f122a242fe3925b0d86c76bcdb86d8c4d3e72442fb17335efc82b7cb4cf0",
+      "sentence": "地球是我们的家。"
+    },
+    "坚持": {
+      "id": 24945,
+      "path": "/art/words/24945.webp",
+      "bytes": 19270,
+      "sha256": "997d600bf25d41acaf361c5cca8810c73ef2e601eabf39ceb69b41de490d1c63",
+      "sentence": "我要坚持学习中文。"
+    },
+    "城市": {
+      "id": 24631,
+      "path": "/art/words/24631.webp",
+      "bytes": 58534,
+      "sha256": "c4b20275912db86a21a001918ef80802e4f5caf10e8e88d3bf00d585d13a54bd",
+      "sentence": "北京是一个大城市。"
+    },
+    "基本": {
+      "id": 24808,
+      "path": "/art/words/24808.webp",
+      "bytes": 17310,
+      "sha256": "348657ffe3367175ce43d5af67d4625c6d54fa1cdf14b79c056622f50a760ad4",
+      "sentence": "这是基本知识。"
+    },
+    "声音": {
+      "id": 86295,
+      "path": "/art/words/86295.webp",
+      "bytes": 15678,
+      "sha256": "3c0fc12d705b3cc692df3ee46cb02e4a9e9e0493f6cff26fae03972e5549fa6d",
+      "sentence": "这个声音很好听。"
+    },
+    "处理": {
+      "id": 93170,
+      "path": "/art/words/93170.webp",
+      "bytes": 42288,
+      "sha256": "4829eb5a0e792bcd33c5b07dae1176b75c06f412b2caed209c4dae391ac3a5d6",
+      "sentence": "我来处理这件事。"
+    },
+    "多久": {
+      "id": 26208,
+      "path": "/art/words/26208.webp",
+      "bytes": 31202,
+      "sha256": "c9a68d053e980a7116c4bd2af941e966e33b29b92db1030357f355c53f4e6dae",
+      "sentence": "你要去多久？"
+    },
+    "多么": {
+      "id": 26445,
+      "path": "/art/words/26445.webp",
+      "bytes": 28612,
+      "sha256": "e4cf1dee5a4cfde2c2472cba61d206e7fc01f120f5a72dab8d4fbaf3507c5c54",
+      "sentence": "这里多么漂亮！"
+    },
+    "多少": {
+      "id": 26275,
+      "path": "/art/words/26275.webp",
+      "bytes": 32882,
+      "sha256": "734a29b456618b778a9c0fa304a3dc3848af0d1906168a9954a7e802c5b5c27a",
+      "sentence": "这个多少？"
+    },
+    "大人": {
+      "id": 26590,
+      "path": "/art/words/26590.webp",
+      "bytes": 22846,
+      "sha256": "cd0b6de9a837e4a569cd9cdd3e5fb4b2888f706ddbac6508098029de372bf06d",
+      "sentence": "大人说话的时候，小孩不要吵。"
+    },
+    "大多数": {
+      "id": 26763,
+      "path": "/art/words/26763.webp",
+      "bytes": 61052,
+      "sha256": "2d9dac89abd684c3fa0cb52e251d2177a42f5678b5f95b98c4a223c2299c5c8b",
+      "sentence": "大多数学生喜欢看书。"
+    },
+    "大学": {
+      "id": 26790,
+      "path": "/art/words/26790.webp",
+      "bytes": 42380,
+      "sha256": "26a762ab3e4f3733d6de6e34ce4aea3af79696f6ab4f30c5ad60caa73e66a0c5",
+      "sentence": "他在大学读书。"
+    },
+    "大家": {
+      "id": 26807,
+      "path": "/art/words/26807.webp",
+      "bytes": 44548,
+      "sha256": "0c2f6ad2947aedffc32dd1d7de9e91d740679ce32bf35a450b4dc2c7853c2e68",
+      "sentence": "大家都很好。"
+    },
+    "大部分": {
+      "id": 27387,
+      "path": "/art/words/27387.webp",
+      "bytes": 14840,
+      "sha256": "209e5b6f510bb60d8e9d1fe3edcd665ad146c40693990dab45a71517a7371cc7",
+      "sentence": "大部分学生都喜欢吃苹果。"
+    },
+    "大量": {
+      "id": 27395,
+      "path": "/art/words/27395.webp",
+      "bytes": 44364,
+      "sha256": "6d7d2e8c71f8ed7146cc11166f0107a0cd2edecc8a976aa9004731e7fee102f1",
+      "sentence": "我需要大量水。"
+    },
+    "天气": {
+      "id": 27697,
+      "path": "/art/words/27697.webp",
+      "bytes": 22910,
+      "sha256": "0013c80741364c5adce66c196af763ef462805912fc9da4ff3e15fbe8a1453d8",
+      "sentence": "今天的天气很好。"
+    },
+    "太阳": {
+      "id": 27994,
+      "path": "/art/words/27994.webp",
+      "bytes": 22656,
+      "sha256": "274bdb70d176d4887ea1999a0fff04721f201002b55b78f5563dcded460d0826",
+      "sentence": "太阳很大。"
+    },
+    "失去": {
+      "id": 28087,
+      "path": "/art/words/28087.webp",
+      "bytes": 19680,
+      "sha256": "1d5704dbeb7c382f2566565f47d9ec4bd8f2cb988c3097482e882e9d6d62bcd2",
+      "sentence": "我失去了工作。"
+    },
+    "头发": {
+      "id": 114570,
+      "path": "/art/words/114570.webp",
+      "bytes": 22614,
+      "sha256": "1452687390ac0347a5ad4a1d4807eb0069f97d510e218adf43c3a722d71990f4",
+      "sentence": "我的头发很长。"
+    },
+    "女人": {
+      "id": 28679,
+      "path": "/art/words/28679.webp",
+      "bytes": 16600,
+      "sha256": "33f88878945e21839e026f983a6a70d32af61f7638d850c781cde8ba0227426f",
+      "sentence": "女人很少吃辣椒。"
+    },
+    "女儿": {
+      "id": 28689,
+      "path": "/art/words/28689.webp",
+      "bytes": 16722,
+      "sha256": "be840b482cc9f442ebf40f4bcf1b0626658ed39fa55e2049543a2a5d8d03233c",
+      "sentence": "她是我的女儿。"
+    },
+    "女生": {
+      "id": 28745,
+      "path": "/art/words/28745.webp",
+      "bytes": 14464,
+      "sha256": "ac439e3c9a8b0defff5446757ce642e6fd7b6bd2a49da4b19ea8d3c9c20e038b",
+      "sentence": "她是我的女生朋友。"
+    },
+    "她们": {
+      "id": 28869,
+      "path": "/art/words/28869.webp",
+      "bytes": 26044,
+      "sha256": "8799ce91b9ecc1fbffe87b31974754eac0f636186e8594085443613c58969ea9",
+      "sentence": "她们是老师。"
+    },
+    "好像": {
+      "id": 28892,
+      "path": "/art/words/28892.webp",
+      "bytes": 15298,
+      "sha256": "2c5fb85f45cf5696799ba0afd75c83a4f4a3c13ba1a04db7d1ee7f278b592e40",
+      "sentence": "她好像很开心。"
+    },
+    "好吃": {
+      "id": 28901,
+      "path": "/art/words/28901.webp",
+      "bytes": 28142,
+      "sha256": "3fffc106fe11e0c86a74f616a49ef7c56ee6cc3d81373da4067e95bb76b983bf",
+      "sentence": "这个菜很好吃。"
+    },
+    "好多": {
+      "id": 28909,
+      "path": "/art/words/28909.webp",
+      "bytes": 35144,
+      "sha256": "cbd5b0c0cd993fb476a5fab516fb5055e65a39d5919a1b4b0215a3dd58faf375",
+      "sentence": "这里有好多苹果。"
+    },
+    "好好": {
+      "id": 28915,
+      "path": "/art/words/28915.webp",
+      "bytes": 28122,
+      "sha256": "0f94e4b7b5c0f14ad5814a7f10154d0b18f970d7238f9ec3cd52932e9fcb24f8",
+      "sentence": "请你好好休息。"
+    },
+    "好看": {
+      "id": 28966,
+      "path": "/art/words/28966.webp",
+      "bytes": 14332,
+      "sha256": "60a77f1634a993bb3cf2254e016248fbf2c5b2b71495d99fc61cde4c80375d0f",
+      "sentence": "这本书很好看。"
+    },
+    "如何": {
+      "id": 29012,
+      "path": "/art/words/29012.webp",
+      "bytes": 17390,
+      "sha256": "b1b20f9aaee87a8f912215ff25d9c5573f60063e2dd615144cb8ba9f2a3a360a",
+      "sentence": "如何学习中文？"
+    },
+    "如果": {
+      "id": 29046,
+      "path": "/art/words/29046.webp",
+      "bytes": 14350,
+      "sha256": "41f85324d292f05c5fa12db97e63c0c3a69cdc4f552478250d5111897d95f040",
+      "sentence": "如果明天下雨，我就不去。"
+    },
+    "如此": {
+      "id": 29048,
+      "path": "/art/words/29048.webp",
+      "bytes": 10080,
+      "sha256": "bff33c43310bfab10ce678e84ea3e778d9d3dba087b5da3f673c7fd668d01f21",
+      "sentence": "他如此高兴。"
+    },
+    "妈妈": {
+      "id": 29773,
+      "path": "/art/words/29773.webp",
+      "bytes": 32496,
+      "sha256": "237fe047222c44c6ac58383228d9ad8296bc607daee6e7f2afd754d8fd53dfbc",
+      "sentence": "我妈妈很爱我。"
+    },
+    "妹妹": {
+      "id": 29225,
+      "path": "/art/words/29225.webp",
+      "bytes": 29474,
+      "sha256": "a8adfc596dffa97f5401122f8249b39007cdf8996bae1f626496c54f3077ff59",
+      "sentence": "妹妹喜欢看书。"
+    },
+    "姐姐": {
+      "id": 29288,
+      "path": "/art/words/29288.webp",
+      "bytes": 24920,
+      "sha256": "89284846421018b32775dd4cdce232112ba19af053dda74f6cb77c9cb136c95b",
+      "sentence": "姐姐是爸爸的女儿。"
+    },
+    "存在": {
+      "id": 30182,
+      "path": "/art/words/30182.webp",
+      "bytes": 24096,
+      "sha256": "52a8029fc17cd8fc51f668bf9282e3bad8ff3c9889700f18618cbc769c4344ef",
+      "sentence": "这个问题确实存在。"
+    },
+    "学习": {
+      "id": 30506,
+      "path": "/art/words/30506.webp",
+      "bytes": 18106,
+      "sha256": "a658bdc5dc995345b6acdf2a0746ba6377fb8de0d38e2dbe79eb6823a2ebfad6",
+      "sentence": "我每天学习中文。"
+    },
+    "学校": {
+      "id": 30477,
+      "path": "/art/words/30477.webp",
+      "bytes": 31696,
+      "sha256": "f6ab29d993fc2c08841eb100cd4f7ffcf1010676c685946d4c49531c16baefc4",
+      "sentence": "这里是我的学校。"
+    },
+    "学生": {
+      "id": 30494,
+      "path": "/art/words/30494.webp",
+      "bytes": 27622,
+      "sha256": "cb283a542d7dd34a2450a1122dcc9ed1eba20ca612796e246e122d71e6a23ddd",
+      "sentence": "我是学生。"
+    },
+    "学院": {
+      "id": 30527,
+      "path": "/art/words/30527.webp",
+      "bytes": 27478,
+      "sha256": "20c880ec01b43b3ddca6dd7bcf55f69d03a956d81f99d1e3bc719802e46d199d",
+      "sentence": "我在学院学习。"
+    },
+    "孩子": {
+      "id": 30373,
+      "path": "/art/words/30373.webp",
+      "bytes": 17796,
+      "sha256": "ec676da5bd2c79e1ef1cdcae9f104f86aacd5e7138afc2c2c1b1bfe2e577a272",
+      "sentence": "这个孩子很可爱。"
+    },
+    "它们": {
+      "id": 30552,
+      "path": "/art/words/30552.webp",
+      "bytes": 10394,
+      "sha256": "a232db41f0601eab2da7aaf7b28d12ab99afb2e871fbf93b410157ea882be9a9",
+      "sentence": "它们是猫。"
+    },
+    "安全": {
+      "id": 30654,
+      "path": "/art/words/30654.webp",
+      "bytes": 25816,
+      "sha256": "b18700c96b920a24bfcc757502dbfa4a21321a9fe6f89cd77e3711387b22eae9",
+      "sentence": "注意安全。"
+    },
+    "安排": {
+      "id": 30789,
+      "path": "/art/words/30789.webp",
+      "bytes": 25882,
+      "sha256": "2f803ce7bca8d3ee14714ce545fc2adacc7bb59de5a011522d6e85b0f4a01b01",
+      "sentence": "我来安排明天的会议。"
+    },
+    "完全": {
+      "id": 30945,
+      "path": "/art/words/30945.webp",
+      "bytes": 31718,
+      "sha256": "59d8da2c0361d2483a55be64761bb633faf13b4791ddb4c0178665af1b1fa511",
+      "sentence": "我完全同意。"
+    },
+    "完成": {
+      "id": 30963,
+      "path": "/art/words/30963.webp",
+      "bytes": 24402,
+      "sha256": "c67e920ebc7689b6714d1bd08dc54df6fa1182db51ff46862351d8013ca869da",
+      "sentence": "我完成了作业。"
+    },
+    "宝贝": {
+      "id": 32451,
+      "path": "/art/words/32451.webp",
+      "bytes": 31282,
+      "sha256": "36db1cd1f1019af62ea16ab5e56ad9a07fabd3f9e908c5f54450a5db7e5c7744",
+      "sentence": "你是我的小宝贝。"
+    },
+    "实在": {
+      "id": 32075,
+      "path": "/art/words/32075.webp",
+      "bytes": 25620,
+      "sha256": "299f454ed68649eeee1c4a1dec60bdd02e0b1ccea8ddf9748bd61cd13a512e5b",
+      "sentence": "这道菜实在好吃。"
+    },
+    "实现": {
+      "id": 32121,
+      "path": "/art/words/32121.webp",
+      "bytes": 32244,
+      "sha256": "fee6ce3b1724ea006762d3098c74d0067945c4fce89084bd0c98741366cf547c",
+      "sentence": "我实现了我的梦想。"
+    },
+    "实际": {
+      "id": 32151,
+      "path": "/art/words/32151.webp",
+      "bytes": 27404,
+      "sha256": "b502b0b9e4643b631db84d5bcd0a58533487663f426d8de0c48b835c0763b8c4",
+      "sentence": "实际他很忙。"
+    },
+    "客户": {
+      "id": 31311,
+      "path": "/art/words/31311.webp",
+      "bytes": 21484,
+      "sha256": "a06fe1f24241fa5ed4b05f75dabd007dc5857f15a4a7eef0d68bf0382f21e270",
+      "sentence": "他是我们的新客户。"
+    },
+    "家人": {
+      "id": 31506,
+      "path": "/art/words/31506.webp",
+      "bytes": 23380,
+      "sha256": "375eaa305713163eacaa780b12861b10271167d183330350bdeaec5e84130f30",
+      "sentence": "我爱我的家人。"
+    },
+    "家庭": {
+      "id": 31552,
+      "path": "/art/words/31552.webp",
+      "bytes": 23770,
+      "sha256": "80bc98f223f3e88a0b077d88849bc5f997b8c17b36c291fe8e4382584e9534bf",
+      "sentence": "这是一个幸福的家庭。"
+    },
+    "家里": {
+      "id": 31604,
+      "path": "/art/words/31604.webp",
+      "bytes": 17730,
+      "sha256": "4ecde73110ef7a64bd01782299589a13b95ac0650c8dee8b1fb8074bc1062094",
+      "sentence": "我在家里喝水。"
+    },
+    "容易": {
+      "id": 31650,
+      "path": "/art/words/31650.webp",
+      "bytes": 24058,
+      "sha256": "c69b8ea353b4da76172cc2d35991dfe8ff7c1f97ddc4245a166bc3a4939e00b5",
+      "sentence": "这个问题很容易。"
+    },
+    "对不起": {
+      "id": 32798,
+      "path": "/art/words/32798.webp",
+      "bytes": 20174,
+      "sha256": "5d525fd46e3002151c1206b62d2712966768e6e3074682d70a3a17975a12b82f",
+      "sentence": "对不起，我不知道。"
+    },
+    "对于": {
+      "id": 32872,
+      "path": "/art/words/32872.webp",
+      "bytes": 28288,
+      "sha256": "a53fa3f414400359da5f9cf2b690887964cb80ead5a7c185875730b02808df9e",
+      "sentence": "对于我来说，这很难。"
+    },
+    "小姐": {
+      "id": 33127,
+      "path": "/art/words/33127.webp",
+      "bytes": 14008,
+      "sha256": "2c2adfa0530a81ad79ae27c502cc3d2aecb77453ada191e5eff64be5af92bc9a",
+      "sentence": "这位小姐很漂亮。"
+    },
+    "小心": {
+      "id": 33186,
+      "path": "/art/words/33186.webp",
+      "bytes": 33264,
+      "sha256": "0f8ad502b83e63ba0c503660e1428ee4fbe0da0657ca45a7554f02f9106f5be1",
+      "sentence": "小心地滑。"
+    },
+    "小时": {
+      "id": 33229,
+      "path": "/art/words/33229.webp",
+      "bytes": 23250,
+      "sha256": "a060a55703af181d08269061304d4a1a08885a3f593f8b910d5a4fdea9bec865",
+      "sentence": "我每天学习两小时。"
+    },
+    "小组": {
+      "id": 33343,
+      "path": "/art/words/33343.webp",
+      "bytes": 32420,
+      "sha256": "e0470190d5583c060e9a9780112901117bfa09b00f93d519f00017e894c186ab",
+      "sentence": "我们小组有三个人。"
+    },
+    "就是": {
+      "id": 33688,
+      "path": "/art/words/33688.webp",
+      "bytes": 20834,
+      "sha256": "dc1eb754e22565ca39d7970f01097f12f3d71a3efa917606016457681623f56d",
+      "sentence": "他就是我哥哥。"
+    },
+    "就要": {
+      "id": 33710,
+      "path": "/art/words/33710.webp",
+      "bytes": 20480,
+      "sha256": "2ca3c6c225807fb062bda66f12c233096b0db3100858f495bdc6c2494a24edea",
+      "sentence": "火车就要开了。"
+    },
+    "尽管": {
+      "id": 9723,
+      "path": "/art/words/9723.webp",
+      "bytes": 36740,
+      "sha256": "cb3d6ccb033d7c20252227f6ea740ddc7b907776bf2c20fe915e8ece5f6e6c03",
+      "sentence": "尽管下雨，他还是去了。"
+    },
+    "居然": {
+      "id": 33943,
+      "path": "/art/words/33943.webp",
+      "bytes": 35582,
+      "sha256": "14a340748cd7338897f1bbb00407e8b8670e357392be928c1c3df81b46bcf451",
+      "sentence": "他居然没来。"
+    },
+    "属于": {
+      "id": 34184,
+      "path": "/art/words/34184.webp",
+      "bytes": 29820,
+      "sha256": "6e0ae047867a79ac24421e2cc7d4e23686a0f195853868af8218f8d8e9c2a40d",
+      "sentence": "这本书属于我。"
+    },
+    "工人": {
+      "id": 34918,
+      "path": "/art/words/34918.webp",
+      "bytes": 17848,
+      "sha256": "87b00a9ee4edd19c4eb0a641e69e93bca87c0d1a52e5946067c1351e7bcecf8b",
+      "sentence": "他是工厂的工人。"
+    },
+    "工作": {
+      "id": 34924,
+      "path": "/art/words/34924.webp",
+      "bytes": 27802,
+      "sha256": "78492befd6e1c00ada1bfc702993f738432b8136c83040bc0ae410886cd76d50",
+      "sentence": "我有一份好工作。"
+    },
+    "差不多": {
+      "id": 35227,
+      "path": "/art/words/35227.webp",
+      "bytes": 16226,
+      "sha256": "2862f80ae6de27e5b83495ecce6a98652e677a61fa739cb7422daa3f5962bbfd",
+      "sentence": "我们差不多准备好了。"
+    },
+    "已经": {
+      "id": 35291,
+      "path": "/art/words/35291.webp",
+      "bytes": 22646,
+      "sha256": "3442f6dcb24e8f6efa6a74e1080f4e65f65338c84ad0fbddfdc996f94e5f57e1",
+      "sentence": "他已经走了。"
+    },
+    "希望": {
+      "id": 35752,
+      "path": "/art/words/35752.webp",
+      "bytes": 11994,
+      "sha256": "0bebb3e513359f0612627d1b29c208af700ce03e9b92df607f9066fd3de74dc0",
+      "sentence": "我希望明天天气好。"
+    },
+    "带来": {
+      "id": 35935,
+      "path": "/art/words/35935.webp",
+      "bytes": 27760,
+      "sha256": "3cde10921f2179ade831b8dc6008d3286553a6fd9f26458bf7f05491dc735337",
+      "sentence": "他给我带来了快乐。"
+    },
+    "帮助": {
+      "id": 36126,
+      "path": "/art/words/36126.webp",
+      "bytes": 22098,
+      "sha256": "b1e54e6b5d552e5436f3b5c5dc323aa6cc2d108fb78ca542711666a102b857a3",
+      "sentence": "我帮助你。"
+    },
+    "帮忙": {
+      "id": 36133,
+      "path": "/art/words/36133.webp",
+      "bytes": 19948,
+      "sha256": "844244292171df7a2976132023164ce27633175eeac5a9c6b9ff9bacdd005b54"
+    },
+    "干净": {
+      "id": 4196,
+      "path": "/art/words/4196.webp",
+      "bytes": 17664,
+      "sha256": "cacd0d1f9fdf323cb2c563eaa0911e5152ba50b42713b0e905843cd6021e0bda",
+      "sentence": "房间很干净。"
+    },
+    "年轻": {
+      "id": 36497,
+      "path": "/art/words/36497.webp",
+      "bytes": 25516,
+      "sha256": "270705d90899917aac6d1064b9f277c93a051f79b5a5809e8e6f4b1390f12c02",
+      "sentence": "她很年轻。"
+    },
+    "并且": {
+      "id": 2949,
+      "path": "/art/words/2949.webp",
+      "bytes": 27792,
+      "sha256": "f626aa18e7c8fffe97c624203f811b2b8345979770a5ff3e69d07c20c60bc847",
+      "sentence": "他很聪明，并且很努力。"
+    },
+    "幸福": {
+      "id": 36531,
+      "path": "/art/words/36531.webp",
+      "bytes": 14862,
+      "sha256": "4aaced6e881a350be3350263519b5c6bcfffa212424f8b4e5f40945d415ccbd3",
+      "sentence": "一家人在一起很幸福。"
+    },
+    "广告": {
+      "id": 37146,
+      "path": "/art/words/37146.webp",
+      "bytes": 18014,
+      "sha256": "d426380a2365f30a4b905a96df45951e452effdbbff917e7def4d5782c1f532d",
+      "sentence": "这是一个电视广告。"
+    },
+    "应该": {
+      "id": 41769,
+      "path": "/art/words/41769.webp",
+      "bytes": 28604,
+      "sha256": "69cb650cc2f085b6c50f906b701401c607aa0d06899d9b759624859e60433d3e",
+      "sentence": "你应该早点睡觉。"
+    },
+    "建议": {
+      "id": 37393,
+      "path": "/art/words/37393.webp",
+      "bytes": 16168,
+      "sha256": "2e0917ec2d9fd417f1e1e6c3a9a6a28751682c5574355ef6cadeac819465c606",
+      "sentence": "我建议你去那里。"
+    },
+    "开始": {
+      "id": 109214,
+      "path": "/art/words/109214.webp",
+      "bytes": 33486,
+      "sha256": "ed454698ae63e13b2159f60e873dc1c7bb745c5c4097b8e55b505113d63209f2",
+      "sentence": "我们现在开始上课。"
+    },
+    "开心": {
+      "id": 109254,
+      "path": "/art/words/109254.webp",
+      "bytes": 12200,
+      "sha256": "a68991638ac5f4689516cae35dd7a09671bcfb3fc311732a3c926a7f872d9ff6",
+      "sentence": "我很开心。"
+    },
+    "弟弟": {
+      "id": 37640,
+      "path": "/art/words/37640.webp",
+      "bytes": 27662,
+      "sha256": "dd8c5306c349de03cf16df051072bb3d21321723ad5da264c6dc22e0a9f47559",
+      "sentence": "弟弟很高。"
+    },
+    "当时": {
+      "id": 72720,
+      "path": "/art/words/72720.webp",
+      "bytes": 25718,
+      "sha256": "c1ea41327230933235bb6aed671457e4791d9f71a112ad126b12be90b2ecdda3",
+      "sentence": "当时我不知道。"
+    },
+    "当然": {
+      "id": 72732,
+      "path": "/art/words/72732.webp",
+      "bytes": 23538,
+      "sha256": "08a499b515d37c54b1c88a636e9bf416eee20033fed2e96eb22b5e981b72ae74",
+      "sentence": "当然可以。"
+    },
+    "影响": {
+      "id": 38239,
+      "path": "/art/words/38239.webp",
+      "bytes": 13142,
+      "sha256": "2383aaa88005b6d59e2f1c5a32c7f9d89ded2ddfe7ce0eddf5d034718ab0b18c",
+      "sentence": "天气影响心情。"
+    },
+    "得到": {
+      "id": 38633,
+      "path": "/art/words/38633.webp",
+      "bytes": 24982,
+      "sha256": "61ff4390c9467d1e3b3ca3ef79b44df2086970540ff9212f4a98c5ed0c3c8a56",
+      "sentence": "我得到了礼物。"
+    },
+    "心中": {
+      "id": 39167,
+      "path": "/art/words/39167.webp",
+      "bytes": 18572,
+      "sha256": "b3264863cb9573185af876c26f68e74a3e8289472ef7547571761323f077a1d4",
+      "sentence": "她心中很高兴。"
+    },
+    "心情": {
+      "id": 39234,
+      "path": "/art/words/39234.webp",
+      "bytes": 11492,
+      "sha256": "180d0c31f3790ac7755d513235706ca88c66ba6cfc982240106e4cda2ae1b650",
+      "sentence": "我今天心情很好。"
+    },
+    "心里": {
+      "id": 39375,
+      "path": "/art/words/39375.webp",
+      "bytes": 17422,
+      "sha256": "86cea63ee677f91003d18bba1829a2ea26594564928f43d46fe28b1c6b4a6657",
+      "sentence": "我心里很高兴。"
+    },
+    "必须": {
+      "id": 39456,
+      "path": "/art/words/39456.webp",
+      "bytes": 24692,
+      "sha256": "b9b46ba79e1b3900f6003a58d7d93668c58b16bfeb6722ec79749ebf05ff8881",
+      "sentence": "你必须去学校。"
+    },
+    "忘记": {
+      "id": 39548,
+      "path": "/art/words/39548.webp",
+      "bytes": 25162,
+      "sha256": "4658f8e01abbf39417ba44ec5ed76bedc4caee8e2e3657c9066b3ef5921d6b24",
+      "sentence": "我忘记带钥匙了。"
+    },
+    "快乐": {
+      "id": 39622,
+      "path": "/art/words/39622.webp",
+      "bytes": 15430,
+      "sha256": "5d954abaef96e5c8abf0e8d22587c83a0f60b1ef7a0828311b8b360cb4555985",
+      "sentence": "我很快乐。"
+    },
+    "态度": {
+      "id": 41330,
+      "path": "/art/words/41330.webp",
+      "bytes": 7762,
+      "sha256": "1c3d00536aad0e7539ee9c790ec1e93172426480cd16cd0cd48a491246685cff",
+      "sentence": "他的态度很好。"
+    },
+    "怎么": {
+      "id": 39745,
+      "path": "/art/words/39745.webp",
+      "bytes": 15142,
+      "sha256": "2f905b19f4f0ca5e315cf987576ae191602d95205199ca12f1b9a811c006ce1d",
+      "sentence": "你怎么了？"
+    },
+    "怎么办": {
+      "id": 39753,
+      "path": "/art/words/39753.webp",
+      "bytes": 23310,
+      "sha256": "501a598a50bf2947f55fe376924cb64b6116119eb41370964ca64634900a8119",
+      "sentence": "我不知道怎么办。"
+    },
+    "怎么样": {
+      "id": 39750,
+      "path": "/art/words/39750.webp",
+      "bytes": 21768,
+      "sha256": "853e0dcdcce09d7b6c234cbb2f2090b15ae44defb6930257f7d213906131fc22",
+      "sentence": "今天天气怎么样？"
+    },
+    "怎样": {
+      "id": 39741,
+      "path": "/art/words/39741.webp",
+      "bytes": 47624,
+      "sha256": "5b18504f3c777d6518d0dca93a9da71403f5bcddb6887c95819ce6b373653aef",
+      "sentence": "你怎样去学校？"
+    },
+    "总是": {
+      "id": 83791,
+      "path": "/art/words/83791.webp",
+      "bytes": 26398,
+      "sha256": "7b72ab124734f8c75ade62cb73b92437a2d045f99c9929c474ec9f4bb9dc55c9",
+      "sentence": "他总是很忙。"
+    },
+    "总统": {
+      "id": 83818,
+      "path": "/art/words/83818.webp",
+      "bytes": 23672,
+      "sha256": "767b45a28f3a4243fc7c4e8ef93eb84228ddc216f6491d08c552ca4c0dfd74e0",
+      "sentence": "他是美国的总统。"
+    },
+    "情况": {
+      "id": 40619,
+      "path": "/art/words/40619.webp",
+      "bytes": 18068,
+      "sha256": "845cdb1c22acffbd26c898da2aa428e3df3c8ec3915cf0b5425c398e6609b77a",
+      "sentence": "情况很不好。"
+    },
+    "想到": {
+      "id": 40854,
+      "path": "/art/words/40854.webp",
+      "bytes": 16788,
+      "sha256": "e21f20a65ecc6fbae4c10fde93766ee18c398cea390e9058872710978573810b",
+      "sentence": "我想到一个好主意。"
+    },
+    "想法": {
+      "id": 40863,
+      "path": "/art/words/40863.webp",
+      "bytes": 22290,
+      "sha256": "e9bb0165f451c1e07f499147b31eb5c3f2e2e47e98545800c9bff517cd421f98",
+      "sentence": "这是一个好想法。"
+    },
+    "想起": {
+      "id": 40872,
+      "path": "/art/words/40872.webp",
+      "bytes": 15716,
+      "sha256": "76dcd52ba96f484fac5ef5fc301a88a2b3d23d45b5c8ffc434069322c702bc54",
+      "sentence": "我想起了一个好主意。"
+    },
+    "意义": {
+      "id": 40998,
+      "path": "/art/words/40998.webp",
+      "bytes": 38710,
+      "sha256": "b0fbd002b6913af39c72368f2b087f8134046e6393699b139fba6da685fb40b5",
+      "sentence": "这个词很有意义。"
+    },
+    "意思": {
+      "id": 40977,
+      "path": "/art/words/40977.webp",
+      "bytes": 27736,
+      "sha256": "5858bc29040d0d5b7776a97767fd308a943ecc3e9aef34a36492d0f1e33934a8",
+      "sentence": "这是什么意思？"
+    },
+    "意见": {
+      "id": 41003,
+      "path": "/art/words/41003.webp",
+      "bytes": 33006,
+      "sha256": "2eef3572906be1500893281ef17f236c7acab12aa615210b21b1c10fcbf710e4",
+      "sentence": "我没有意见。"
+    },
+    "感到": {
+      "id": 41194,
+      "path": "/art/words/41194.webp",
+      "bytes": 13298,
+      "sha256": "91430cbf8eb0e17f6245ab2bf4b98eb0fdaf4034ca936895e9614d47c55a1e63",
+      "sentence": "我感到很高兴。"
+    },
+    "感觉": {
+      "id": 41248,
+      "path": "/art/words/41248.webp",
+      "bytes": 31440,
+      "sha256": "f958a437a564978588cddfb08d612468321879ad765a3ccaeb6f0b347a7bbbb6",
+      "sentence": "我不感觉冷。"
+    },
+    "感谢": {
+      "id": 41253,
+      "path": "/art/words/41253.webp",
+      "bytes": 23724,
+      "sha256": "38b2d43e1569fc81dab11f96c12697879eeb9120b7e13ebcc34cb181cf5ffed5",
+      "sentence": "我感谢你的帮助。"
+    },
+    "愿意": {
+      "id": 114706,
+      "path": "/art/words/114706.webp",
+      "bytes": 19128,
+      "sha256": "00944236783b645560712f10945c7695a1c26a2fa131a3f50f51fc183ec3e1ab",
+      "sentence": "我愿意帮你。"
+    },
+    "成为": {
+      "id": 42122,
+      "path": "/art/words/42122.webp",
+      "bytes": 18472,
+      "sha256": "2fbf17dcb6a2b6c8058990aa4d2ca1ed43cbf2d092696827d969a3e52caa1c92",
+      "sentence": "我想成为医生。"
+    },
+    "成功": {
+      "id": 42048,
+      "path": "/art/words/42048.webp",
+      "bytes": 26030,
+      "sha256": "35baf9683e036d63d1dedbffb109f6299d97b3f88f884de04aba66015273fd4d",
+      "sentence": "他成功了。"
+    },
+    "成绩": {
+      "id": 42139,
+      "path": "/art/words/42139.webp",
+      "bytes": 17376,
+      "sha256": "82c2ff946865beb5b160c164430cf1604e57627940df57331a99807d96e87e0a",
+      "sentence": "他的成绩很好。"
+    },
+    "我": {
+      "id": 42176,
+      "path": "/art/words/42176.webp",
+      "bytes": 12494,
+      "sha256": "c17e160d305f89f2663280c6b901880ac63a5fe387f29162cea5792b58f56203"
+    },
+    "我们": {
+      "id": 42179,
+      "path": "/art/words/42179.webp",
+      "bytes": 19314,
+      "sha256": "39c7d6ad3008225319bf9c587f3d1cad7adeb65abb2981b7e0ae9c8c2dfeb385",
+      "sentence": "我们是朋友。"
+    },
+    "或者": {
+      "id": 42238,
+      "path": "/art/words/42238.webp",
+      "bytes": 13216,
+      "sha256": "37a1120f1f057d4c95cf6944a8a8d1c87b622258ed7daa97399e02d920caa515",
+      "sentence": "我们今天或者明天去。"
+    },
+    "房子": {
+      "id": 42495,
+      "path": "/art/words/42495.webp",
+      "bytes": 17614,
+      "sha256": "1a7948111f0eb34a1baff67476cd7fad544e7892ccb6815aa7cbb689e71ee01a",
+      "sentence": "这是我的房子。"
+    },
+    "房间": {
+      "id": 42520,
+      "path": "/art/words/42520.webp",
+      "bytes": 42924,
+      "sha256": "dbd2a5e4715276c7c0dc9d9427620fac660eec4b784a2a062c8ce2bbd23c52b7",
+      "sentence": "我的房间很大。"
+    },
+    "所以": {
+      "id": 42524,
+      "path": "/art/words/42524.webp",
+      "bytes": 25136,
+      "sha256": "b768be3a03528ccdfd61ec2d605fca16d165337c3f002ea0e4561aa6b8abc4f2",
+      "sentence": "下雨了，所以我没去。"
+    },
+    "所有": {
+      "id": 42544,
+      "path": "/art/words/42544.webp",
+      "bytes": 30974,
+      "sha256": "a55fcf6e29381d03e34292093841d62110159f4ef002f7965f7b76f8fd2db768",
+      "sentence": "我喜欢所有的动物。"
+    },
+    "手术": {
+      "id": 42746,
+      "path": "/art/words/42746.webp",
+      "bytes": 21478,
+      "sha256": "f51b7f968134883cde60d3fe941ea1c53e4b75c9bc18b209e839e31b3b340a8b",
+      "sentence": "他今天做手术。"
+    },
+    "手机": {
+      "id": 42699,
+      "path": "/art/words/42699.webp",
+      "bytes": 19564,
+      "sha256": "714bbbfa6f05b07bc370133cd201f68446d2e2cce219e5b52bc9ab059903ee18",
+      "sentence": "我在看手机。"
+    },
+    "打开": {
+      "id": 43159,
+      "path": "/art/words/43159.webp",
+      "bytes": 19972,
+      "sha256": "07782c7d3e377f4abc17e2bf6f2bcc0bbce83178b6fee620bf9f6b2271847b0b",
+      "sentence": "我打开门。"
+    },
+    "打电话": {
+      "id": 43168,
+      "path": "/art/words/43168.webp",
+      "bytes": 30136,
+      "sha256": "6294d791c31ca662973f5279d8b7180f941eebd50b7b810d2fecb6dde0ffff02",
+      "sentence": "我给妈妈打电话。"
+    },
+    "打算": {
+      "id": 43090,
+      "path": "/art/words/43090.webp",
+      "bytes": 29778,
+      "sha256": "2cfac75a32808b28c9b60ce2dcb8b229d49b8693f4979f8a88d3c82356bfd6c8",
+      "sentence": "我打算明天去北京。"
+    },
+    "找到": {
+      "id": 43474,
+      "path": "/art/words/43474.webp",
+      "bytes": 18752,
+      "sha256": "bc799f48afb193b59c19c497e474bf3d8c40cd7c5e48285a663f74d0ec7425a0",
+      "sentence": "我终于找到了我的钥匙。"
+    },
+    "技术": {
+      "id": 43580,
+      "path": "/art/words/43580.webp",
+      "bytes": 27668,
+      "sha256": "7e4ed12737744fb120c7c6b0e585f2edffeb96b6b58b6b3d8a5634fd4cc8e94d",
+      "sentence": "他的技术很好。"
+    },
+    "投票": {
+      "id": 43784,
+      "path": "/art/words/43784.webp",
+      "bytes": 25690,
+      "sha256": "1897476dfd5f186d4653f4e1f49a08e82fd7778423e71291a36e0de383532ed0",
+      "sentence": "我们投票选班长。"
+    },
+    "报告": {
+      "id": 25059,
+      "path": "/art/words/25059.webp",
+      "bytes": 23504,
+      "sha256": "8ed7f5706065ef1bfa6e024b27fbaf1a82e70b93b7b35e06aac5bbe3f61dc906",
+      "sentence": "我写了一份报告。"
+    },
+    "报纸": {
+      "id": 25120,
+      "path": "/art/words/25120.webp",
+      "bytes": 22548,
+      "sha256": "be8e516ad956a0249418930cc154bffbb51e353c175beeb55756ae666422801a",
+      "sentence": "我每天早上看报纸。"
+    },
+    "报道": {
+      "id": 25130,
+      "path": "/art/words/25130.webp",
+      "bytes": 26972,
+      "sha256": "46657dc51f355dad333b66ccc20b46f967f8ae98902b0f6c41b5555925e0a053",
+      "sentence": "这是一篇新闻报道。"
+    },
+    "担心": {
+      "id": 47697,
+      "path": "/art/words/47697.webp",
+      "bytes": 9518,
+      "sha256": "5e04a5678d5b0f49c46ac5ea30e8cfab960052ea737909675d1c85bac3c80ed6",
+      "sentence": "妈妈很担心我。"
+    },
+    "拥有": {
+      "id": 47561,
+      "path": "/art/words/47561.webp",
+      "bytes": 26646,
+      "sha256": "e9e8d74291f16f7b4671a66b7f75bb722c11a308f749316bd338606e3a8810c3",
+      "sentence": "我拥有一个幸福的家。"
+    },
+    "接到": {
+      "id": 46060,
+      "path": "/art/words/46060.webp",
+      "bytes": 19144,
+      "sha256": "c817e73119be057cdc5c5250f9199d5df16c622c2722b432ec2a5e4d85f9ee0c",
+      "sentence": "我接到妈妈的电话。"
+    },
+    "接受": {
+      "id": 46065,
+      "path": "/art/words/46065.webp",
+      "bytes": 25994,
+      "sha256": "1a92fd46f7879ea1bc1179b924f3f24214776ec5dd811a53dee0da062d6fb3e8",
+      "sentence": "我接受你的道歉。"
+    },
+    "接着": {
+      "id": 46120,
+      "path": "/art/words/46120.webp",
+      "bytes": 17430,
+      "sha256": "629ed401d51c557c30036be74a2e5106584b4b2b6eb7f35e125ace4b789f3670",
+      "sentence": "他先吃饭，接着喝水。"
+    },
+    "控制": {
+      "id": 46147,
+      "path": "/art/words/46147.webp",
+      "bytes": 22260,
+      "sha256": "f2f5fc8b3e162bd4ee4dc145ea2d271073083b8714a38c12eae156ff0e28f0b0",
+      "sentence": "我控制不了自己。"
+    },
+    "提供": {
+      "id": 46369,
+      "path": "/art/words/46369.webp",
+      "bytes": 33636,
+      "sha256": "0615b1fb43826b2998a8cc73b113838b74d2bd5bc21e44c7d88eb5c06cc36e0e",
+      "sentence": "他们提供免费早餐。"
+    },
+    "提出": {
+      "id": 46376,
+      "path": "/art/words/46376.webp",
+      "bytes": 27688,
+      "sha256": "c449ffce80ada3388f10a0aacb16d87fba39f50f4cf15c00bdcc7fa7a131fb3c",
+      "sentence": "他提出了一个问题。"
+    },
+    "提高": {
+      "id": 46484,
+      "path": "/art/words/46484.webp",
+      "bytes": 17508,
+      "sha256": "552c8bf19986abaea2a7d397c286789384d48e52426cd658a03c0db8bc5d81f8",
+      "sentence": "我想提高我的中文水平。"
+    },
+    "支持": {
+      "id": 48146,
+      "path": "/art/words/48146.webp",
+      "bytes": 7944,
+      "sha256": "5436bcc71828c6e0e449dc183b80942d1051c829a2671a6ba81c01f57446ec54",
+      "sentence": "我支持你的决定。"
+    },
+    "收入": {
+      "id": 48196,
+      "path": "/art/words/48196.webp",
+      "bytes": 31010,
+      "sha256": "8c9111df7be2477efe05b6b74c7f93937c406c38fcf393e34b3363628a2a69ad",
+      "sentence": "我的收入很高。"
+    },
+    "收到": {
+      "id": 48200,
+      "path": "/art/words/48200.webp",
+      "bytes": 23902,
+      "sha256": "0f6a4a0a9461494dace06e36bcb6a12c1e6318a76f9f3fc804508c07a9812a6f",
+      "sentence": "我收到了你的信。"
+    },
+    "改变": {
+      "id": 48374,
+      "path": "/art/words/48374.webp",
+      "bytes": 16696,
+      "sha256": "6628963e25213f2a39a05f06803c95e4255cc056564ea57c8fefc81388ef31cf",
+      "sentence": "我想改变我的生活。"
+    },
+    "放下": {
+      "id": 48426,
+      "path": "/art/words/48426.webp",
+      "bytes": 11614,
+      "sha256": "a9db236d0fb294d7ef079fe62870d92ad7796b7561c94f260c3af6e9a26f5ee1",
+      "sentence": "他放下了手机。"
+    },
+    "放弃": {
+      "id": 48500,
+      "path": "/art/words/48500.webp",
+      "bytes": 20774,
+      "sha256": "c048e9914d5242bfb1a56209191ae6349e46415e6283a1626f4190cee5440c68",
+      "sentence": "我放弃。"
+    },
+    "放心": {
+      "id": 48487,
+      "path": "/art/words/48487.webp",
+      "bytes": 25614,
+      "sha256": "b90744f9d69d38e030195a369574290767bfe9bd13db6e09551239d0d363e9a6",
+      "sentence": "请放心，我没事。"
+    },
+    "政府": {
+      "id": 48584,
+      "path": "/art/words/48584.webp",
+      "bytes": 39234,
+      "sha256": "8377ce07ba0e56c1119a9497fbe4fd437314105610e2e46b616225bf130155bd",
+      "sentence": "政府管理国家。"
+    },
+    "故事": {
+      "id": 48650,
+      "path": "/art/words/48650.webp",
+      "bytes": 28042,
+      "sha256": "28d6be3616f65f28d79aaa3e335c8db21eeb06157591c395ad56c4faeb8838a4",
+      "sentence": "这是一个好故事。"
+    },
+    "故意": {
+      "id": 48682,
+      "path": "/art/words/48682.webp",
+      "bytes": 31332,
+      "sha256": "25ed9f20021daf9832e321b3d38c10a33fcca8475199f1f20de51dbc5f96229d",
+      "sentence": "他故意不说话。"
+    },
+    "教育": {
+      "id": 48910,
+      "path": "/art/words/48910.webp",
+      "bytes": 29526,
+      "sha256": "90939212075266f6db747059a8d5720537a69d05cf9104a82f81cc258b9ab9b7",
+      "sentence": "教育很重要。"
+    },
+    "数字": {
+      "id": 49252,
+      "path": "/art/words/49252.webp",
+      "bytes": 27726,
+      "sha256": "6a323896aadc84a67c713fe7b26f95e8dc861a8035f66818bd3628338fef57bd",
+      "sentence": "这些数字很有趣。"
+    },
+    "整个": {
+      "id": 49123,
+      "path": "/art/words/49123.webp",
+      "bytes": 21824,
+      "sha256": "33935aa01605f264034214320aa2a01a47e4ff7da63152245b334375d78ff6d1",
+      "sentence": "我整个下午都在看书。"
+    },
+    "新闻": {
+      "id": 50085,
+      "path": "/art/words/50085.webp",
+      "bytes": 20408,
+      "sha256": "d1a0d84b22662125fb7f7f078ef369e55adda9748627b08601132ec68ed14ce1",
+      "sentence": "我每天看新闻。"
+    },
+    "方便": {
+      "id": 50252,
+      "path": "/art/words/50252.webp",
+      "bytes": 33900,
+      "sha256": "8b49ba7f562a91834df98d8882138c9bedf95cb55ab134dadaed1776d81fbf02",
+      "sentence": "坐地铁很方便。"
+    },
+    "方向": {
+      "id": 50257,
+      "path": "/art/words/50257.webp",
+      "bytes": 19740,
+      "sha256": "16730ed7e6e9e2b6ae7dbb11609ff080d77874d7f80ebcbad08f51cef22e2f6b",
+      "sentence": "你知道去车站的方向吗？"
+    },
+    "方式": {
+      "id": 50283,
+      "path": "/art/words/50283.webp",
+      "bytes": 26574,
+      "sha256": "57939f6dfca7eb5b4e968b3534685a575936a842343edf3e6779cda2580ca278",
+      "sentence": "这是我的学习方式。"
+    },
+    "方法": {
+      "id": 50300,
+      "path": "/art/words/50300.webp",
+      "bytes": 40762,
+      "sha256": "54a75a0814d5c9b5a4506812d61f7696506e9a88c1e2d7c8228ba0f086216dd2",
+      "sentence": "这是学习的好方法。"
+    },
+    "方面": {
+      "id": 50327,
+      "path": "/art/words/50327.webp",
+      "bytes": 32604,
+      "sha256": "94d9c6d946f42535c5c9d5540ca03820c670b1f0ab01e2d816eab9fb2d10f6d5",
+      "sentence": "他在学习方面很努力。"
+    },
+    "旁边": {
+      "id": 50415,
+      "path": "/art/words/50415.webp",
+      "bytes": 11372,
+      "sha256": "7cff71be62a8674d21c4dc360779dca46d8b78a1ef7f8c807363931c16a1fa65",
+      "sentence": "我坐在你旁边。"
+    },
+    "旅行": {
+      "id": 50443,
+      "path": "/art/words/50443.webp",
+      "bytes": 23218,
+      "sha256": "1bf8e84bbe4e2fbd10993f875b26287e14e5c2af4ff1294de9a771fad86559b4",
+      "sentence": "我喜欢旅行。"
+    },
+    "无法": {
+      "id": 67428,
+      "path": "/art/words/67428.webp",
+      "bytes": 39030,
+      "sha256": "19baf1d12b31a1d49dc7093736f220a76b7cc4b1e622cbd42c35ac6e2fd05ea1",
+      "sentence": "我无法去。"
+    },
+    "无论": {
+      "id": 67564,
+      "path": "/art/words/67564.webp",
+      "bytes": 22648,
+      "sha256": "1613380f71a2d8a225d862a9c335ed240c697e43b118c137eb1502569787058e",
+      "sentence": "无论多难，我都会试一试。"
+    },
+    "日子": {
+      "id": 50625,
+      "path": "/art/words/50625.webp",
+      "bytes": 29014,
+      "sha256": "8add7face837e43a7c9870a4d564e896c77bc763957fccb45ee17b6ff176c55f",
+      "sentence": "日子过得很快乐。"
+    },
+    "早上": {
+      "id": 50759,
+      "path": "/art/words/50759.webp",
+      "bytes": 20666,
+      "sha256": "fa07a8f2ea8660302555893150ff4943bde65f3fba7769ca8686e51f4ad362cc",
+      "sentence": "现在是早上八点。"
+    },
+    "早就": {
+      "id": 50777,
+      "path": "/art/words/50777.webp",
+      "bytes": 29222,
+      "sha256": "8effc7d5365ce7267d868f00d02782b650d2ffdfe501475415b33f72e028c815",
+      "sentence": "我早就知道了。"
+    },
+    "时候": {
+      "id": 51434,
+      "path": "/art/words/51434.webp",
+      "bytes": 27802,
+      "sha256": "b8fb812bcb1e77102d29938565b37572935f89c0ce364111ee88380d40ec8022",
+      "sentence": "我吃饭的时候喜欢看书。"
+    },
+    "时间": {
+      "id": 51510,
+      "path": "/art/words/51510.webp",
+      "bytes": 19018,
+      "sha256": "310f503e9ce8a319be8b54722640ea16962c58b5fa0359a28c87175d2a73c792",
+      "sentence": "现在几点？我没有时间。"
+    },
+    "明天": {
+      "id": 50980,
+      "path": "/art/words/50980.webp",
+      "bytes": 25150,
+      "sha256": "c4260f30d8e38003066b3f36c781651ecbaaa39bf5d2afd485cb2af6cc376962",
+      "sentence": "明天见。"
+    },
+    "明年": {
+      "id": 50999,
+      "path": "/art/words/50999.webp",
+      "bytes": 29636,
+      "sha256": "3206d2a83c45ea3b10bed06a58569ae8d47b6fb49325638f2bd0fa7a502518b5",
+      "sentence": "我明年想去北京。"
+    },
+    "明星": {
+      "id": 51019,
+      "path": "/art/words/51019.webp",
+      "bytes": 14098,
+      "sha256": "646e03e91f71626a16dcbc0e25bb62a00dcf7b735bef7685bc59949e5aea3cf2",
+      "sentence": "那个明星很受欢迎。"
+    },
+    "明显": {
+      "id": 51084,
+      "path": "/art/words/51084.webp",
+      "bytes": 18158,
+      "sha256": "bb05cab2525dd666aa36ff2f14450c28fdb7b04ec74f17001195b5ec7983dcaf",
+      "sentence": "他的进步很明显。"
+    },
+    "明白": {
+      "id": 51053,
+      "path": "/art/words/51053.webp",
+      "bytes": 8068,
+      "sha256": "ed3b62c081bf91d900d6eb4b98644827f2c6a3c432ab7176f966a6bc189c2b92",
+      "sentence": "我明白你的意思。"
+    },
+    "星期": {
+      "id": 51197,
+      "path": "/art/words/51197.webp",
+      "bytes": 25036,
+      "sha256": "9c8a64a5de678d64cdcec5977b1944c2d6343a3e751c50935c9616abdd9acd39",
+      "sentence": "今天星期几？"
+    },
+    "昨天": {
+      "id": 51361,
+      "path": "/art/words/51361.webp",
+      "bytes": 26244,
+      "sha256": "babbb42cba636d6c5358c80fd00b7ea6d6db276d66babd51e1ec1cb82b82375a",
+      "sentence": "昨天是星期五。"
+    },
+    "是": {
+      "id": 51386,
+      "path": "/art/words/51386.webp",
+      "bytes": 22094,
+      "sha256": "94f551ea7bdb893df0ac7a1a535eeeb01eefa639063ad2f787db71328af5140f"
+    },
+    "是否": {
+      "id": 51389,
+      "path": "/art/words/51389.webp",
+      "bytes": 23976,
+      "sha256": "5cfccbb6ac47239997be4b0fee928e462b3b224223b20cfc27a8a9bc9777c5f5",
+      "sentence": "他是否知道这件事？"
+    },
+    "显示": {
+      "id": 114843,
+      "path": "/art/words/114843.webp",
+      "bytes": 19378,
+      "sha256": "6f57b9803b992fa9d385eb7be863a8f3ae7e09b90a22460dfff3d54cb7bc620d",
+      "sentence": "屏幕显示时间。"
+    },
+    "晚上": {
+      "id": 51578,
+      "path": "/art/words/51578.webp",
+      "bytes": 18586,
+      "sha256": "32e49144cca84a23d7cf6848f37eb92941f82383b656716449a7ec4871cd40e5",
+      "sentence": "现在是晚上。"
+    },
+    "晚安": {
+      "id": 51585,
+      "path": "/art/words/51585.webp",
+      "bytes": 19584,
+      "sha256": "da35eb5a7b8fad3e410bddca702cd09530ac4d1bf59a3d4ae5f14f591753722d",
+      "sentence": "晚安，明天见。"
+    },
+    "普通": {
+      "id": 51739,
+      "path": "/art/words/51739.webp",
+      "bytes": 23080,
+      "sha256": "09eaa353f15e8bac555464e06a354b9436ba8d8cca5f650f4feb1fa5b4f6b471",
+      "sentence": "他是一个普通人。"
+    },
+    "曾经": {
+      "id": 52547,
+      "path": "/art/words/52547.webp",
+      "bytes": 25660,
+      "sha256": "2bcba3c65ed2b4a6fe7d87869a9d55ff65dde6cffc54c8d2293cdc3e1a425c54",
+      "sentence": "我曾经住在北京。"
+    },
+    "有些": {
+      "id": 52838,
+      "path": "/art/words/52838.webp",
+      "bytes": 17336,
+      "sha256": "d4bd882921ca96179d09d8e3832f5dd832c80ff05188633ca6335c97b7dd88af",
+      "sentence": "有些人喜欢喝茶。"
+    },
+    "有人": {
+      "id": 52840,
+      "path": "/art/words/52840.webp",
+      "bytes": 15678,
+      "sha256": "0e4a8a52248881804f3999e0f7a4dc5a422bcd94d61fbbfe2f92a951054eff8c",
+      "sentence": "有人在敲门。"
+    },
+    "有关": {
+      "id": 53138,
+      "path": "/art/words/53138.webp",
+      "bytes": 27318,
+      "sha256": "de08cf435f37320105aa703def6394e718f49343587d9e04e5f9b926426eeb55",
+      "sentence": "这有关你的工作。"
+    },
+    "有时": {
+      "id": 52971,
+      "path": "/art/words/52971.webp",
+      "bytes": 25910,
+      "sha256": "e1942d2dedb31d2a874d7a855a9b73fee53aba6495660ae949c2e13ad0a135f9",
+      "sentence": "我有时喝茶。"
+    },
+    "有时候": {
+      "id": 52972,
+      "path": "/art/words/52972.webp",
+      "bytes": 14560,
+      "sha256": "8a4c23337b45957ad12e7cf5aea4d9de1a0ab844544bf8820b23c50a7839bc2e",
+      "sentence": "我有时候喝茶。"
+    },
+    "有的": {
+      "id": 53044,
+      "path": "/art/words/53044.webp",
+      "bytes": 29558,
+      "sha256": "6ec162852e1f2b26dc76bf1ef94b6541baae3ca52db7033e8045266ebdbc03a8",
+      "sentence": "有的人喜欢喝茶。"
+    },
+    "朋友": {
+      "id": 53169,
+      "path": "/art/words/53169.webp",
+      "bytes": 18646,
+      "sha256": "b1bb9233379b4db986cf036390cff9c4dd6b682814435be00c1fb4addf2872bb",
+      "sentence": "他是我朋友。"
+    },
+    "服务": {
+      "id": 53182,
+      "path": "/art/words/53182.webp",
+      "bytes": 24026,
+      "sha256": "ed10b0cdf6216b15818f4e2a02071b074e93c9e678fd73d10164b7a7930bca8d",
+      "sentence": "这里的服务很好。"
+    },
+    "未来": {
+      "id": 53518,
+      "path": "/art/words/53518.webp",
+      "bytes": 33540,
+      "sha256": "e274e46e49c9da9d9feea13414ea1598554643621de976d145cc875b70889fba",
+      "sentence": "未来会更好。"
+    },
+    "本来": {
+      "id": 53632,
+      "path": "/art/words/53632.webp",
+      "bytes": 33012,
+      "sha256": "c85492b195535fda119756265510fa661173df58d6f55e5f15d4609a0d8661e1",
+      "sentence": "我本来想去公园。"
+    },
+    "机会": {
+      "id": 57287,
+      "path": "/art/words/57287.webp",
+      "bytes": 14696,
+      "sha256": "0e58960ca8c9239338bbb88978bc9dfea37e13ace21ef95c7e49e6774ad36358",
+      "sentence": "这是一个很好的机会。"
+    },
+    "机场": {
+      "id": 57270,
+      "path": "/art/words/57270.webp",
+      "bytes": 14476,
+      "sha256": "2c6fe2caea16f9a77eeccf11aac5a39f4b734f388a8cb39bcc7c7d77de8759a2",
+      "sentence": "我们去机场坐飞机。"
+    },
+    "条件": {
+      "id": 55792,
+      "path": "/art/words/55792.webp",
+      "bytes": 35428,
+      "sha256": "ec496f47e5d46920a4a90d5e8ca5369d16d2acdd7c513a1b3b031f0d534fcd6a",
+      "sentence": "这个工作的条件很好。"
+    },
+    "来到": {
+      "id": 7277,
+      "path": "/art/words/7277.webp",
+      "bytes": 18846,
+      "sha256": "4e32e32484a1e3f21b4f5b8c475d9bdbd490bfbbacf1a6bed26032caa06b18c0",
+      "sentence": "我来到北京。"
+    },
+    "来自": {
+      "id": 7320,
+      "path": "/art/words/7320.webp",
+      "bytes": 25118,
+      "sha256": "7556cd7aada89fe9e5d3f1fbdbf7d29c8e6fafd80fcefdd57af4e4353a008f7e",
+      "sentence": "他来自中国。"
+    },
+    "极了": {
+      "id": 56438,
+      "path": "/art/words/56438.webp",
+      "bytes": 23052,
+      "sha256": "a1d86d01ba5ab66e7c9ac3019be94e6dcd345ad606997b87b3d94c2cf31b927a",
+      "sentence": "这本书好极了。"
+    },
+    "样子": {
+      "id": 57073,
+      "path": "/art/words/57073.webp",
+      "bytes": 30228,
+      "sha256": "40454c0c1ed1b7b20dc8b73897359f3b06d3b97618df8045f3d064cd16a389c0",
+      "sentence": "这只猫的样子很可爱。"
+    },
+    "根据": {
+      "id": 55370,
+      "path": "/art/words/55370.webp",
+      "bytes": 32232,
+      "sha256": "3c7912a10c4d62ecafabc424ff94f553c4d0ce4eaf98026d651d71d871198468",
+      "sentence": "根据计划，我们明天去北京。"
+    },
+    "根本": {
+      "id": 55372,
+      "path": "/art/words/55372.webp",
+      "bytes": 18296,
+      "sha256": "9d9260b6972df68d6f2f69dcdda4f7081d5c969e5320b8ad718eb9f9ec0d512e",
+      "sentence": "我根本不知道。"
+    },
+    "检查": {
+      "id": 57554,
+      "path": "/art/words/57554.webp",
+      "bytes": 24042,
+      "sha256": "cae4940f34de6f2f8052d7b73a68c89c09b154c9c80a13596b0c9626b1a613a4",
+      "sentence": "医生在检查他的身体。"
+    },
+    "欢迎": {
+      "id": 58102,
+      "path": "/art/words/58102.webp",
+      "bytes": 27794,
+      "sha256": "84880439c0de96318e36aa95043404fc687afa1aa358d4e4f7d12380f35f7a1b",
+      "sentence": "欢迎来我家。"
+    },
+    "正在": {
+      "id": 58166,
+      "path": "/art/words/58166.webp",
+      "bytes": 21050,
+      "sha256": "9e74b8b22b120a64c412a27438a4e4f2d5e7bf0525ab4fde20849392e074d653",
+      "sentence": "我正在书读。"
+    },
+    "正好": {
+      "id": 58174,
+      "path": "/art/words/58174.webp",
+      "bytes": 21790,
+      "sha256": "13af381c701d691ef909817a3c36f6e90a76a2818a869c103759e40e5df3f1f6",
+      "sentence": "这件衣服正好合适。"
+    },
+    "正常": {
+      "id": 58193,
+      "path": "/art/words/58193.webp",
+      "bytes": 32110,
+      "sha256": "c028f3c81ef071c99f0f28dc6abadb7cd438796271fce215dbe4398b965e70df",
+      "sentence": "他的体温很正常。"
+    },
+    "正是": {
+      "id": 58222,
+      "path": "/art/words/58222.webp",
+      "bytes": 22358,
+      "sha256": "9154bdb18fc0955d9e589114a57ca321b6594e0d486666663ab0ff2597121bf8",
+      "sentence": "这正是我要找的书。"
+    },
+    "正确": {
+      "id": 58260,
+      "path": "/art/words/58260.webp",
+      "bytes": 14048,
+      "sha256": "a29f01e820d9882adca4348bd13df6f361b844c43fc449c679269363a970c865",
+      "sentence": "你的答案很正确。"
+    },
+    "死亡": {
+      "id": 58691,
+      "path": "/art/words/58691.webp",
+      "bytes": 6580,
+      "sha256": "9ca0ffc510b9445cca0b0f3d4fb83baa13762515bebfe5544e5969678573da52",
+      "sentence": "他的死亡让我们很伤心。"
+    },
+    "母亲": {
+      "id": 59130,
+      "path": "/art/words/59130.webp",
+      "bytes": 24270,
+      "sha256": "758bae530b2565c1e1909ff9a61efd8873da7c1828cf9b8f4644b3d57cf7d962",
+      "sentence": "她是我的母亲。"
+    },
+    "比如": {
+      "id": 59259,
+      "path": "/art/words/59259.webp",
+      "bytes": 20664,
+      "sha256": "21e95ab449496ec77dd1d5fa80f77d40af1c078aed71faf3e61b9d0e63ca9b5d",
+      "sentence": "我喜欢水果，比如苹果。"
+    },
+    "比赛": {
+      "id": 59313,
+      "path": "/art/words/59313.webp",
+      "bytes": 23884,
+      "sha256": "cd4f3be3eb1bea329465478b687d08b8ae9f8923900a29e80af9a7428a19c83f",
+      "sentence": "明天我们有一场比赛。"
+    },
+    "比较": {
+      "id": 59318,
+      "path": "/art/words/59318.webp",
+      "bytes": 15436,
+      "sha256": "1aa2ebe63b185dd811bc3d970e7426481ba831cfc8d81aa8316a73c7f65817f8",
+      "sentence": "今天比较冷。"
+    },
+    "水平": {
+      "id": 59991,
+      "path": "/art/words/59991.webp",
+      "bytes": 12410,
+      "sha256": "5970e4aac32a29689737fca4910b6431d5776afc6d8ad946c35e5c1f2cb38a0f",
+      "sentence": "他的中文水平很高。"
+    },
+    "永远": {
+      "id": 60324,
+      "path": "/art/words/60324.webp",
+      "bytes": 30828,
+      "sha256": "32a6506002d8cd66b5bc7743876155d315c76557199335d5e399b7007ce4d0a2",
+      "sentence": "我永远爱你。"
+    },
+    "汽车": {
+      "id": 60685,
+      "path": "/art/words/60685.webp",
+      "bytes": 23126,
+      "sha256": "00283ad419e0ec6b716b1fa2fe4f680009763057d0626b6d6269152226b09c81",
+      "sentence": "这是一辆汽车。"
+    },
+    "没什么": {
+      "id": 60856,
+      "path": "/art/words/60856.webp",
+      "bytes": 13138,
+      "sha256": "9933e2124e966100f45b054b83c602c2a847bf4011ec37de77f0ac9027ef00c3",
+      "sentence": "这没什么大不了的。"
+    },
+    "没有": {
+      "id": 60886,
+      "path": "/art/words/60886.webp",
+      "bytes": 27328,
+      "sha256": "9480352d37ca7426b784e9b0f6fa68ed16ba8254ca49aadfc1316e8316757f18",
+      "sentence": "我没有苹果。"
+    },
+    "治疗": {
+      "id": 61341,
+      "path": "/art/words/61341.webp",
+      "bytes": 19224,
+      "sha256": "c3578b145701a091196363e6fc95e661b66b8ab347a85db1445e46758c50da8f",
+      "sentence": "医生正在治疗病人。"
+    },
+    "法律": {
+      "id": 61523,
+      "path": "/art/words/61523.webp",
+      "bytes": 25092,
+      "sha256": "f86fd513d73951b8a7abb76010efee74ac07f8b6f1bad9d19f9addde0d33944a",
+      "sentence": "我们必须遵守法律。"
+    },
+    "注意": {
+      "id": 61886,
+      "path": "/art/words/61886.webp",
+      "bytes": 28674,
+      "sha256": "d66d80cd27d3f96be6b3aba7e7d2ebe3828ea719cd3e3f4c398e25fe21170761",
+      "sentence": "请注意安全。"
+    },
+    "活动": {
+      "id": 62389,
+      "path": "/art/words/62389.webp",
+      "bytes": 46114,
+      "sha256": "50431b650eee93e7bcb76aeeb8473cf3e2d701025f3479858a3c6b49135089f8",
+      "sentence": "学校的活动很有趣。"
+    },
+    "消息": {
+      "id": 63228,
+      "path": "/art/words/63228.webp",
+      "bytes": 30186,
+      "sha256": "32746e26425834c757c050e938a32a67c076bbf44b71eb945a907e4cb04270c4",
+      "sentence": "我有一个好消息。"
+    },
+    "清楚": {
+      "id": 64038,
+      "path": "/art/words/64038.webp",
+      "bytes": 23792,
+      "sha256": "4eea16aaa4175434a6e884cb40df635e951f95b4e8ac0dd3796f5f9da38354ab",
+      "sentence": "我很清楚这件事。"
+    },
+    "游戏": {
+      "id": 104293,
+      "path": "/art/words/104293.webp",
+      "bytes": 26852,
+      "sha256": "5306ce5aead48022db7b53870a964f1261752f809d3c91b6d55f760cecdd5713",
+      "sentence": "我喜欢玩游戏。"
+    },
+    "满意": {
+      "id": 65207,
+      "path": "/art/words/65207.webp",
+      "bytes": 14178,
+      "sha256": "9c182fe8a5b9745b755b956803605d2128fb9f56327ffaf4d20d49cb2d0b56ac",
+      "sentence": "我很满意。"
+    },
+    "漂亮": {
+      "id": 65302,
+      "path": "/art/words/65302.webp",
+      "bytes": 23012,
+      "sha256": "198fbbed741aad1cf22a8b9971fcb79f3bc7fc3f9f64e746e147c0cffd181085",
+      "sentence": "这朵花很漂亮。"
+    },
+    "热情": {
+      "id": 68158,
+      "path": "/art/words/68158.webp",
+      "bytes": 32380,
+      "sha256": "ede74b3ac371a857d237c00025f6d0d20c7cdcb5a32c8cd3e9904e8029ece46b",
+      "sentence": "他对客人很热情。"
+    },
+    "然后": {
+      "id": 67664,
+      "path": "/art/words/67664.webp",
+      "bytes": 18920,
+      "sha256": "f116cdbfe2f8a4f7bb62f4427fc9fb5ab45bff4bdde27eada866dcef52a22428",
+      "sentence": "我们吃饭，然后去看电影。"
+    },
+    "照片": {
+      "id": 67885,
+      "path": "/art/words/67885.webp",
+      "bytes": 20176,
+      "sha256": "8ec73a2b1c1dca590c35bf80a9e527571dae48069c75207e58a08c2c5e871f38",
+      "sentence": "这是一张漂亮的照片。"
+    },
+    "照顾": {
+      "id": 67911,
+      "path": "/art/words/67911.webp",
+      "bytes": 23970,
+      "sha256": "38a06806f0582a4cf3c388868ee39aec2032bc7e7033305de1a479cc865d609c",
+      "sentence": "我照顾我的猫。"
+    },
+    "爱情": {
+      "id": 41098,
+      "path": "/art/words/41098.webp",
+      "bytes": 21432,
+      "sha256": "e9eb3a860702c4be97941b1abc19b59c7b73a335ed4755670265fb52afaec541",
+      "sentence": "爱情是美好的。"
+    },
+    "父亲": {
+      "id": 68765,
+      "path": "/art/words/68765.webp",
+      "bytes": 16832,
+      "sha256": "01a557325fd1e247754934ef68f05530f08fb8e12eaec9b607096ea2e351410e",
+      "sentence": "他是我的父亲。"
+    },
+    "父母": {
+      "id": 68757,
+      "path": "/art/words/68757.webp",
+      "bytes": 11108,
+      "sha256": "e1cc0250984e3a02cb153b7cd2190114c3a7152b1c5dfa8cb6930b510fbea8a0",
+      "sentence": "我爱我的父母。"
+    },
+    "爸爸": {
+      "id": 68771,
+      "path": "/art/words/68771.webp",
+      "bytes": 16872,
+      "sha256": "73a4be35ea0601d125e7d3f621d5433ce67431b4dbfdbffeb415c4e9190e0f98",
+      "sentence": "爸爸在喝水。"
+    },
+    "特别": {
+      "id": 69223,
+      "path": "/art/words/69223.webp",
+      "bytes": 16540,
+      "sha256": "57e89d7e241c0a58620157be22711d2493520e57679e717288d86903766b06f0",
+      "sentence": "这个苹果特别甜。"
+    },
+    "犯罪": {
+      "id": 69478,
+      "path": "/art/words/69478.webp",
+      "bytes": 30934,
+      "sha256": "51fae05960d6fa6cce1287dc63887dd2d5c3815341d43b1f0fb8ee0339361127",
+      "sentence": "他犯罪了。"
+    },
+    "现在": {
+      "id": 70721,
+      "path": "/art/words/70721.webp",
+      "bytes": 35886,
+      "sha256": "07dfdce3e0385fdfd2ba304f2af454ff7cb0763bf310659042e15e31a403b96e",
+      "sentence": "现在我很忙。"
+    },
+    "现场": {
+      "id": 70724,
+      "path": "/art/words/70724.webp",
+      "bytes": 23766,
+      "sha256": "92695b7742da61b7b1e6acad710161291f2a7b6f3f3fa1b26242a89c17b80f1f",
+      "sentence": "我们在现场看演出。"
+    },
+    "球队": {
+      "id": 70822,
+      "path": "/art/words/70822.webp",
+      "bytes": 29782,
+      "sha256": "e41ddd5209adc48aeb5af63411abf0daa0dfb627f5b232bbd1a2360117da9c10",
+      "sentence": "这支球队很强。"
+    },
+    "理解": {
+      "id": 70890,
+      "path": "/art/words/70890.webp",
+      "bytes": 16844,
+      "sha256": "b200bf577dc3ba39773daf0746ab7a523ee22845988c52ccabdd1197618a6100",
+      "sentence": "我理解你的意思。"
+    },
+    "甚至": {
+      "id": 71547,
+      "path": "/art/words/71547.webp",
+      "bytes": 21856,
+      "sha256": "dfdc8fc161857a6a1d5929eb5f75b35a311e19a4572b23a46898c2a0e522118d",
+      "sentence": "他甚至不会说中文。"
+    },
+    "生命": {
+      "id": 71617,
+      "path": "/art/words/71617.webp",
+      "bytes": 24200,
+      "sha256": "dabb2f361954c2b8359dea9d98c2b3b19f5958148bf198dadc2119c94ed469ef",
+      "sentence": "生命很宝贵。"
+    },
+    "生日": {
+      "id": 71679,
+      "path": "/art/words/71679.webp",
+      "bytes": 21762,
+      "sha256": "99e86894325022ee9f64a9bc12835bea25208e5f62388fcceebdca0642cf8202",
+      "sentence": "今天是我的生日。"
+    },
+    "生气": {
+      "id": 71708,
+      "path": "/art/words/71708.webp",
+      "bytes": 30432,
+      "sha256": "700c1fe146e2ecfd62c99f3ae7759b3165de1dd3216c43c373202caa8b142df6",
+      "sentence": "他现在很生气。"
+    },
+    "生活": {
+      "id": 71714,
+      "path": "/art/words/71714.webp",
+      "bytes": 23190,
+      "sha256": "6a088bd7279893b07b431ac492b0342b8dc88a2230bd86e9670960e91932bf71",
+      "sentence": "我的生活很简单。"
+    },
+    "由于": {
+      "id": 72079,
+      "path": "/art/words/72079.webp",
+      "bytes": 28734,
+      "sha256": "724b0a043cdf711d555b56235ea297076727a44a240b5e6676a9315b8a2aadcb",
+      "sentence": "由于下雨，我没出门。"
+    },
+    "电影": {
+      "id": 112600,
+      "path": "/art/words/112600.webp",
+      "bytes": 22106,
+      "sha256": "15c5725e0ae3c7824885d72dd9f7af68964d04471b226745f42f62369f70adfe",
+      "sentence": "我想看电影。"
+    },
+    "电视": {
+      "id": 112720,
+      "path": "/art/words/112720.webp",
+      "bytes": 23964,
+      "sha256": "901babc2bd4fd2a2caf742f474543501dcdf3ba5e8224f6a67c4bab5e29c2f7f",
+      "sentence": "我在看电视。"
+    },
+    "电脑": {
+      "id": 112700,
+      "path": "/art/words/112700.webp",
+      "bytes": 24484,
+      "sha256": "de8a575d79582c64558bfa41a6a80117f43878d10ec4e16bacf7df59fb5426c8",
+      "sentence": "我用电脑工作。"
+    },
+    "电话": {
+      "id": 112736,
+      "path": "/art/words/112736.webp",
+      "bytes": 19836,
+      "sha256": "f70a348caec6808d96c5c43eb83a9aa0b5629d49abaae15cb457b5355878645c",
+      "sentence": "我给你打电话。"
+    },
+    "男人": {
+      "id": 72200,
+      "path": "/art/words/72200.webp",
+      "bytes": 15432,
+      "sha256": "3a4bd9ba8a42a7b2fb9208bac77c13da0fe19162fe3f8aeb090fdf58b1fa2cdd",
+      "sentence": "这个男人很高。"
+    },
+    "留下": {
+      "id": 72338,
+      "path": "/art/words/72338.webp",
+      "bytes": 17764,
+      "sha256": "43435e0d92baa036ce032a1791285997d45e4ba41ec2e207f0df540c0f635e30",
+      "sentence": "请留下你的电话号码。"
+    },
+    "病人": {
+      "id": 72948,
+      "path": "/art/words/72948.webp",
+      "bytes": 19688,
+      "sha256": "702a509345c243198197194304f6dfb131db3d144047f536472b6da89a139564",
+      "sentence": "病人正在休息。"
+    },
+    "的": {
+      "id": 74292,
+      "path": "/art/words/74292.webp",
+      "bytes": 29850,
+      "sha256": "5abcbfdfe234ba81eb570c3a7d22409b3d457d5f013bb96e06311afc8a0217e9"
+    },
+    "的话": {
+      "id": 74301,
+      "path": "/art/words/74301.webp",
+      "bytes": 9818,
+      "sha256": "78704d94789ffc38a705df8da93dbab6a85005068ca0b0233b510c0a53e77a8c",
+      "sentence": "如果下雨的话，我不去。"
+    },
+    "目前": {
+      "id": 74871,
+      "path": "/art/words/74871.webp",
+      "bytes": 21344,
+      "sha256": "083912252eef1ce1d26a54b799ff8071c28bc6ba36eb77d01f77cc6784c5e01e",
+      "sentence": "目前天气很好。"
+    },
+    "目标": {
+      "id": 74881,
+      "path": "/art/words/74881.webp",
+      "bytes": 27916,
+      "sha256": "e715fb6f08729e08622c28b3f8a1df4efafd372087c4e07bdd15e963f60af759",
+      "sentence": "我的目标是学好中文。"
+    },
+    "目的": {
+      "id": 74890,
+      "path": "/art/words/74890.webp",
+      "bytes": 22180,
+      "sha256": "7d06c5d92f3eeb26dc64b9f8cbbc870faa23623bb260eea2d69f5af2fe003e5a",
+      "sentence": "我的目的是学习中文。"
+    },
+    "直接": {
+      "id": 74984,
+      "path": "/art/words/74984.webp",
+      "bytes": 16944,
+      "sha256": "16930e5bafb80b1c7c0a7be186eaee4f1a3341e12fa2578f7bcd427f4909c094",
+      "sentence": "我们直接回家。"
+    },
+    "相信": {
+      "id": 75099,
+      "path": "/art/words/75099.webp",
+      "bytes": 12556,
+      "sha256": "c1df0afdc85da5ea60420e664a125e61f3ba8c885a90d61a67c870725c66b234",
+      "sentence": "我相信你。"
+    },
+    "相同": {
+      "id": 75111,
+      "path": "/art/words/75111.webp",
+      "bytes": 18212,
+      "sha256": "45070abf03d7901b8d1dd7848a6d2ae5a7bd850f6445e6716a21dd59a05901ad",
+      "sentence": "我们的答案相同。"
+    },
+    "相当": {
+      "id": 75187,
+      "path": "/art/words/75187.webp",
+      "bytes": 20440,
+      "sha256": "f896f888b1b8a4b99470de72581bd042a0b14e065b6253f9cacfd8f3747592de",
+      "sentence": "这两个词的意思相当不同。"
+    },
+    "看到": {
+      "id": 75362,
+      "path": "/art/words/75362.webp",
+      "bytes": 14612,
+      "sha256": "3ac138914fe945fdefe24c3469c891d7c7187d7f1e4b0ad4dbef85eb3bf76137",
+      "sentence": "我看到一只猫。"
+    },
+    "看来": {
+      "id": 75358,
+      "path": "/art/words/75358.webp",
+      "bytes": 26892,
+      "sha256": "27d10da274afa194a4395c9a6eb18c1c7dac4022c35e7a2c14893fa54c391782",
+      "sentence": "看来他很累。"
+    },
+    "看法": {
+      "id": 75394,
+      "path": "/art/words/75394.webp",
+      "bytes": 21584,
+      "sha256": "bf4ca7e09d4e8c07de8a90cdca9e76e43b353c2e6e3a438e0d0e57728e1ad8eb",
+      "sentence": "这是我的看法。"
+    },
+    "看见": {
+      "id": 75415,
+      "path": "/art/words/75415.webp",
+      "bytes": 23756,
+      "sha256": "2bedd752fd8abfe3c51d80b6c4a654c45ad1dd30ee5e84a498185053be3e8198",
+      "sentence": "我看见了一只猫。"
+    },
+    "真正": {
+      "id": 75496,
+      "path": "/art/words/75496.webp",
+      "bytes": 24254,
+      "sha256": "5a7384825d307c35c6318d5ca72470e82d4d67f4a43df22eed6c0738bba1bbba",
+      "sentence": "他是真正的朋友。"
+    },
+    "真的": {
+      "id": 75506,
+      "path": "/art/words/75506.webp",
+      "bytes": 26728,
+      "sha256": "083bb9886fa1d0a670a7a82a1a6e1afbd00808cc9bf8ce98e7bfda77533f6748",
+      "sentence": "这是真的。"
+    },
+    "眼睛": {
+      "id": 75658,
+      "path": "/art/words/75658.webp",
+      "bytes": 24928,
+      "sha256": "92df768807118288596f09bcf986233f7d2f6a837d372a5ce02b040341a227e8",
+      "sentence": "我有一双大眼睛。"
+    },
+    "睡觉": {
+      "id": 75814,
+      "path": "/art/words/75814.webp",
+      "bytes": 27258,
+      "sha256": "595badebac72c06def661c7dba2e351abdce28b11fad29351432596d463e5dd8",
+      "sentence": "我每天晚上十点睡觉。"
+    },
+    "知识": {
+      "id": 76083,
+      "path": "/art/words/76083.webp",
+      "bytes": 20508,
+      "sha256": "1241efa8ab343e43f849af4c5da5999805b88600261678076c273441566ffd44",
+      "sentence": "他在学校学到了很多知识。"
+    },
+    "知道": {
+      "id": 76100,
+      "path": "/art/words/76100.webp",
+      "bytes": 33308,
+      "sha256": "0138ddb21c0e8ea89ea5ba1c983bbc5bb419d110331b8d855db3e0a2ffc6f02a",
+      "sentence": "我知道你的名字。"
+    },
+    "研究": {
+      "id": 76498,
+      "path": "/art/words/76498.webp",
+      "bytes": 38466,
+      "sha256": "63b91f0f155861f54ba0659dcc4bace07e7655f5937f111922ddc5b0df85eabf",
+      "sentence": "他在研究中文。"
+    },
+    "确定": {
+      "id": 77021,
+      "path": "/art/words/77021.webp",
+      "bytes": 27300,
+      "sha256": "eb54be4a868213e7b5c4fb0ed6feaf80019c9acb7cea162ed7a7cfcc1b64eced",
+      "sentence": "我确定他是老师。"
+    },
+    "确实": {
+      "id": 77023,
+      "path": "/art/words/77023.webp",
+      "bytes": 18444,
+      "sha256": "233a261f2453f2af96e07d1a4e405820aaa4277e05f645536dd35226383d8b96",
+      "sentence": "他确实很聪明。"
+    },
+    "礼物": {
+      "id": 78040,
+      "path": "/art/words/78040.webp",
+      "bytes": 22416,
+      "sha256": "6cbfc7b31a21ccffedc58769fbe54e9f1760bcaaa9d33aab072baa6a3bef6a8e",
+      "sentence": "这是给你的礼物。"
+    },
+    "社会": {
+      "id": 77385,
+      "path": "/art/words/77385.webp",
+      "bytes": 35362,
+      "sha256": "7b5912d79051891f44e269b18b8009b3b651f2eaed4324aefecb644e3a030c8b",
+      "sentence": "我们要关心社会。"
+    },
+    "离开": {
+      "id": 112070,
+      "path": "/art/words/112070.webp",
+      "bytes": 25022,
+      "sha256": "78f14a2d8677681158c18f0263d16825354034cbb01323c267ac248d23a1d1aa",
+      "sentence": "他已经离开北京了。"
+    },
+    "科学": {
+      "id": 78296,
+      "path": "/art/words/78296.webp",
+      "bytes": 29426,
+      "sha256": "65c6243b471673aa56758b7b79ca0176ac6af9d83449cef7be1c4f641dd6c3cc",
+      "sentence": "科学很有趣。"
+    },
+    "空气": {
+      "id": 79090,
+      "path": "/art/words/79090.webp",
+      "bytes": 19326,
+      "sha256": "c6754296ebeb67d6abe6713c1faa4bd2a05e231d1d64ffdc0e747440f3be1f19",
+      "sentence": "这里的空气很好。"
+    },
+    "突然": {
+      "id": 79232,
+      "path": "/art/words/79232.webp",
+      "bytes": 27436,
+      "sha256": "e83b6b6fb923b540a4baefac86be2d85e626856acef421ca6dddcc9fc83eca2f",
+      "sentence": "突然下雨了。"
+    },
+    "第二": {
+      "id": 79943,
+      "path": "/art/words/79943.webp",
+      "bytes": 25328,
+      "sha256": "bcc61620991396873d4d8cafa865cfe09d7cc8f232e737ee3042b837e972ca5c",
+      "sentence": "这是我的第二本书。"
+    },
+    "答应": {
+      "id": 80136,
+      "path": "/art/words/80136.webp",
+      "bytes": 22098,
+      "sha256": "2a471de0dd4518016e223428126ffc9135acceb7659f5335d31e1fc0ff0d264a",
+      "sentence": "我答应明天去。"
+    },
+    "简单": {
+      "id": 80569,
+      "path": "/art/words/80569.webp",
+      "bytes": 11004,
+      "sha256": "1a3b9e4fbc768e67664820c36afa102efde750807ae3559a18bf6832c73c43ca",
+      "sentence": "这个问题很简单。"
+    },
+    "精神": {
+      "id": 81060,
+      "path": "/art/words/81060.webp",
+      "bytes": 19246,
+      "sha256": "2bf764183a6b474e09e9bcac428fa42ca808e94f24dc3843596a79612a30f136",
+      "sentence": "他今天精神很好。"
+    },
+    "系统": {
+      "id": 81304,
+      "path": "/art/words/81304.webp",
+      "bytes": 31988,
+      "sha256": "22451ff803f053187850cca2e73ec9363300c72cc4b3ce9421be3ba2ffa48173",
+      "sentence": "这个系统很好用。"
+    },
+    "红色": {
+      "id": 81610,
+      "path": "/art/words/81610.webp",
+      "bytes": 8490,
+      "sha256": "bfe37ea4b7335e421aa1d44eea1b3bbbc269f5313c66bc9868ef75ded349c625",
+      "sentence": "我喜欢红色的花。"
+    },
+    "紧张": {
+      "id": 83332,
+      "path": "/art/words/83332.webp",
+      "bytes": 33278,
+      "sha256": "2d94de2b9013b5b3e2e9be8082b7392a6f1b9da75b501f96302f48b62e4ebfbb",
+      "sentence": "他很紧张。"
+    },
+    "组织": {
+      "id": 82338,
+      "path": "/art/words/82338.webp",
+      "bytes": 35636,
+      "sha256": "22e98b1be978f3e9a3b9b0b01839316df3aa2c56d5b5bb2b04ab24d35dfa7973",
+      "sentence": "我们一起组织一场比赛。"
+    },
+    "终于": {
+      "id": 82286,
+      "path": "/art/words/82286.webp",
+      "bytes": 20406,
+      "sha256": "57713703c2f8872a4ba1a174d786a5eccad3e4d4d96bc6bbd2729dd5dc4c51de",
+      "sentence": "我终于完成了作业。"
+    },
+    "经历": {
+      "id": 82821,
+      "path": "/art/words/82821.webp",
+      "bytes": 34184,
+      "sha256": "70b98a4ab2574c709c7dcb9380db7130434ea7e36ea0c045d296fe65296cf984",
+      "sentence": "这是一次难忘的经历。"
+    },
+    "经常": {
+      "id": 82806,
+      "path": "/art/words/82806.webp",
+      "bytes": 37514,
+      "sha256": "8f2cd273b517e21c83148b9bb6122eb3f117326ad676469de1db7194c146b3e3",
+      "sentence": "我经常喝茶。"
+    },
+    "经理": {
+      "id": 82863,
+      "path": "/art/words/82863.webp",
+      "bytes": 28094,
+      "sha256": "d9e40403f445bacf18e014531840a95020f2294ad067a7ff3a29461823668f82",
+      "sentence": "他是我们的经理。"
+    },
+    "经过": {
+      "id": 82887,
+      "path": "/art/words/82887.webp",
+      "bytes": 27734,
+      "sha256": "b46e6ac9477018484a1a76f1680835ffea45cbaa0ff7a385bdc59506bfca4dc5",
+      "sentence": "我经过那家商店。"
+    },
+    "结婚": {
+      "id": 82378,
+      "path": "/art/words/82378.webp",
+      "bytes": 23636,
+      "sha256": "117dc5b1a3a453f3ad7975b22cde7ad1c8d1164e88d4e4fb23b13f077516fb4f",
+      "sentence": "我们明年结婚。"
+    },
+    "结束": {
+      "id": 82403,
+      "path": "/art/words/82403.webp",
+      "bytes": 20874,
+      "sha256": "6357ffd546fbaf05df9e0e198b62a1567810be5a915a19009241b8b47288dfab",
+      "sentence": "会议结束了。"
+    },
+    "结果": {
+      "id": 82405,
+      "path": "/art/words/82405.webp",
+      "bytes": 31988,
+      "sha256": "1e849df318b841b06dff4d0ff5ec811fe7b04ce3242d92ab46476108c3107299",
+      "sentence": "结果他没来。"
+    },
+    "绝对": {
+      "id": 82497,
+      "path": "/art/words/82497.webp",
+      "bytes": 37176,
+      "sha256": "0288a4ba21fd5f974b2e4bea72e2c4917710582066bd8c7d5bbd24c8c3b5df59",
+      "sentence": "我绝对不会去。"
+    },
+    "继续": {
+      "id": 84057,
+      "path": "/art/words/84057.webp",
+      "bytes": 10904,
+      "sha256": "a7856747cd694ae6de31239febe792f44e847475df670b859ef9f90b0dbb6ea3",
+      "sentence": "我们继续学习。"
+    },
+    "绿色": {
+      "id": 82983,
+      "path": "/art/words/82983.webp",
+      "bytes": 19968,
+      "sha256": "20dc21417a465472b998dc6433163ff7c288ad6da2f7d403b5ca71ec26c46073",
+      "sentence": "这是绿色的苹果。"
+    },
+    "网上": {
+      "id": 83115,
+      "path": "/art/words/83115.webp",
+      "bytes": 33416,
+      "sha256": "3bec8a36a5eb219433842099a90cfcc2065fa3e9110a762a5d2f5c6935652d46",
+      "sentence": "我在网上买东西。"
+    },
+    "网站": {
+      "id": 83159,
+      "path": "/art/words/83159.webp",
+      "bytes": 36510,
+      "sha256": "3bb6a9ba0ef60056149d550d9686e2665b8faa631532df83026a0d1b75a8a74a",
+      "sentence": "这个网站很好。"
+    },
+    "美元": {
+      "id": 84640,
+      "path": "/art/words/84640.webp",
+      "bytes": 29178,
+      "sha256": "dd91d56a4c8961addf6f44ff1ac68b44aa155a81ae228de2534b8325860ae2de",
+      "sentence": "一美元等于七元。"
+    },
+    "老人": {
+      "id": 85262,
+      "path": "/art/words/85262.webp",
+      "bytes": 29892,
+      "sha256": "c8cf89cc5b1b1af5d4f8269af0d5f928f99bd39643ffe8334a681a5e890e6544",
+      "sentence": "老人在公园散步。"
+    },
+    "老师": {
+      "id": 85355,
+      "path": "/art/words/85355.webp",
+      "bytes": 23300,
+      "sha256": "49e962edbd06c484450c6702137a7c08f07628275826be13a0badb98afe5c367",
+      "sentence": "老师教我们中文。"
+    },
+    "考虑": {
+      "id": 85539,
+      "path": "/art/words/85539.webp",
+      "bytes": 32950,
+      "sha256": "328d1dba385657bbb25f5a06ed3272589a855575e14c2d20b843c65e822aa133",
+      "sentence": "我会考虑一下。"
+    },
+    "考试": {
+      "id": 85559,
+      "path": "/art/words/85559.webp",
+      "bytes": 33144,
+      "sha256": "c0a7b7beb0f80bee6c02ddcfb00a9d5e6b448144cd7f602255ff7db6da309ae4",
+      "sentence": "明天我们有一次考试。"
+    },
+    "而且": {
+      "id": 85589,
+      "path": "/art/words/85589.webp",
+      "bytes": 25586,
+      "sha256": "7f1489d68630c5299ab8bc80659229c44bc60c6afc50592124e89e2da7f8ea9f",
+      "sentence": "这里的风景很美，而且很安静。"
+    },
+    "而是": {
+      "id": 85593,
+      "path": "/art/words/85593.webp",
+      "bytes": 22070,
+      "sha256": "50de169b59c5acbe713e18e8fe187d5dae15a619f6ea68d7dfcae527abd3443f",
+      "sentence": "他不是老师，而是学生。"
+    },
+    "联系": {
+      "id": 86121,
+      "path": "/art/words/86121.webp",
+      "bytes": 27438,
+      "sha256": "a5789d5cde802a7abf5f059c58a46bad4d6de67c11ff5cbc8d41912a92422f77",
+      "sentence": "我明天联系你。"
+    },
+    "肯定": {
+      "id": 86751,
+      "path": "/art/words/86751.webp",
+      "bytes": 18780,
+      "sha256": "ba06a292af37a7a8fa3abdbb57d754bf7e486226542fc493c77b9e0927753550",
+      "sentence": "我肯定他会来。"
+    },
+    "能力": {
+      "id": 87179,
+      "path": "/art/words/87179.webp",
+      "bytes": 31944,
+      "sha256": "69932dc3d97f82506f86308385817f993c9544cac3d68afd9df7ec07cddae12b",
+      "sentence": "他很有工作能力。"
+    },
+    "能够": {
+      "id": 87182,
+      "path": "/art/words/87182.webp",
+      "bytes": 25794,
+      "sha256": "07dea404f40150956093e868a007b613dd0a071cba62e80ed47eda58581c767a",
+      "sentence": "我能够帮助你。"
+    },
+    "自己": {
+      "id": 88389,
+      "path": "/art/words/88389.webp",
+      "bytes": 26080,
+      "sha256": "f381127ed605632d81f5ffbc5161d0e5418e62df6b8595ae4302bb181736dfb3",
+      "sentence": "我自己做。"
+    },
+    "自然": {
+      "id": 88490,
+      "path": "/art/words/88490.webp",
+      "bytes": 32260,
+      "sha256": "f9b49efb30b2d9e54ed193f4d99ac25e4b2315ecca47049fd297f187ea21d864",
+      "sentence": "大自然很美丽。"
+    },
+    "自由": {
+      "id": 88532,
+      "path": "/art/words/88532.webp",
+      "bytes": 29524,
+      "sha256": "403b95a6aab5062b05dc294285e68d6e4365897d59844d64828db1443ce9ec5d",
+      "sentence": "我喜欢自由。"
+    },
+    "至少": {
+      "id": 88743,
+      "path": "/art/words/88743.webp",
+      "bytes": 36798,
+      "sha256": "e8c30cf948c22db2d535524e158665e60618def10abceca49a4df9947c99d327",
+      "sentence": "我们至少需要三个人。"
+    },
+    "舒服": {
+      "id": 89149,
+      "path": "/art/words/89149.webp",
+      "bytes": 28006,
+      "sha256": "aa0818a03199eaf3f00bf7fd8cdffda3524d6d59216c460b302a9560d70f184a",
+      "sentence": "这张床很舒服。"
+    },
+    "节目": {
+      "id": 80398,
+      "path": "/art/words/80398.webp",
+      "bytes": 32880,
+      "sha256": "abfdd3d493c3575b05a0e8e39fb5f1158c2ed6993263016522759ad365d8354a",
+      "sentence": "这个节目很好看。"
+    },
+    "英语": {
+      "id": 90293,
+      "path": "/art/words/90293.webp",
+      "bytes": 26882,
+      "sha256": "ad74c977834c5efa519ba2e26c08adde9fce42a99830c7bf61a67b658fd03a38",
+      "sentence": "我学习英语。"
+    },
+    "获得": {
+      "id": 70088,
+      "path": "/art/words/70088.webp",
+      "bytes": 18766,
+      "sha256": "139e353ccc64bfc9032111b7d211336012e6e09e8151f5cf9b4f67c386519a6d",
+      "sentence": "他获得了一等奖。"
+    },
+    "虽然": {
+      "id": 111641,
+      "path": "/art/words/111641.webp",
+      "bytes": 38074,
+      "sha256": "3a3af4b4c603ee93af350d59a85f408db0c74a6273389d643f7f395f67c9bf39",
+      "sentence": "虽然下雨，但是我去。"
+    },
+    "行为": {
+      "id": 94443,
+      "path": "/art/words/94443.webp",
+      "bytes": 40106,
+      "sha256": "480d6ac47ff6a9fc8e9e6e665e0e08ae150c6fd0257805b9de9998ef8c88869a",
+      "sentence": "他的行为很好。"
+    },
+    "行动": {
+      "id": 94363,
+      "path": "/art/words/94363.webp",
+      "bytes": 28836,
+      "sha256": "8767f88326617bf41bc31444f5fa729c9ce241378a746574a7267b9ef5103652",
+      "sentence": "我们必须马上行动。"
+    },
+    "衣服": {
+      "id": 94685,
+      "path": "/art/words/94685.webp",
+      "bytes": 23654,
+      "sha256": "a1120b0b2ae2574391693568d3bea741cb49a8c1d9c686744c3059ccdffa4518",
+      "sentence": "这件衣服很好看。"
+    },
+    "表演": {
+      "id": 94762,
+      "path": "/art/words/94762.webp",
+      "bytes": 27346,
+      "sha256": "2e53a9f9b5fcdd0f29efe0b6a69f6cf014cec513e619631d9312e6e4dee9951e",
+      "sentence": "他们在表演。"
+    },
+    "表现": {
+      "id": 94765,
+      "path": "/art/words/94765.webp",
+      "bytes": 34196,
+      "sha256": "32dc963b802d9c31f70de50a273f92d82b50061a307eccbc8ebf355e36c1abbb",
+      "sentence": "他的表现很好。"
+    },
+    "要求": {
+      "id": 95879,
+      "path": "/art/words/95879.webp",
+      "bytes": 29934,
+      "sha256": "728ab26e38e3d0cf0dbe111826f2fcea02aa724da497cd710183a368bb917a61",
+      "sentence": "老师对我们要求很高。"
+    },
+    "见到": {
+      "id": 95946,
+      "path": "/art/words/95946.webp",
+      "bytes": 13016,
+      "sha256": "e313b93d091e2f478241a69c079917ce4035e2180491bc6e306b8cef31831318",
+      "sentence": "很高兴见到你"
+    },
+    "见面": {
+      "id": 96000,
+      "path": "/art/words/96000.webp",
+      "bytes": 28264,
+      "sha256": "65c0c806f1beb8bc33a1a26fce1592148be4d57e23d424f8a8bb569b65be2c40",
+      "sentence": "我们明天见面。"
+    },
+    "观点": {
+      "id": 96277,
+      "path": "/art/words/96277.webp",
+      "bytes": 24078,
+      "sha256": "5707652ab50d79b062d9044a5bdb8196524b29c60db343c49fbb3d63c31e4e6a",
+      "sentence": "这是我的观点。"
+    },
+    "觉得": {
+      "id": 96219,
+      "path": "/art/words/96219.webp",
+      "bytes": 12482,
+      "sha256": "c14da66fe47c736fba104ced8039cc9e9caa2bbcf4fb98a66f409a488bcec9af",
+      "sentence": "我觉得很好。"
+    },
+    "角度": {
+      "id": 96291,
+      "path": "/art/words/96291.webp",
+      "bytes": 16436,
+      "sha256": "4a93e30eae1f5f6f8b15f1c903be895e000decd5522663571243f97c7c495947",
+      "sentence": "从不同角度看问题。"
+    },
+    "解决": {
+      "id": 96406,
+      "path": "/art/words/96406.webp",
+      "bytes": 28900,
+      "sha256": "f0d8fd4f175584af939ca5a491fb4043407e1469eafc2caf6d8762f09423ba62",
+      "sentence": "我们解决了这个问题。"
+    },
+    "解释": {
+      "id": 96446,
+      "path": "/art/words/96446.webp",
+      "bytes": 28512,
+      "sha256": "1f9c271e7400018795480e6f18a2cb8869402ac021ce5a3ececdc59b7fefd0f1",
+      "sentence": "请你解释一下这个词。"
+    },
+    "计划": {
+      "id": 96625,
+      "path": "/art/words/96625.webp",
+      "bytes": 32070,
+      "sha256": "c0daf29f9b6dcfd2a158101e48f0ed997bf8e59b93de4296eb39a650a8ddeba2",
+      "sentence": "我有一个计划。"
+    },
+    "认为": {
+      "id": 97334,
+      "path": "/art/words/97334.webp",
+      "bytes": 16690,
+      "sha256": "3aba081b18a03ad0fe3470ead2bc82021a0b6b7df885df277a0ef575b32bf261",
+      "sentence": "我认为他是对的。"
+    },
+    "认真": {
+      "id": 97336,
+      "path": "/art/words/97336.webp",
+      "bytes": 36014,
+      "sha256": "561c853a5fbfae0a9da5f2f427281ed72340f4cbc8eecae6bf5992ae0f1c96db",
+      "sentence": "他学习很认真。"
+    },
+    "认识": {
+      "id": 97350,
+      "path": "/art/words/97350.webp",
+      "bytes": 25676,
+      "sha256": "ece7a58788c8101ecd1f413dd03e58dc3dec927a991867bebd19369d8028d658",
+      "sentence": "我认识他。"
+    },
+    "讨论": {
+      "id": 96714,
+      "path": "/art/words/96714.webp",
+      "bytes": 34386,
+      "sha256": "cd65040c6e824edbebaed82cfc1e19137856b8d7102b5b64bafd88cda6fed02e",
+      "sentence": "我们在讨论这个问题。"
+    },
+    "训练": {
+      "id": 96736,
+      "path": "/art/words/96736.webp",
+      "bytes": 29204,
+      "sha256": "d7677ede29458211b0e3b5704b56b538f58d879ad6f3001397ea9f90dffd5c99",
+      "sentence": "我每天训练两个小时。"
+    },
+    "记住": {
+      "id": 96762,
+      "path": "/art/words/96762.webp",
+      "bytes": 24404,
+      "sha256": "e43b29d3a82b502a19e069d52e24a61aabe0232a3149ff9e56d01ddbe181f734",
+      "sentence": "请记住这个新单词。"
+    },
+    "记得": {
+      "id": 96771,
+      "path": "/art/words/96771.webp",
+      "bytes": 21046,
+      "sha256": "87a60476f526e677b2440a22570a43801bb2cbc14c43cfe5c7b3eabb0870fd86",
+      "sentence": "我记得你。"
+    },
+    "记者": {
+      "id": 96791,
+      "path": "/art/words/96791.webp",
+      "bytes": 44406,
+      "sha256": "bbf360d5c821098318a3c8458b1b3e8f6b0f4d0463baf07aec2fe686b3f50130",
+      "sentence": "记者在写新闻。"
+    },
+    "讲话": {
+      "id": 98124,
+      "path": "/art/words/98124.webp",
+      "bytes": 31906,
+      "sha256": "08bc0bb32f1b1afc17aeb44f7a1fff906679b9a4667e8bf8c341fce86d69c13e",
+      "sentence": "他在讲话。"
+    },
+    "许多": {
+      "id": 96890,
+      "path": "/art/words/96890.webp",
+      "bytes": 59750,
+      "sha256": "59f9c083f94f6f6847b354cd1b874209018ca941f6a2f5df671c0d791ca4534d",
+      "sentence": "我有许多书。"
+    },
+    "设计": {
+      "id": 96871,
+      "path": "/art/words/96871.webp",
+      "bytes": 33114,
+      "sha256": "fe4c776b9b1bc36f2f6ce5b6bbd184e2e5225ec32cdfdf2c27f34dcfa39ccf0f",
+      "sentence": "他设计了一栋房子。"
+    },
+    "证明": {
+      "id": 98234,
+      "path": "/art/words/98234.webp",
+      "bytes": 26804,
+      "sha256": "da63d03a81d3ea7d541c0ca078dcb368a9120b1a98b4cd98f0373fed106463d8",
+      "sentence": "他证明了自己是对的。"
+    },
+    "语言": {
+      "id": 97444,
+      "path": "/art/words/97444.webp",
+      "bytes": 22530,
+      "sha256": "ae25fce65cfc49c45921aaafc845ab837cefbf38dafb71731ac808044c6b0c17",
+      "sentence": "汉语是一门很难的语言。"
+    },
+    "说明": {
+      "id": 97578,
+      "path": "/art/words/97578.webp",
+      "bytes": 25778,
+      "sha256": "c7d9cbf72ba4948e8811cd039c9fe2b14bb1b1e30b67bb21eb6b9dd189f12068",
+      "sentence": "请说明一下这个问题。"
+    },
+    "说话": {
+      "id": 97600,
+      "path": "/art/words/97600.webp",
+      "bytes": 14230,
+      "sha256": "7be1dd51f28118906de7058a77105a1c3085659f1344fd90205bb6156cff95bf",
+      "sentence": "他在说话。"
+    },
+    "调查": {
+      "id": 97709,
+      "path": "/art/words/97709.webp",
+      "bytes": 40076,
+      "sha256": "125addb3a173a7bead192da83bc67dd86a6074da8f8ad881974b1a94bf2c5985",
+      "sentence": "我们在调查这个问题。"
+    },
+    "谢谢": {
+      "id": 98160,
+      "path": "/art/words/98160.webp",
+      "bytes": 23580,
+      "sha256": "0d65fdca173ea543325d886120c027be7f1166888624a211a2d7a01145ff382a",
+      "sentence": "谢谢你！"
+    },
+    "警察": {
+      "id": 98326,
+      "path": "/art/words/98326.webp",
+      "bytes": 36440,
+      "sha256": "475052b7a023592d75e569f82eaa17b8ef00a8edb5cae02cacd0870847399dc8",
+      "sentence": "他是警察。"
+    },
+    "负责": {
+      "id": 99147,
+      "path": "/art/words/99147.webp",
+      "bytes": 30222,
+      "sha256": "440ce12eab2a95ef61c8609f2de9570cf00f2e703423f44ce9a2d05140034bb3",
+      "sentence": "我负责做饭。"
+    },
+    "责任": {
+      "id": 99383,
+      "path": "/art/words/99383.webp",
+      "bytes": 17916,
+      "sha256": "8685e0867db27448e7f28ccf69a77a4072af20edb879b19a41db582278a474b6",
+      "sentence": "这是我的责任。"
+    },
+    "资料": {
+      "id": 99686,
+      "path": "/art/words/99686.webp",
+      "bytes": 30182,
+      "sha256": "572699de1fa7fd6148088901ede41dc0ced1121bd8666a029edc9cfcb609e925",
+      "sentence": "这是我的资料。"
+    },
+    "起来": {
+      "id": 100472,
+      "path": "/art/words/100472.webp",
+      "bytes": 25008,
+      "sha256": "9eaa62d38afc8cd6afc7e9493ae39c04c03083b2cd8c0e4c166feeaa0133cd33",
+      "sentence": "我们一起站起来。"
+    },
+    "超过": {
+      "id": 100696,
+      "path": "/art/words/100696.webp",
+      "bytes": 22218,
+      "sha256": "b1c50ed64e373c4445ea116357299b2c60bb89cc950f65a0b31ccefe3ded7e32",
+      "sentence": "他的年龄超过了三十岁。"
+    },
+    "越来越": {
+      "id": 100719,
+      "path": "/art/words/100719.webp",
+      "bytes": 18096,
+      "sha256": "bbf350b8c2596241fb0bea27f1a3ce3b28b1f8f337167fa7ec369e90f611e0fc",
+      "sentence": "天气越来越冷了。"
+    },
+    "路上": {
+      "id": 101147,
+      "path": "/art/words/101147.webp",
+      "bytes": 31610,
+      "sha256": "02a3f4874b07e4be5b46ec398d556ae30646fc738b560d749e177868d514e641",
+      "sentence": "我在路上看见了一只猫。"
+    },
+    "身上": {
+      "id": 101593,
+      "path": "/art/words/101593.webp",
+      "bytes": 20092,
+      "sha256": "6ed6e861d5409db33002f797ddb2f3f900799ae9bd734230fb5522704231deba",
+      "sentence": "我身上没有钱。"
+    },
+    "身体": {
+      "id": 101671,
+      "path": "/art/words/101671.webp",
+      "bytes": 13582,
+      "sha256": "c04306c359a8589cc5dade790a548a5ff78983f84840e9cbf68ea45b41f4c7f5",
+      "sentence": "我身体很好。"
+    },
+    "身边": {
+      "id": 101663,
+      "path": "/art/words/101663.webp",
+      "bytes": 23658,
+      "sha256": "3d0519cc03a389521100d0e7310bd58604ec3cd3a8d56b9991706430e922463e",
+      "sentence": "他一直在我身边。"
+    },
+    "过去": {
+      "id": 104445,
+      "path": "/art/words/104445.webp",
+      "bytes": 27872,
+      "sha256": "70eb126a189e881c79119bbdc2c8358e0b889687f760c515dd062487a812802b",
+      "sentence": "他过去是老师。"
+    },
+    "过来": {
+      "id": 104435,
+      "path": "/art/words/104435.webp",
+      "bytes": 23126,
+      "sha256": "4932e2df1a81ebc1e8d29719479ff43b9c78f0e0a9e48bdc38b9c0c06f1328a1",
+      "sentence": "你过来一下。"
+    },
+    "过程": {
+      "id": 104535,
+      "path": "/art/words/104535.webp",
+      "bytes": 31360,
+      "sha256": "ba652dd3ac5b21860cb00462b011c75a20225400b1e5e8321feb9aefbb4d40f1",
+      "sentence": "学习是一个过程。"
+    },
+    "运动": {
+      "id": 104342,
+      "path": "/art/words/104342.webp",
+      "bytes": 27002,
+      "sha256": "c72654a057b3ad0fc03ee944daac87739445708b49723a71815dc80a8aacce85",
+      "sentence": "我每天运动。"
+    },
+    "还是": {
+      "id": 105299,
+      "path": "/art/words/105299.webp",
+      "bytes": 31514,
+      "sha256": "62e78e7b90339ee49de5978b59a9f315ed286b22b53283f1ecfe19d2214604d4",
+      "sentence": "你想喝茶还是咖啡？"
+    },
+    "还有": {
+      "id": 105301,
+      "path": "/art/words/105301.webp",
+      "bytes": 10430,
+      "sha256": "9a72c4eb96977ce7b7b83d47327bff737432491c695ccc8a3ed04bbd08e33787",
+      "sentence": "还有一杯茶。"
+    },
+    "这么": {
+      "id": 103632,
+      "path": "/art/words/103632.webp",
+      "bytes": 17818,
+      "sha256": "1d55cd4d2aa2fe8327c4cb6bca5023596a1ade342abd287c395f2efbbb633915",
+      "sentence": "他怎么这么高？"
+    },
+    "这些": {
+      "id": 103601,
+      "path": "/art/words/103601.webp",
+      "bytes": 15414,
+      "sha256": "9b619eaa3a72295bc5e8bb2443642c9ee94f8361fd5b5e98d2078ce4d059d650",
+      "sentence": "这些书很好。"
+    },
+    "这样": {
+      "id": 103619,
+      "path": "/art/words/103619.webp",
+      "bytes": 16348,
+      "sha256": "e7ad2e3553a437e2392d28afd97453feb91e048d493645b17b037cb418b7f650",
+      "sentence": "这样做很好。"
+    },
+    "这里": {
+      "id": 103625,
+      "path": "/art/words/103625.webp",
+      "bytes": 18150,
+      "sha256": "e76a7c9792f0c931ddb9455e8a7999c44bb27763074e97a99a192d0d7c739c0b",
+      "sentence": "我在这里。"
+    },
+    "进入": {
+      "id": 104112,
+      "path": "/art/words/104112.webp",
+      "bytes": 23058,
+      "sha256": "b0fc4198fc6295fcf3be12ec8e594ebf29cabac7851188619f0f3e332a8ced95",
+      "sentence": "他进入了房间。"
+    },
+    "进去": {
+      "id": 104119,
+      "path": "/art/words/104119.webp",
+      "bytes": 13852,
+      "sha256": "99bebf0ff30933cf1ea6567ac50711826707a1db894cde08a11f3c38da444f83",
+      "sentence": "我进去看看。"
+    },
+    "进来": {
+      "id": 104109,
+      "path": "/art/words/104109.webp",
+      "bytes": 18264,
+      "sha256": "a0ec29b15ed2eefbe904c6e9b84c50d8e4d2a868fb7bbd35450c34761f841445",
+      "sentence": "请进来。"
+    },
+    "进行": {
+      "id": 104155,
+      "path": "/art/words/104155.webp",
+      "bytes": 22212,
+      "sha256": "79a00e3613ac93dace8b0ea753cdb2bf054978ce85d8bca58681a3a44b4629ab",
+      "sentence": "我们正在进行会议。"
+    },
+    "选手": {
+      "id": 105079,
+      "path": "/art/words/105079.webp",
+      "bytes": 27598,
+      "sha256": "c4122937a8f358776a691e42e15d1c215c2cb5df1c835b01518dbc01c18b7d35",
+      "sentence": "这位选手跑得很快。"
+    },
+    "选择": {
+      "id": 105081,
+      "path": "/art/words/105081.webp",
+      "bytes": 12798,
+      "sha256": "83160ce992aaf51467545e21102e10c1f83d64264e7d61309cf622ea33984863",
+      "sentence": "这是我的选择。"
+    },
+    "通知": {
+      "id": 103735,
+      "path": "/art/words/103735.webp",
+      "bytes": 33150,
+      "sha256": "f3a9bdb6dd79b032725e299ce701ef8941dd19de1fffdfa36c7b8c3dfae0e573",
+      "sentence": "我收到了一个通知。"
+    },
+    "通过": {
+      "id": 103793,
+      "path": "/art/words/103793.webp",
+      "bytes": 9740,
+      "sha256": "6128a81c5ef5fb678a759699efd8e2cde313db28fc28ef7aaaa07dc02bc2327a",
+      "sentence": "我通过了考试。"
+    },
+    "造成": {
+      "id": 103891,
+      "path": "/art/words/103891.webp",
+      "bytes": 36838,
+      "sha256": "754bf494fab37d00d9cc2210de2f1f21939dd4ce5fa09c94ab10947b75430dcb",
+      "sentence": "吸烟造成健康问题。"
+    },
+    "遇到": {
+      "id": 104265,
+      "path": "/art/words/104265.webp",
+      "bytes": 23378,
+      "sha256": "a938a22f51d6ec9d8fd18595db9f34c24371f3e5ca0680e81959b9756ff98f98",
+      "sentence": "我今天遇到了一个朋友。"
+    },
+    "道路": {
+      "id": 104664,
+      "path": "/art/words/104664.webp",
+      "bytes": 31942,
+      "sha256": "9e94c309b97f98c6b1a79043c528a47ff4511a65b386ccb4c419e11b307adef7",
+      "sentence": "这条道路很宽。"
+    },
+    "那么": {
+      "id": 105465,
+      "path": "/art/words/105465.webp",
+      "bytes": 19472,
+      "sha256": "8f63a3f720f135ceb8ef5b4b987a634c432731002a2ebdf2e092b397ac6546a9",
+      "sentence": "他那么高。"
+    },
+    "那些": {
+      "id": 105428,
+      "path": "/art/words/105428.webp",
+      "bytes": 18966,
+      "sha256": "848b38451b426254b0b035ddca3266bfbacd8c6d92d1bd39bad104b5a3f1d4db",
+      "sentence": "那些花儿很漂亮。"
+    },
+    "那时": {
+      "id": 105446,
+      "path": "/art/words/105446.webp",
+      "bytes": 25654,
+      "sha256": "5bd78b065ed95fc3326515bf91385045cb3a75a3bff1a598ebe7f6783183b2a2",
+      "sentence": "那时我很开心。"
+    },
+    "那样": {
+      "id": 105452,
+      "path": "/art/words/105452.webp",
+      "bytes": 20378,
+      "sha256": "f95d9ca9e705f9bf26f5e75949cf6a995be7177f349d159f28bb0f5e0011cecd",
+      "sentence": "他不要那样做。"
+    },
+    "那边": {
+      "id": 105461,
+      "path": "/art/words/105461.webp",
+      "bytes": 22352,
+      "sha256": "91c3fcc4fb3d56276bcb13bac2dd4edbdb974a992d13bd01055a7a4e174d482a",
+      "sentence": "他在那边。"
+    },
+    "那里": {
+      "id": 105457,
+      "path": "/art/words/105457.webp",
+      "bytes": 19178,
+      "sha256": "e1364f12332873790d1da88fbf462deaedc49b85459438b89d6a5110847b3549",
+      "sentence": "他在那里看书。"
+    },
+    "部分": {
+      "id": 105591,
+      "path": "/art/words/105591.webp",
+      "bytes": 8578,
+      "sha256": "6169d934a7d75ad96db44be00e86e2a851c5586f4ea6fcf8d9c9020ba95a0080",
+      "sentence": "这本书的部分内容很难。"
+    },
+    "部门": {
+      "id": 105606,
+      "path": "/art/words/105606.webp",
+      "bytes": 51444,
+      "sha256": "9589ff53808169c814b7764a9299b9d626f334210af8632646c2b590a83bae0b",
+      "sentence": "他在哪个部门工作？"
+    },
+    "酒店": {
+      "id": 106050,
+      "path": "/art/words/106050.webp",
+      "bytes": 17942,
+      "sha256": "a41c1d89dee11c2e1fcb3e72ef9a3150fbb149c677a5fe4335e81c8f91395db4",
+      "sentence": "我住在酒店。"
+    },
+    "里面": {
+      "id": 95017,
+      "path": "/art/words/95017.webp",
+      "bytes": 9740,
+      "sha256": "25d90093b7d5e10a0ab18d9c35f78ae070695271ea671d559c902933369477c7",
+      "sentence": "猫在盒子里面。"
+    },
+    "重新": {
+      "id": 106626,
+      "path": "/art/words/106626.webp",
+      "bytes": 26014,
+      "sha256": "d3b4baf91b183d94b7ad45d6684f3bdbaa6c881146b0e6bc814dfc5a17ab2abf",
+      "sentence": "请重新说一遍。"
+    },
+    "重点": {
+      "id": 106771,
+      "path": "/art/words/106771.webp",
+      "bytes": 31126,
+      "sha256": "9e956ccc33227b82573e97b7393e3aa4e7fdfdc44708b35907eb020ca9bc4305",
+      "sentence": "这是重点。"
+    },
+    "重要": {
+      "id": 106718,
+      "path": "/art/words/106718.webp",
+      "bytes": 29004,
+      "sha256": "901e60d2dad4887d01c325d7b182dc67b9bed721ab250ebbe8bf2015472baa4b",
+      "sentence": "这件事很重要。"
+    },
+    "银行": {
+      "id": 107540,
+      "path": "/art/words/107540.webp",
+      "bytes": 16418,
+      "sha256": "33adaf760e3e23487f931bf96e11bbd9b175e42e02171561feab5f383f6907ec",
+      "sentence": "我在银行存钱。"
+    },
+    "长大": {
+      "id": 108710,
+      "path": "/art/words/108710.webp",
+      "bytes": 22820,
+      "sha256": "5b43d617dd2cfed4df6f010f33ebd28e79ea87364e310de825228e8a08c96cef",
+      "sentence": "我想快点长大。"
+    },
+    "问题": {
+      "id": 21399,
+      "path": "/art/words/21399.webp",
+      "bytes": 43522,
+      "sha256": "e85dcb01fbe3b87362df1a48d7b4a61d409834eee25ac47df7cd858a94bbd0ed",
+      "sentence": "这是一个问题。"
+    },
+    "附近": {
+      "id": 110438,
+      "path": "/art/words/110438.webp",
+      "bytes": 40852,
+      "sha256": "c002c08621ff2182fe1900b25d68263ae0ad690ca7ed58c5a84876776646ef23",
+      "sentence": "我家附近有一个公园。"
+    },
+    "除了": {
+      "id": 110584,
+      "path": "/art/words/110584.webp",
+      "bytes": 9444,
+      "sha256": "461ba98a799ea2f6d6f1b88eb0710b40a1f383c0142d25fda9a1c5e46eb7e7b6",
+      "sentence": "除了苹果，我还吃了香蕉。"
+    },
+    "随便": {
+      "id": 111137,
+      "path": "/art/words/111137.webp",
+      "bytes": 37996,
+      "sha256": "5b9ce4e707c6b4a02a2579d0b8a040a1a4627666f03678422d83a95b5074df80",
+      "sentence": "随便吃什么都可以。"
+    },
+    "随时": {
+      "id": 111167,
+      "path": "/art/words/111167.webp",
+      "bytes": 16768,
+      "sha256": "01d69ec7db12a16ad2023712c1b7e3368a41c2810aeccf4e3a07e48158b1852c",
+      "sentence": "你可以随时来找我。"
+    },
+    "需要": {
+      "id": 112796,
+      "path": "/art/words/112796.webp",
+      "bytes": 31636,
+      "sha256": "5aab8517f10c6893aafcd4c7777fa1aef273e7b3135c62f5b3171c2903dc2123",
+      "sentence": "我需要喝水。"
+    },
+    "非常": {
+      "id": 113428,
+      "path": "/art/words/113428.webp",
+      "bytes": 28086,
+      "sha256": "aae2171594054840797444986f7614321d947e9c3755bb858165f97c6892ae24",
+      "sentence": "这本书非常好"
+    },
+    "面前": {
+      "id": 113547,
+      "path": "/art/words/113547.webp",
+      "bytes": 13016,
+      "sha256": "bd73131538293ce67bea8ec2c98fe1c517b9efc2a0919ea51c7ea0e25da61691",
+      "sentence": "他站在我面前。"
+    },
+    "面对": {
+      "id": 113562,
+      "path": "/art/words/113562.webp",
+      "bytes": 27188,
+      "sha256": "c7db6e035a0d2f666a21e3ac731c3b3b9abd1ef7a9c14e79a2a6286ee100a562",
+      "sentence": "我们要面对困难。"
+    },
+    "音乐": {
+      "id": 113908,
+      "path": "/art/words/113908.webp",
+      "bytes": 33398,
+      "sha256": "b35c99b10bc8da22a313b7b2ca87963068537042b4f15f93de458b8b489d6233",
+      "sentence": "我喜欢听音乐。"
+    },
+    "项目": {
+      "id": 114107,
+      "path": "/art/words/114107.webp",
+      "bytes": 50100,
+      "sha256": "1115ecb58a43501b307702b09f110c8f7743f82aee2cd7e6139c80ddda9e529a",
+      "sentence": "这个项目很好。"
+    },
+    "顺利": {
+      "id": 114118,
+      "path": "/art/words/114118.webp",
+      "bytes": 27516,
+      "sha256": "811519176e15f7d2277f88bfb70b38d7123172305f5904214ff0baf75cab07c6",
+      "sentence": "一切都很顺利。"
+    },
+    "颜色": {
+      "id": 114695,
+      "path": "/art/words/114695.webp",
+      "bytes": 14044,
+      "sha256": "8925637e435ff26d89f3730594ff005116629ca30e85fc9ba8bf01a2ce4bc32b",
+      "sentence": "这个颜色很好看。"
+    },
+    "飞机": {
+      "id": 115144,
+      "path": "/art/words/115144.webp",
+      "bytes": 25644,
+      "sha256": "046587f3419a35465b13a2f9958b2cc9a9eb40830988538017a20105d75e0634",
+      "sentence": "飞机在天上飞。"
+    },
+    "食物": {
+      "id": 115264,
+      "path": "/art/words/115264.webp",
+      "bytes": 33614,
+      "sha256": "b71a744dc38ec9b7256f45ec8812a9f1551ffcdb88fd5037a035d79a180a0f3e",
+      "sentence": "这是很好的食物。"
+    },
+    "首先": {
+      "id": 115741,
+      "path": "/art/words/115741.webp",
+      "bytes": 23282,
+      "sha256": "9c8dd8a2bb24085b938247e6487336fa935d96a447cc7176d5bce267dd40d3dd",
+      "sentence": "首先，我要喝水。"
+    },
+    "马上": {
+      "id": 115959,
+      "path": "/art/words/115959.webp",
+      "bytes": 18848,
+      "sha256": "993535e31fed282f5e8ddd63fcc72c1390e4a2ee1f2ffc5151d8f77c4a7a43f0",
+      "sentence": "我马上来。"
+    },
+    "高中": {
+      "id": 117039,
+      "path": "/art/words/117039.webp",
+      "bytes": 15096,
+      "sha256": "1dba51c94480fcd812db1f65614792876d9656a8cf89e86ec1f90406c64fc0f4",
+      "sentence": "他在上高中。"
+    },
+    "高兴": {
+      "id": 117329,
+      "path": "/art/words/117329.webp",
+      "bytes": 23904,
+      "sha256": "db40b3198cfa729474c7ec3a156f68ef188cc1c8722c1b338e7725be80a51fdd",
+      "sentence": "我很高兴。"
+    },
+    "高级": {
+      "id": 117298,
+      "path": "/art/words/117298.webp",
+      "bytes": 22842,
+      "sha256": "7b3e223b26eee36f7b7c189f610aa97283123dbdacfb3cd4b01490cda766d6f2",
+      "sentence": "这家餐厅很高级。"
+    },
+    "黑色": {
+      "id": 119597,
+      "path": "/art/words/119597.webp",
+      "bytes": 10308,
+      "sha256": "5c592b6a00b5e59f8dfa303ab58d94f9f2dd7ae936c80088fce1b389cd5a445c",
+      "sentence": "我的车是黑色的。"
+    }
+  }
+}

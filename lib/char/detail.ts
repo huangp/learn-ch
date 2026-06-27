@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import type { Db } from '../db';
 import { charComponents, characters, words } from '../../db/schema';
 import { cedictToToned } from '../annotate/cedict';
+import { getArtEntry } from '../art/manifest';
 
 const HAN = /\p{Script=Han}/u;
 
@@ -63,6 +64,8 @@ export interface WordDetail {
   pinyin: string | null;
   /** Word gloss from the lexicon, when available. */
   gloss: string | null;
+  /** Short Chinese example sentence, when the word has prebuilt art (from the committed manifest). */
+  exampleSentence: string | null;
   /** Per-character breakdown (Han chars only), for components + stroke animation. */
   chars: CharDetail[];
 }
@@ -79,5 +82,5 @@ export function getWordDetail(db: Db, word: string): WordDetail {
   const row = db.select({ pinyin: words.pinyin, gloss: words.gloss }).from(words).where(eq(words.word, word)).get();
   const pinyin = row?.pinyin ? (cedictToToned(row.pinyin, hanChars.length)?.join(' ') ?? null) : null;
 
-  return { word, pinyin, gloss: row?.gloss ?? null, chars };
+  return { word, pinyin, gloss: row?.gloss ?? null, exampleSentence: getArtEntry(word)?.sentence ?? null, chars };
 }

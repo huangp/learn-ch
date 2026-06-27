@@ -170,6 +170,9 @@ export function CharPanel({
         </CardHeader>
         <CardContent className="grid gap-3">
           {headerGloss && <p className="text-sm">{headerGloss}</p>}
+          {detail?.exampleSentence && (
+            <p className="rounded-md bg-muted px-3 py-2 text-base">{detail.exampleSentence}</p>
+          )}
           {hanChars.map((ch, i) => (
             <CharBreakdown key={i} char={ch} detail={detailByChar.get(ch)} showGlyph={hanChars.length > 1} />
           ))}

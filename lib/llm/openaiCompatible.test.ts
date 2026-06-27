@@ -94,6 +94,27 @@ describe('OpenAiCompatibleProvider', () => {
     expect(res.usage).toEqual({ inputTokens: 100, outputTokens: 20, cacheReadTokens: 0 });
   });
 
+  test('reasoning:false on OpenRouter disables reasoning via reasoning:{enabled:false}', async () => {
+    const { client, calls } = fakeClient();
+    const p = new OpenAiCompatibleProvider({ client, model: 'some/reasoner' });
+    await p.generate({ system: 'SYS', messages: [{ role: 'user', content: 'U1' }], reasoning: false });
+    expect(calls[0].reasoning).toEqual({ enabled: false });
+  });
+
+  test('reasoning is not sent by default, nor on a non-OpenRouter base URL', async () => {
+    const a = fakeClient();
+    await new OpenAiCompatibleProvider({ client: a.client }).generate({ system: 'S', messages: [{ role: 'user', content: 'U' }] });
+    expect(a.calls[0].reasoning).toBeUndefined();
+
+    const b = fakeClient();
+    await new OpenAiCompatibleProvider({ client: b.client, baseURL: 'https://api.moonshot.cn/v1' }).generate({
+      system: 'S',
+      messages: [{ role: 'user', content: 'U' }],
+      reasoning: false,
+    });
+    expect(b.calls[0].reasoning).toBeUndefined();
+  });
+
   describe('cacheMode (LLM_CACHE) with presets', () => {
     const cacheReq = { system: 'SYS', messages: [{ role: 'user' as const, content: 'U1' }], cache: true };
     const isCached = (msg: any) => Array.isArray(msg.content) && msg.content[0]?.cache_control != null;

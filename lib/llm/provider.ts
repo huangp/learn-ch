@@ -19,6 +19,13 @@ export interface LlmGenerateOptions {
    * Off by default: caching a one-shot prompt is a net loss (cache write, no read).
    */
   cache?: boolean;
+  /**
+   * Request the model to disable reasoning/thinking (`false` ⇒ off). For tasks that don't benefit
+   * from a think trace (e.g. a one-line example sentence), this saves tokens and avoids leaked
+   * `<think>` output. `undefined` leaves the provider/model default unchanged. Honored by the
+   * OpenRouter (OpenAI-compatible) provider; a no-op for Anthropic (thinking is opt-in there).
+   */
+  reasoning?: boolean;
 }
 
 export interface LlmUsage {
