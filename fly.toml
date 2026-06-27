@@ -3,7 +3,10 @@
 # AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, NEXTAUTH_URL/AUTH_URL.
 
 app = "hanzi-graded-reader"
-primary_region = "sjc"
+primary_region = "syd"
+# Grace period after SIGTERM before SIGKILL — time for instrumentation.ts to checkpoint the WAL and
+# close SQLite cleanly before a scale-to-zero stop. (Top-level machine setting, not [http_service].)
+kill_timeout = "10s"
 
 [build]
 
@@ -14,9 +17,11 @@ primary_region = "sjc"
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = "stop"
+  # Scale to zero when idle by SUSPENDING (freeze RAM → fast resume) rather than stopping.
+  # Still a SINGLE instance — suspend/resume keeps the one SQLite writer; do not scale count >1.
+  auto_stop_machines = "suspend"
   auto_start_machines = true
-  min_machines_running = 1   # keep one warm so the SQLite writer stays available
+  min_machines_running = 0
 
 [mounts]
   source = "hanzi_data"
