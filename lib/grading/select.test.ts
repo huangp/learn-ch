@@ -127,10 +127,25 @@ describe('selectDueChars', () => {
     expect([...dues].sort((a, b) => a - b)).toEqual(dues); // already ascending
   });
 
-  test('excludes non-review status', () => {
+  test('excludes new/mastered status (only review + learning are due)', () => {
     const learner = createLearner(t.db, 'exclude', {}, NOW);
     seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 3), 'hsk', NOW);
 
+    const soonest = selectDueChars(t.db, learner.id, 1)[0];
+    t.db
+      .update(learnerChars)
+      .set({ status: 'mastered' })
+      .where(and(eq(learnerChars.learnerId, learner.id), eq(learnerChars.charId, soonest)))
+      .run();
+
+    expect(selectDueChars(t.db, learner.id, 5)).not.toContain(soonest);
+  });
+
+  test('includes learning chars so they stay in rotation (consolidation, anti-stall)', () => {
+    const learner = createLearner(t.db, 'learning-due', {}, NOW);
+    seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 3), 'hsk', NOW);
+
+    // make the soonest-due char `learning` (a stalled, fallen-out-of-rotation char)
     const soonest = selectDueChars(t.db, learner.id, 1)[0];
     t.db
       .update(learnerChars)
@@ -138,7 +153,17 @@ describe('selectDueChars', () => {
       .where(and(eq(learnerChars.learnerId, learner.id), eq(learnerChars.charId, soonest)))
       .run();
 
-    expect(selectDueChars(t.db, learner.id, 5)).not.toContain(soonest);
+    // it's still returned (now eligible), and ordering stays by due asc
+    const out = selectDueChars(t.db, learner.id, 5);
+    expect(out).toContain(soonest);
+    const rows = t.db
+      .select({ charId: learnerChars.charId, due: learnerChars.due })
+      .from(learnerChars)
+      .where(and(eq(learnerChars.learnerId, learner.id), inArray(learnerChars.charId, out)))
+      .all();
+    const dueById = new Map(rows.map((r) => [r.charId, r.due!]));
+    const dues = out.map((id) => dueById.get(id)!);
+    expect([...dues].sort((a, b) => a - b)).toEqual(dues);
   });
 
   test('returns [] for maxDue <= 0', () => {

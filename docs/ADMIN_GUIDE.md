@@ -54,9 +54,9 @@ vocabulary*, nothing more.
 Prompt text lives in `/prompts/`; the dynamic, vocabulary-heavy part is assembled in code.
 
 - **`/prompts/generate.system.md`** — the system prompt: the HARD RULES, the tone/age guidance,
-  and the **output JSON schema**. The placeholders `{K}` and `{lengthChars}` are filled by
-  `buildSystemPrompt` in `lib/generation/prompt.ts` — leave them as literal `{K}` / `{lengthChars}`
-  in the file.
+  and the **output JSON schema**. The placeholders `{K}`, `{lengthMin}`, `{lengthMax}`, and
+  `{maxGlossed}` are filled by `buildSystemPrompt` in `lib/generation/prompt.ts` — leave them as
+  literal placeholders in the file.
 - **`/prompts/repair.user.md`** — the repair shell. Keep the `{issues}` placeholder; the engine
   fills it with the specific offending characters.
 - **The user prompt is code-assembled** in `lib/generation/prompt.ts` → `buildUserPrompt`. It
@@ -74,25 +74,56 @@ Prompt text lives in `/prompts/`; the dynamic, vocabulary-heavy part is assemble
 
 ---
 
-## 4. Tuning the generation constants
+## 4. Tuning the constants
 
-`lib/generation/constants.ts` — all provisional, meant to be tuned empirically:
+Two files of provisional, eval-tunable constants. **Re-run the evals (§6) after changing any
+generation constant.**
+
+### 4.1 Generation (`lib/generation/constants.ts`)
 
 | Constant | Controls | Move it… |
 | --- | --- | --- |
-| `K` (=2) | Min occurrences of each target char | **Up** = more re-encounters per target (harder to satisfy, better reinforcement); **down** = easier generation |
-| `DEFAULT_LENGTH_CHARS` (=100) | Default story length | **Up** for longer stories (band ~60–120); grows with the learner |
+| `K` (=3) | Min occurrences of each target char | **Up** = more re-encounters per target (harder to satisfy, better reinforcement); **down** = easier generation |
+| `DEFAULT_LENGTH_BAND` (={min:100, max:200}) | Fallback story length when there's *no* learner context | The per-learner curve ("grows with the learner") lives in `lib/story/length.ts` (`deriveLengthBand`, sourced from `docs/story_length.md`) — edit there for the growth curve |
 | `MAX_REPAIRS` (=4) | Repair attempts before fallback | **Up** = more chances to fix (slower, costlier); **down** = fail faster |
 | `KNOWN_COVERAGE_TARGET` (=0.95) | Coverage the engine *aims* for | This is also the eval's `meanKnownCoverage` bar — raise both together |
 | `KNOWN_COVERAGE_FLOOR` (=0.90) | **Hard** global gate — stories below this are rejected | **Up** = stricter/easier-to-read stories (more failures); **down** = more lenient |
-| `MIN_SENTENCE_COVERAGE` (=0.85) | Per-sentence floor (kills one unreadable sentence a global average hides) | **Up** = stricter; **down** = more lenient (most common cause of haiku failures) |
+| `MIN_SENTENCE_COVERAGE` (=0.75) | Per-sentence floor (kills one unreadable sentence a global average hides) | **Up** = stricter; **down** = more lenient (most common cause of haiku failures) |
+| `RELAX_KNOWN_THRESHOLD` (=500) | Below this known-char count, swap the % coverage floors for an absolute unknown-char budget (early learners) | **Up** = keep more learners in the lenient early-learner mode |
+| `MAX_UNKNOWN_CHARS` (=15) | In relaxed mode, max **distinct** unknown Han chars allowed in the body | **Up** = let tiny-vocab learners meet more new chars per story |
+| `MAX_GLOSSED_WORDS` (=10) | Max out-of-vocab words the model may use *if it declares each* in the `glossary` field (shown to the reader with pinyin + gloss) | **Up** = more coherence freedom; **down** = stricter vocabulary adherence |
 
-Two related knobs live elsewhere:
+Vocabulary cap lives elsewhere: **`DEFAULT_MAX_WORDS`** in `lib/allowlist/index.ts` (how many
+allowed words the model sees; bigger = more expressive but a longer prompt).
 
-- **Dwell threshold** — `DWELL_THRESHOLD_MS` in `components/Reader.tsx` (how long a sentence must
-  be on-screen to count as "read").
-- **Vocabulary cap** — `DEFAULT_MAX_WORDS` in `lib/allowlist/index.ts` (how many allowed words the
-  model sees; bigger = more expressive but a longer prompt).
+### 4.2 SRS / scheduling (`lib/srs/constants.ts`)
+
+These decide how a character moves **new → learning → review → mastered** and how often due
+characters resurface in stories. There is no automated regression for them yet (the §12
+coverage-vs-comprehension eval is still a stub — see "Current limitations"), so for now tune these
+by **judgment from real reading behaviour**, not a green/red gate.
+
+| Constant | Controls | Move it… |
+| --- | --- | --- |
+| `MIN_EXPOSURES_TO_REVIEW` (=3) | Exposures needed for the **question path** learning→review (alongside ≥1 correct comprehension answer) | **Up** = require more readings before a tested char advances |
+| `STABILITY_TO_REVIEW` (=21 days) | FSRS stability needed for the **passive path** learning→review — the **anti-stall** route for a char that *no comprehension question ever tested* | **Up** = demand more clean reads before promoting an untested char; **down** = promote sooner |
+| `PASSIVE_EXPOSURES_TO_REVIEW` (=6) | Exposures required *together with* `STABILITY_TO_REVIEW` for the passive path | **Up** = stricter passive promotion |
+| `MASTERY_STABILITY_DAYS` (=60) | FSRS stability for review→mastered | **Up** = harder to "master" (chars stay in review rotation longer); **down** = master sooner |
+
+> **Why the passive path exists:** without it, a target the LLM never writes a comprehension
+> question for could sit in `learning` forever — and a stalled `learning` char **blocks every
+> downstream curriculum character that needs it as a component** (a `learning` prerequisite doesn't
+> unlock its dependents). `STABILITY_TO_REVIEW` + `PASSIVE_EXPOSURES_TO_REVIEW` let accumulated
+> clean reads promote it instead. Keep the passive bars meaningfully *higher* than the question
+> path so a comprehension success stays the fast lane.
+
+Two related scheduling knobs:
+
+- **Signal → FSRS grade map** (`signalToRating` in the same file): tap-to-reveal & wrong answer →
+  *Again* (char resurfaces soon), correct answer → *Good*, read-past/dwell → *Hard* (a soft good).
+  Editing this changes how aggressively each reading signal moves a character.
+- **Dwell threshold** — `DWELL_THRESHOLD_MS` in `components/Reader.tsx`: how long a sentence must
+  be on-screen to count as "read" (this is what produces the dwell/*Hard* signal above).
 
 ---
 
@@ -155,11 +186,11 @@ harness. These are **real-LLM, on-demand** runs and need `ANTHROPIC_API_KEY`.
 - **Add a fixture** — append a `FixtureSpec` to `FIXTURE_SPECS` in `evals/fixtures.ts`:
 
   ```ts
-  { name: 'hsk2-sport', hsk: 2, targets: 3, maxDue: 3, lengthChars: 90, themes: ['sport'] },
+  { name: 'hsk2-sport', hsk: 2, targets: 3, maxDue: 3, lengthChars: { min: 250, max: 400 }, themes: ['sport'] },
   // bootstrap profile instead of hsk:
-  { name: 'beginner', bootstrapKnown: 30, targets: 2, maxDue: 0, lengthChars: 50, themes: ['friendship'] },
+  { name: 'beginner', bootstrapKnown: 30, targets: 2, maxDue: 0, lengthChars: { min: 40, max: 80 }, themes: ['friendship'] },
   // retell a story seed:
-  { name: 'hsk3-mulan', hsk: 3, targets: 3, maxDue: 3, lengthChars: 100, themes: [''], seedId: 'mulan' },
+  { name: 'hsk3-mulan', hsk: 3, targets: 3, maxDue: 3, lengthChars: { min: 400, max: 650 }, themes: [''], seedId: 'mulan' },
   ```
 
   Each fixture is seeded in an ephemeral DB and given targets/due by the real selectors, so it
@@ -273,8 +304,6 @@ volume**. (It is *not* deployable to Vercel as-is: serverless has an ephemeral f
 
 ## Current limitations (worth knowing)
 
-- No **settings page** yet — a learner's default persona/genre and display name are set only at
-  onboarding (genre is still overridable per story).
 - No **re-run placement** UI — an existing learner can't re-declare their known set from the app
   (the lib path exists and is non-downgrading, but it's unwired).
 - The §12 empirical coverage-vs-comprehension regression is still a stub (needs accumulated real

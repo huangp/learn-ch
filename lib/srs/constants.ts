@@ -6,8 +6,20 @@ import type { InteractionType } from '../interactions/record';
 /** review → mastered once FSRS stability (days) reaches this. */
 export const MASTERY_STABILITY_DAYS = 60;
 
-/** learning → review needs ≥ this many exposures AND ≥1 comprehension correct. */
+/** learning → review (question path): needs ≥ this many exposures AND ≥1 comprehension correct. */
 export const MIN_EXPOSURES_TO_REVIEW = 3;
+
+/**
+ * learning → review (passive fallback): a char the LLM never tests with a comprehension question
+ * can still promote on accumulated clean-read evidence, so it can't stall in `learning` forever
+ * (a stalled `learning` char blocks downstream curriculum chars that need it as a component).
+ * Requires BOTH: FSRS stability ≥ STABILITY_TO_REVIEW (days) AND exposures ≥ PASSIVE_EXPOSURES_TO_REVIEW.
+ * `STABILITY_TO_REVIEW` sits well under MASTERY_STABILITY_DAYS=60; since `pass`→Rating.Hard grows
+ * stability slowly, ~21d implies several clean reads, not one glance. Exposures bar is double the
+ * question path's, keeping the question path the fast lane. Provisional + eval-tunable (§10).
+ */
+export const STABILITY_TO_REVIEW = 21;
+export const PASSIVE_EXPOSURES_TO_REVIEW = 6;
 
 /**
  * The interaction signal a char carries in a story, worst-first. `gradeStory` reduces a

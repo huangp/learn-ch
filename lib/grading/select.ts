@@ -1,4 +1,4 @@
-import { and, asc, eq, isNotNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNotNull } from 'drizzle-orm';
 import type { Db } from '../db';
 import { charComponents, learnerChars } from '../../db/schema';
 import { buildCurriculum, computeFrontier } from './curriculum';
@@ -59,13 +59,19 @@ export function selectNewChars(db: Db, learnerId: number, n: number): number[] {
   return out;
 }
 
-/** §8.1 — soonest-due review chars (overdue first via `due ASC`), capped at `maxDue`. */
+/**
+ * §8.1 — soonest-due chars to weave in for review (overdue first via `due ASC`), capped at `maxDue`.
+ * Includes `learning` as well as `review` so a `learning` char keeps re-appearing and re-grading
+ * (accruing exposures + stability) until it promotes — otherwise it falls out of rotation
+ * (selectNewChars skips it too) and can stall in `learning`, blocking its downstream curriculum
+ * dependents.
+ */
 export function selectDueChars(db: Db, learnerId: number, maxDue: number): number[] {
   if (maxDue <= 0) return [];
   return db
     .select({ charId: learnerChars.charId })
     .from(learnerChars)
-    .where(and(eq(learnerChars.learnerId, learnerId), eq(learnerChars.status, 'review'), isNotNull(learnerChars.due)))
+    .where(and(eq(learnerChars.learnerId, learnerId), inArray(learnerChars.status, ['review', 'learning']), isNotNull(learnerChars.due)))
     .orderBy(asc(learnerChars.due))
     .limit(maxDue)
     .all()

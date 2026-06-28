@@ -107,8 +107,6 @@ Single Next.js app for v1. Generation runs server-side (Route Handler) with stre
 5. Parse IDS decomposition → `char_components` edges (see §6). Some IDS components are Traditional-only or non-character radical glyphs — map them to the always-available radical roots (§6.1) rather than dropping the edge.
 6. Emit a single seed migration + a checksum manifest so the seed is reproducible.
 
-**Acceptance:** `pnpm data:build` produces a populated SQLite file; `pnpm data:verify` asserts row counts, no orphan component edges, every HSK1 char resolvable.
-
 ### 5.3 Schema (Drizzle; abbreviated)
 
 ```ts
@@ -220,8 +218,6 @@ Per-learner progress is a pointer into `order` plus the SRS state. `selectNewCha
 ### 6.3 Teen payoff
 When introducing a 形声字, surface the component story in the reader's char panel: 妈 = 女 (meaning: female) + 马 (sound: mǎ→mā). This is the one place a **Socratic hook** earns its keep ("why might 妈 carry 女?") — viable for teens, not for young kids.
 
-**Acceptance:** curriculum is a valid topo order (no char before its required components); HSK1 chars cluster early; `selectNewChars` never returns a char with an unmet prerequisite.
-
 ---
 
 ## 7. Allowlist builder (Phase 2)
@@ -237,8 +233,6 @@ function buildAllowlist(learner, targetNewChars):
   return { allowedChars: allowed, allowedWords }
 ```
 Pass `allowedWords` (capped, e.g. top ~600 by frequency for the context window) to the model as the usable vocabulary. Always include the `targetNewChars` with example words that contain them.
-
-**Acceptance:** every word in `allowedWords` decomposes entirely into `allowedChars`; target chars each have ≥1 example word available.
 
 ---
 
@@ -352,8 +346,6 @@ function annotate(hanzi):
 - pinyin-pro handles heteronyms (行 háng/xíng) and tone sandhi presentation — your existing expertise.
 - Store both `hanzi` (raw) and `annotated` (JSON) on the story so the reader can toggle pinyin without recomputing.
 
-**Acceptance:** every char in body maps to a segment; pinyin present for all; heteronym test cases (行/重/长/还) resolve by context.
-
 ---
 
 ## 10. SRS — FSRS with invisible review (Phase 7)
@@ -367,8 +359,6 @@ function annotate(hanzi):
   - read past target char with no reveal → soft **good** (lower weight).
 - Promotion: `new → learning` on first introduction; `learning → review` after ≥M varied exposures **and** ≥1 successful comprehension check; `review → mastered` per FSRS stability threshold.
 
-**Acceptance:** simulated learner over N sessions shows due chars reliably reappearing in stories before their due date; reveals raise future frequency; clean recall promotes correctly.
-
 ---
 
 ## 11. Reader UI (Phase 5)
@@ -380,19 +370,9 @@ function annotate(hanzi):
 - **Minimal** gamification: a quiet "characters you can now read" counter and the comprehension-win moment; resist streaks/coins as primary drivers.
 - Progress view: curriculum frontier, mastered count, upcoming characters, the aspirational "reward text" (e.g. real 木兰辞) unlocking as coverage rises.
 
-**Acceptance:** reader renders annotated story; reveals + answers persist as interactions; choosing a branch produces a coherent continuation constrained to the same learner.
+### 11.1 Phase 5 follow-ups
 
-### 11.1 Phase 5 follow-ups (deferred during the initial build)
-
-The initial Phase 5 build delivered the core reading loop (onboard → generate+persist → read → tap-reveal → questions → branch). These pieces from §11 are **stubbed or not started** and remain open:
-
-- **Branch `seed` is not wired (stub).** `choices[].seed` (§8.5) is collected by `chooseBranchAction` but unused; continuations are themed by the human-readable choice **label** only (label → `theme`, parent body → `priorStory`). Follow-up: thread the structured `seed` into `generateAndPersistStory` for deterministic/templated branch continuation, so branches are reproducible rather than label-driven.
-- **`dwell` interaction — done.** `Reader.tsx` measures per-segment on-screen time (IntersectionObserver + zero-size sentinels) and emits one `dwell` per segment past `DWELL_THRESHOLD_MS` via batched `recordDwell` / `recordDwellAction`. Phase 7 grades it: a target/due char earns the §10 soft `pass` only with dwell evidence (an un-dwelled focus char becomes `unseen` → exposure-only when dwell data is present, legacy `pass` when not). Dwell never expands the SRS `focus` set, so incidental known chars aren't rescheduled.
-- **`learner_chars` counters untouched.** `exposures`/`reveals` are not incremented and no FSRS state changes — Phase 5 is capture-only by design; all `learner_chars` updates belong to **Phase 7** (SRS integration).
-- **Toggle-grid placement — UI not started.** The `fromToggleGrid` resolver exists (`lib/placement/index.ts`, §16.1 path 3), but no onboarding UI wires it; only HSK / paste / zero are exposed.
-- **hanzi-writer stroke animation — done.** `CharPanel.tsx` plays a stroke-order animation on char tap (+ Replay button). Stroke data is stored locally in a new `characters.stroke_data` column, seeded from makemeahanzi `graphics.txt` (`parseGraphics`/`build.ts`); `lib/char/strokes.ts` `getStrokeData` → `getStrokeDataAction` feeds hanzi-writer via a custom `charDataLoader` (no CDN; offline). Animation-only — interactive quiz/trace mode deferred.
-- **Done since this list was written:** toggle-grid placement onboarding, the "characters you can now read" counter, the progress view + aspirational reward-text unlock, and the narrator/companion persona.
-- **Narrator/companion persona — done.** A recurring companion (presets in `lib/persona/presets.ts`, no DB table) chosen at onboarding and stored as `learners.settings.personaId`. It threads into generation (`GenerationConfig.persona` → a COMPANION directive in `lib/generation/prompt.ts`; the name is force-added to the allowed set + vocab in `lib/generation/generate.ts` so it always validates) and recurs in every story incl. branches (resolved from settings in `lib/story/generate.ts`). Shown as chrome in the reader header (`components/Reader.tsx`) and a dashboard badge. `--persona <id>` exposes it in `pnpm story`.
+Implementation status — what shipped, what's stubbed (branch `seed`), and what's deferred — lives in **CLAUDE.md → "Reader UI + interaction capture (Phase 5 — done)"**, not here.
 
 ---
 
@@ -420,7 +400,7 @@ A generation system without an eval loop drifts blind. `/evals/`:
 | **4** | Annotation layer | deterministic pinyin/gloss/segmentation with heteronym tests passing |
 | **5** | Reader UI + interaction capture | a teen can read a story, reveal chars, answer Qs, pick a branch |
 | **7** | SRS integration | interactions update FSRS; due chars resurface in stories invisibly |
-| **8** | **Content & motivation layer** (§17): `StorySeed` abstraction + 3 seed sources, themes/genres, history/public-domain retellings, reward texts, progress dashboard | ✅ **DONE** (see §17.5). Learner steers theme **and genre presets**; seeds drive retellings via the existing engine; reward texts unlock; progress visible |
+| **8** | **Content & motivation layer** (§17): `StorySeed` abstraction + 3 seed sources, themes/genres, history/public-domain retellings, reward texts, progress dashboard | ✅ **DONE** (status in CLAUDE.md). Learner steers theme **and genre presets**; seeds drive retellings via the existing engine; reward texts unlock; progress visible |
 | **9** *(optional)* | **Verbatim prose-adaptation pipeline** (§18): coverage analyzer + chunker + meaning-preserving rewrite loop | public-domain source text can be faithfully rewritten down to the learner's band; copyright boundary enforced |
 
 > Build order note: do **6 before 3** (generation needs the curriculum to pick targets) and **2 before 3** (generation needs the allowlist). 4/5/7 follow once the heart is validated. **8** is content/motivation and reuses the engine unchanged. **9 is optional** and only worth building if verbatim source adaptation proves necessary — the import value in §17 is captured by seeds without it.
@@ -448,18 +428,8 @@ A generation system without an eval loop drifts blind. `/evals/`:
 /evals               # fixtures, runner, thresholds
 ```
 
-**CLAUDE.md seed (put at repo root):**
-```md
-# Project: Hanzi Graded Reader
-Goal: teach teens (11–15) to READ Chinese via personalized graded stories.
-Generation is constrained by a WORD allowlist (not char list) and validated at char level.
-LLM emits hanzi-only JSON; pinyin/gloss are added deterministically by pinyin-pro — never trust the model for pinyin.
-Curriculum is a component-aware topological order (a char never precedes its components).
-SRS (FSRS) drives WHICH due chars appear in the next story, not flashcards.
-Always keep the eval harness (/evals) green when touching /lib/generation or /prompts.
-Build order: Phase 0 → 1 → 2 → 6 → 3 (+evals) → 4 → 5 → 7 → 8.  Phase 9 (verbatim prose adaptation) is OPTIONAL — do not build unless explicitly requested.
-Import = produce a StorySeed (plot skeleton), then REGENERATE constrained text. Never display or redistribute copyrighted source prose; only public-domain works may be used verbatim (as reward texts) or rewritten (Phase 9).
-```
+**CLAUDE.md** is the authoritative operational guide at the repo root (project goal, build order,
+per-phase status, module map, tooling). This plan no longer embeds a draft seed of it.
 
 ---
 
@@ -522,12 +492,7 @@ This also makes "start from zero" a genuinely good first-run experience rather t
 
 ### 16.5 Acceptance criteria (Phase 1)
 
-- All four paths produce a valid `knownCharIds` set and route through the single `seedLearner`.
-- Paste path: non-matching / Traditional / non-CJK input is dropped without error; confirmation count is accurate.
-- Toggle-grid: bulk "know down to here" + fine toggles both reflected correctly in the committed set.
-- Seeding: known chars are `review` (never `mastered`); due dates are spread (no synchronized wall — assert spread over a window, not all equal); frontier points at the first unknown curriculum char.
-- A learner who declares HSK3 gets a first story whose `knownCoverage ≥ 0.95` **without** the story being dominated by forced review chars.
-- Zero-start learner enters bootstrap mode and receives a coherent, readable first story.
+Met — Phase 1 is done. See **CLAUDE.md → "Learner layer (Phase 1 — done)"** for the shipped behavior.
 
 ---
 
@@ -573,48 +538,14 @@ The engine takes a `StorySeed` + the learner's allowlist/targets/due and **regen
 **Rule of thumb: import plots, not prose. Regenerate, don't adapt.** This reuses the engine untouched and sidesteps the hard problem entirely.
 
 ### 17.4 Acceptance (Phase 8)
-- A learner can pick a theme and subsequent stories reflect it.
-- A `history` seed and a public-domain `work` seed each produce coherent graded stories via the **existing** generation engine (no new generation machinery).
-- Reward texts unlock when the learner's coverage of the specific text crosses the threshold; locked until then.
-- Progress dashboard reflects real SRS/curriculum state.
-- No copyrighted source prose is stored, displayed, or redistributed; `work` seeds carry attribution and a public-domain flag.
 
-### 17.5 Implementation status (DONE)
+Met — see §17.5.
 
-All four parts shipped, plus the §11 persona companion. They share **one pattern**: a preset list in
-code → resolve by id → inject a prompt directive → record the id in `stories.meta` → (persona/genre
-also persist the learner's default in `learners.settings`). **No DB migration was needed for any of
-them** — new "steers" ride in existing JSON columns. (See CLAUDE.md "Content & motivation layer
-(Phase 8)" for the precise modules and the dual-prompt threading rule.)
+### 17.5 Implementation status
 
-1. **Themes / genres** — `lib/genres/presets.ts` (`GENRES`, `getGenre`). Genre chips + free-text in
-   `GenerateStoryForm`; a default on `learners.settings.genreId` chosen at onboarding, overridable
-   per story. Precedence (`lib/story/generate.ts`): explicit per-story genre > a custom free-text
-   theme (**suppresses** the saved default) > saved default. Genres steer tone only (no allowlist
-   effect). Satisfies §17.4's "subsequent stories reflect it".
-2. **Seed-driven retellings** — `lib/seeds/` (`StorySeed`, `STORY_SEEDS`, `getStorySeed`,
-   `seedsBySource`); 3 sources (`authored`/`history`/`work`), one story per seed, picked via
-   `components/SeedLibrary.tsx` / `generateFromSeedAction` / CLI `--seed`. `allowNames` force-added
-   to the allowed set like a persona name. Every `work` seed carries `publicDomain` + `attribution`
-   (unit-tested copyright gate).
-3. **Reward texts** — `lib/progress/reward-texts.ts`; unlock at `REWARD_UNLOCK_THRESHOLD = 0.95`.
-4. **Progress dashboard** — `lib/progress/index.ts` + `app/learners/[id]/progress/page.tsx`.
-
-**Verification:** `pnpm typecheck`, `pnpm test`, `pnpm build` all green; `pnpm story --genre <id>` /
-`--seed <id>` / `--persona <id>` compose end-to-end.
-
-**Deferred (TODO):**
-- **Learner settings page** — no post-onboarding UI to edit the saved **default persona / genre** (or
-  display name). `updateLearner(db, id, { settings })` already merge-patches settings, so this is a
-  UI + server-action task (e.g. `app/learners/[id]/settings`) with **no schema work**. (done)
-- **Re-running placement (§16.1)** — *separate, heavier feature* from the settings page: let an
-  existing learner re-run placement (HSK / paste / toggle-grid / zero) to correct or expand their
-  known set. Unlike the persona/genre overwrite, this re-derives the known set and **merges into
-  `learner_chars`** — the lib path exists and is **non-downgrading** by design (`seedLearner` +
-  `onConflictDoNothing`), so reading-promoted chars are preserved. Reuse the `lib/placement` resolvers
-  and onboarding pickers; gate behind a confirmation since it touches real learning state.
-- Branch `choices[].seed` (§8.5) remains a stub — distinct from `StorySeed`.
-- §12 empirical coverage-band regression (needs accumulated reading data).
+Phase 8 is **DONE**. The shipped modules, the shared "preset → resolve by id → inject directive →
+record in `stories.meta`" pattern, the dual-prompt threading rule, and the deferred TODOs are
+documented in **CLAUDE.md → "Content & motivation layer (Phase 8 — done)"**.
 
 ---
 

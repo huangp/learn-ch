@@ -1,15 +1,21 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { and, eq } from 'drizzle-orm';
 import { makeTestDb, type TestDb } from '../test-utils';
-import { characters, learnerChars } from '../../db/schema';
+import { characters, charComponents, learnerChars } from '../../db/schema';
 import { createLearner } from '../learner/crud';
 import { seedLearner } from '../learner/seed';
 import { selfDeclareHsk } from '../placement/index';
+import { buildCurriculum } from '../grading/curriculum';
 import { selectDueChars, selectNewChars } from '../grading/select';
 import { createStory } from '../story/persist';
 import { recordDwell, recordQuestionResult, recordReveal } from '../interactions/record';
 import type { GenerationMeta, StoryJson } from '../generation/types';
-import { MASTERY_STABILITY_DAYS, MIN_EXPOSURES_TO_REVIEW } from './constants';
+import {
+  MASTERY_STABILITY_DAYS,
+  MIN_EXPOSURES_TO_REVIEW,
+  PASSIVE_EXPOSURES_TO_REVIEW,
+  STABILITY_TO_REVIEW,
+} from './constants';
 import { gradeStory, gradeUngradedStories } from './grade';
 
 const NOW = 1_750_000_000_000; // fixed epoch for deterministic scheduling
@@ -345,7 +351,105 @@ describe('acceptance — invisible review loop (§10)', () => {
   });
 });
 
+describe('gradeStory — passive fallback promotion (no comprehension question)', () => {
+  // Park a char in `learning` near the passive thresholds so one more clean read crosses them.
+  function setLearning(learnerId: number, charId: number, patch: Partial<typeof learnerChars.$inferInsert>) {
+    t.db
+      .update(learnerChars)
+      .set({ status: 'learning', difficulty: 5, due: NOW, lastReview: null, ...patch })
+      .where(and(eq(learnerChars.learnerId, learnerId), eq(learnerChars.charId, charId)))
+      .run();
+  }
+
+  test('a learning char read cleanly enough promotes to review with no question (anti-stall)', () => {
+    const learner = createLearner(t.db, 'passive-promote', {}, NOW);
+    seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 2), 'hsk', NOW);
+    const charId = selectNewCharsKnownDue(learner.id);
+    // high stability + one exposure short of the passive bar → a single clean read tips it over
+    setLearning(learner.id, charId, { stability: 40, exposures: PASSIVE_EXPOSURES_TO_REVIEW - 1 });
+    const c = charStr(charId);
+
+    const sid = makeStory(learner.id, c, [], [c]); // due char, dwell only — never a question
+    recordDwell(t.db, { storyId: sid, learnerId: learner.id, chars: [c], valueMs: 1500, now: NOW });
+    gradeStory(t.db, learner.id, sid, NOW);
+
+    const r = row(learner.id, charId)!;
+    expect(r.exposures).toBe(PASSIVE_EXPOSURES_TO_REVIEW);
+    expect(r.stability!).toBeGreaterThanOrEqual(STABILITY_TO_REVIEW);
+    expect(r.status).toBe('review');
+  });
+
+  test('weak signals never passive-promote, even past the exposure/stability bars', () => {
+    const learner = createLearner(t.db, 'passive-weak', {}, NOW);
+    seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 2), 'hsk', NOW);
+    const charId = selectNewCharsKnownDue(learner.id);
+    setLearning(learner.id, charId, { stability: 40, exposures: PASSIVE_EXPOSURES_TO_REVIEW - 1 });
+    const c = charStr(charId);
+
+    const sid = makeStory(learner.id, c, [], [c]);
+    recordReveal(t.db, { storyId: sid, learnerId: learner.id, char: c, now: NOW }); // tap-to-reveal = weakness
+    gradeStory(t.db, learner.id, sid, NOW);
+
+    expect(row(learner.id, charId)!.status).toBe('learning');
+  });
+
+  test('enough exposures but low stability does NOT promote (no count-only shortcut)', () => {
+    const learner = createLearner(t.db, 'passive-lowstab', {}, NOW);
+    seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 2), 'hsk', NOW);
+    const charId = selectNewCharsKnownDue(learner.id);
+    setLearning(learner.id, charId, { stability: 2, exposures: PASSIVE_EXPOSURES_TO_REVIEW + 5 });
+    const c = charStr(charId);
+
+    const sid = makeStory(learner.id, c, [], [c]);
+    recordDwell(t.db, { storyId: sid, learnerId: learner.id, chars: [c], valueMs: 1500, now: NOW });
+    gradeStory(t.db, learner.id, sid, NOW);
+
+    const r = row(learner.id, charId)!;
+    expect(r.stability!).toBeLessThan(STABILITY_TO_REVIEW);
+    expect(r.status).toBe('learning');
+  });
+
+  test('passive promotion unblocks a downstream curriculum char (headline regression)', () => {
+    const { c, pos, prereqs } = firstCharWithPrereq();
+    const order = buildCurriculum(t.db);
+    const known = order.slice(0, pos); // frontier = c; every prereq seeded `review`
+
+    const learner = createLearner(t.db, 'unblock', {}, NOW);
+    seedLearner(t.db, learner.id, known, 'hsk', NOW);
+    const prereq = prereqs[0];
+
+    // stall the prereq in `learning` → c is blocked (a learning prereq doesn't unlock its dependent)
+    setLearning(learner.id, prereq, { stability: 40, exposures: PASSIVE_EXPOSURES_TO_REVIEW - 1 });
+    expect(selectNewChars(t.db, learner.id, 10)).not.toContain(c);
+
+    // a clean read passive-promotes the prereq to review → c unblocks
+    const pc = charStr(prereq);
+    const sid = makeStory(learner.id, pc, [], [pc]);
+    recordDwell(t.db, { storyId: sid, learnerId: learner.id, chars: [pc], valueMs: 1500, now: NOW });
+    gradeStory(t.db, learner.id, sid, NOW);
+
+    expect(row(learner.id, prereq)!.status).toBe('review');
+    expect(selectNewChars(t.db, learner.id, 10)).toContain(c);
+  });
+});
+
 /** Pick a seeded (review-status) char for the learner — i.e. an existing learner_chars row. */
 function selectNewCharsKnownDue(learnerId: number): number {
   return t.db.select({ charId: learnerChars.charId }).from(learnerChars).where(eq(learnerChars.learnerId, learnerId)).get()!.charId;
+}
+
+/** First curriculum char with ≥1 prerequisite component, plus its position + prereq charIds. */
+function firstCharWithPrereq(): { c: number; pos: number; prereqs: number[] } {
+  const order = buildCurriculum(t.db);
+  const edges = t.db.select({ charId: charComponents.charId, componentId: charComponents.componentId }).from(charComponents).all();
+  const m = new Map<number, number[]>();
+  for (const e of edges) {
+    if (e.charId === e.componentId) continue;
+    (m.get(e.charId) ?? m.set(e.charId, []).get(e.charId)!).push(e.componentId);
+  }
+  for (let i = 0; i < order.length; i++) {
+    const deps = m.get(order[i]);
+    if (deps && deps.length > 0) return { c: order[i], pos: i, prereqs: deps };
+  }
+  throw new Error('no char with prerequisites in curriculum');
 }

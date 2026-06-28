@@ -5,6 +5,8 @@ import type { InteractionType } from '../interactions/record';
 import {
   MASTERY_STABILITY_DAYS,
   MIN_EXPOSURES_TO_REVIEW,
+  PASSIVE_EXPOSURES_TO_REVIEW,
+  STABILITY_TO_REVIEW,
   signalOfInteractions,
   signalToRating,
   type CharSignal,
@@ -31,10 +33,12 @@ function parseStrArray(raw: string | null): string[] {
 
 /**
  * §10/§16.3 status machine. Applied after FSRS scheduling, using the new stability and the
- * char's running exposure count. Promotions: new→learning on introduction; learning→review
- * after enough exposures + a comprehension correct; review→mastered past the stability
- * threshold. Self-correction: a weak signal (reveal/wrong) demotes an over-claimed mastered
- * char back to review (FSRS already pulls its due date in).
+ * char's running exposure count. Promotions: new→learning on introduction; learning→review via
+ * either the question path (enough exposures + a comprehension correct) OR a passive fallback
+ * (enough clean-read exposures + built-up stability, so a char the LLM never tests can't stall in
+ * `learning` forever); review→mastered past the stability threshold. Self-correction: a weak
+ * signal (reveal/wrong) demotes an over-claimed mastered char back to review (FSRS already pulls
+ * its due date in).
  */
 function nextStatus(
   cur: LearnerCharStatus,
@@ -47,8 +51,10 @@ function nextStatus(
     if (status === 'mastered') status = 'review'; // self-correction (§16.3)
     return status;
   }
-  if (status === 'learning' && signal === 'correct' && newExposures >= MIN_EXPOSURES_TO_REVIEW) {
-    status = 'review';
+  if (status === 'learning') {
+    const questionPath = signal === 'correct' && newExposures >= MIN_EXPOSURES_TO_REVIEW;
+    const passivePath = newStability >= STABILITY_TO_REVIEW && newExposures >= PASSIVE_EXPOSURES_TO_REVIEW;
+    if (questionPath || passivePath) status = 'review';
   }
   if (status === 'review' && newStability >= MASTERY_STABILITY_DAYS) {
     status = 'mastered';
