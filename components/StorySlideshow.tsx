@@ -83,8 +83,10 @@ export function StorySlideshow({
 
   const isKnown = slide != null && known.has(slide.word);
 
+  // Intentionally non-dismissable: no onOpenChange, so backdrop click / Escape can't close it.
+  // There's no way to reopen mid-generation, so closing is only via the buttons below.
   return (
-    <Dialog open onOpenChange={(open) => { if (!open) close(); }}>
+    <Dialog open>
       <DialogContent className="flex flex-col gap-4">
         <DialogTitle>{hasSlides ? 'Words you’ll meet' : 'Creating your story'}</DialogTitle>
 

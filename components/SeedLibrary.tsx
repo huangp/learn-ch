@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { generateFromSeedAction } from '@/app/actions';
+import { useRouter } from 'next/navigation';
+import { generateFromSeedAction, markWordsKnownAction } from '@/app/actions';
 import { seedsBySource } from '@/lib/seeds/presets';
 import type { StorySeed } from '@/lib/seeds/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGenerationToast } from '@/components/ui/toast';
+import { StorySlideshow, type Slide, type GenStatus } from '@/components/StorySlideshow';
 
 // Phase 8 (§17.2) — pick a plot skeleton; the engine retells it in the learner's vocabulary.
 const SECTION_LABELS: Record<StorySeed['source'], string> = {
@@ -18,13 +19,41 @@ const SECTION_LABELS: Record<StorySeed['source'], string> = {
 // Per-group page size — provisional, easily tuned. The pager only appears once a group exceeds it.
 const SEEDS_PER_PAGE = 4;
 
-export function SeedLibrary({ learnerId }: { learnerId: number }) {
+export function SeedLibrary({ learnerId, slides }: { learnerId: number; slides: Slide[] }) {
   const groups = seedsBySource();
   const [pending, startTransition] = useTransition();
-  const runGen = useGenerationToast();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState<GenStatus>({ kind: 'pending' });
+  const [seedId, setSeedId] = useState<string | null>(null);
 
-  function start(seedId: string) {
-    startTransition(() => runGen(() => generateFromSeedAction(learnerId, seedId)));
+  function start(id: string) {
+    setSeedId(id);
+    setStatus({ kind: 'pending' });
+    setOpen(true);
+    startTransition(async () => {
+      try {
+        const { storyId } = await generateFromSeedAction(learnerId, id);
+        setStatus({ kind: 'ready', storyId });
+      } catch (e) {
+        setStatus({ kind: 'error', message: e instanceof Error ? e.message : 'Generation failed. Please try again.' });
+      }
+    });
+  }
+
+  async function persistKnown(knownWords: string[]) {
+    if (knownWords.length > 0) await markWordsKnownAction(learnerId, knownWords);
+  }
+
+  async function handleStartReading(storyId: number, knownWords: string[]) {
+    await persistKnown(knownWords);
+    router.push(`/learners/${learnerId}/read/${storyId}`);
+  }
+
+  async function handleClose(knownWords: string[]) {
+    await persistKnown(knownWords);
+    setOpen(false);
+    router.refresh();
   }
 
   return (
@@ -37,6 +66,15 @@ export function SeedLibrary({ learnerId }: { learnerId: number }) {
         groups[source].length === 0 ? null : (
           <SeedGroup key={source} label={SECTION_LABELS[source]} seeds={groups[source]} pending={pending} onPick={start} />
         ),
+      )}
+      {open && (
+        <StorySlideshow
+          slides={slides}
+          status={status}
+          onStartReading={handleStartReading}
+          onClose={handleClose}
+          onRetry={() => seedId && start(seedId)}
+        />
       )}
     </div>
   );

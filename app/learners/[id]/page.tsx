@@ -103,7 +103,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
 
       <div className="mb-8 grid gap-8">
         <GenerateStoryForm learnerId={learnerId} slides={slides} />
-        <SeedLibrary learnerId={learnerId} />
+        <SeedLibrary learnerId={learnerId} slides={slides} />
       </div>
 
       <h2 className="mb-3 text-lg font-medium">Stories</h2>

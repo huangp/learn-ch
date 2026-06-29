@@ -75,12 +75,17 @@ export async function markWordsKnownAction(learnerId: number, knownWords: string
   revalidatePath(`/learners/${learnerId}`);
 }
 
-export async function generateFromSeedAction(learnerId: number, seedId: string): Promise<void> {
+export async function generateFromSeedAction(
+  learnerId: number,
+  seedId: string,
+): Promise<{ storyId: number }> {
   assertLearnerAccess(db, await requireSession(), learnerId);
   const llm = createLlmProvider();
   const story = await generateAndPersistStory(db, llm, learnerId, { seedId });
+  // Like generateStoryAction — don't redirect; the slideshow modal stays open until the learner
+  // clicks "Start reading" (the client navigates). Returns the new story id for that navigation.
   revalidatePath(`/learners/${learnerId}`);
-  redirect(`/learners/${learnerId}/read/${story.id}`);
+  return { storyId: story.id };
 }
 
 export async function chooseBranchAction(storyId: number, seed: string, label: string): Promise<void> {
