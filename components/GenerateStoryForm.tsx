@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { generateStoryAction, markWordsKnownAction } from '@/app/actions';
+import { generateStoryAction, markWordsKnownAction, loadMoreSlidesAction } from '@/app/actions';
 import { GENRES } from '@/lib/genres/presets';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -91,6 +91,7 @@ export function GenerateStoryForm({ learnerId, slides }: { learnerId: number; sl
           onStartReading={handleStartReading}
           onClose={handleClose}
           onRetry={generate}
+          loadMore={(exclude) => loadMoreSlidesAction(learnerId, exclude)}
         />
       )}
     </div>

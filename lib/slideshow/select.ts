@@ -9,8 +9,8 @@ import { artWords, getArtEntry } from '../art/manifest';
 // the most-common remaining art words backfill so the slideshow always has content. Pure DB read.
 
 const KNOWN_STATUSES = ['learning', 'review', 'mastered'] as const;
-// Wide horizon: the manifest is small (~80 words), so look well past the immediate frontier to find
-// art words the learner can already mostly read.
+// Wide horizon: look well past the immediate frontier to find art words the learner can already
+// mostly read (the manifest holds ~640 multi-char words, so there's a deep pool to draw from).
 const UPCOMING_HORIZON = 40;
 export const DEFAULT_SLIDE_COUNT = 8;
 
@@ -25,9 +25,15 @@ export interface Slide {
 
 const isHan = (c: string) => /\p{Script=Han}/u.test(c);
 
-export function selectSlideshowWords(db: Db, learnerId: number, n: number = DEFAULT_SLIDE_COUNT): Slide[] {
+export function selectSlideshowWords(
+  db: Db,
+  learnerId: number,
+  n: number = DEFAULT_SLIDE_COUNT,
+  exclude: Iterable<string> = [],
+): Slide[] {
   const artWordList = artWords();
   if (artWordList.length === 0 || n <= 0) return [];
+  const skip = new Set(exclude);
 
   const knownIds = new Set(
     db
@@ -58,6 +64,7 @@ export function selectSlideshowWords(db: Db, learnerId: number, n: number = DEFA
   type Cand = Slide & { freqRank: number | null; readable: boolean; teaches: boolean };
   const cands: Cand[] = [];
   for (const r of rows) {
+    if (skip.has(r.word)) continue; // already shown in an earlier slideshow batch
     const entry = getArtEntry(r.word);
     if (!entry || entry.bytes <= 0) continue; // need a real image for the slide
     const hanChars = [...r.word].filter(isHan);

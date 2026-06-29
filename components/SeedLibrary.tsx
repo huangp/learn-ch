@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { generateFromSeedAction, markWordsKnownAction } from '@/app/actions';
+import { generateFromSeedAction, markWordsKnownAction, loadMoreSlidesAction } from '@/app/actions';
 import { seedsBySource } from '@/lib/seeds/presets';
 import type { StorySeed } from '@/lib/seeds/types';
 import { Button } from '@/components/ui/button';
@@ -74,6 +74,7 @@ export function SeedLibrary({ learnerId, slides }: { learnerId: number; slides: 
           onStartReading={handleStartReading}
           onClose={handleClose}
           onRetry={() => seedId && start(seedId)}
+          loadMore={(exclude) => loadMoreSlidesAction(learnerId, exclude)}
         />
       )}
     </div>

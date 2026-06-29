@@ -44,6 +44,20 @@ describe('selectSlideshowWords', () => {
     expect(out.length).toBeLessThanOrEqual(8);
   });
 
+  test('excludes already-shown words and returns the next ranked batch (no overlap)', () => {
+    const learner = createLearner(t.db, 'hsk3-more', {}, NOW);
+    seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 3), 'hsk', NOW);
+
+    const first = selectSlideshowWords(t.db, learner.id, 5);
+    expect(first.length).toBeGreaterThan(0);
+
+    const firstWords = first.map((s) => s.word);
+    const next = selectSlideshowWords(t.db, learner.id, 5, firstWords);
+    expect(next.length).toBeGreaterThan(0);
+    // none of the next batch repeats the first
+    expect(next.some((s) => firstWords.includes(s.word))).toBe(false);
+  });
+
   test('returns [] for n <= 0', () => {
     const learner = createLearner(t.db, 'edge', {}, NOW);
     seedLearner(t.db, learner.id, selfDeclareHsk(t.db, 1), 'hsk', NOW);

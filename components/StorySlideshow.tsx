@@ -35,27 +35,49 @@ function useElapsedSeconds(active: boolean): number {
 }
 
 export function StorySlideshow({
-  slides,
+  slides: initialSlides,
   status,
   onStartReading,
   onClose,
   onRetry,
+  loadMore,
 }: {
   slides: Slide[];
   status: GenStatus;
   onStartReading: (storyId: number, knownWords: string[]) => void;
   onClose: (knownWords: string[]) => void;
   onRetry: () => void;
+  loadMore?: (exclude: string[]) => Promise<Slide[]>;
 }) {
+  const [slides, setSlides] = useState<Slide[]>(initialSlides);
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [known, setKnown] = useState<Set<string>>(() => new Set());
   const [busy, setBusy] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [exhausted, setExhausted] = useState(false);
   const elapsed = useElapsedSeconds(status.kind === 'pending');
 
   const slide = slides[idx];
   const hasSlides = slides.length > 0;
   const isLast = idx >= slides.length - 1;
+
+  // Auto-prefetch the next batch as the learner nears the end, so the waiting experience never
+  // dead-ends. Appending grows slides.length → the idx>=length-2 check goes false → loop stops.
+  useEffect(() => {
+    if (!loadMore || loadingMore || exhausted) return;
+    if (slides.length === 0 || idx < slides.length - 2) return;
+    setLoadingMore(true);
+    loadMore(slides.map((s) => s.word))
+      .then((more) => {
+        const seen = new Set(slides.map((s) => s.word));
+        const fresh = more.filter((s) => !seen.has(s.word));
+        if (fresh.length === 0) setExhausted(true);
+        else setSlides((prev) => [...prev, ...fresh]);
+      })
+      .catch(() => setExhausted(true))
+      .finally(() => setLoadingMore(false));
+  }, [idx, slides, loadMore, loadingMore, exhausted]);
 
   function next() {
     setRevealed(false);
@@ -134,8 +156,9 @@ export function StorySlideshow({
             <div className="flex w-full items-center justify-between text-sm text-muted-foreground">
               <span>
                 {idx + 1} / {slides.length}
+                {loadingMore && <span className="ml-2 opacity-70">loading more…</span>}
               </span>
-              <Button variant="outline" size="sm" onClick={next} disabled={isLast}>
+              <Button variant="outline" size="sm" onClick={next} disabled={isLast && (exhausted || !loadMore)}>
                 Next →
               </Button>
             </div>

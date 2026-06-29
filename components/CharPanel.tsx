@@ -20,6 +20,8 @@ export interface SelectedWord {
   chars: string[];
   /** §8.5 soft-gloss: an out-of-vocab word shown with always-on pinyin + gloss. */
   oov?: boolean;
+  /** Whether tapping records an SRS reveal signal. False for chrome (title/questions/choices). */
+  record?: boolean;
 }
 
 const ROLE_LABEL: Record<string, string> = {
@@ -133,8 +135,11 @@ export function CharPanel({
     let active = true;
     // Tap-to-reveal is a weakness signal (§10). The whole word is revealed, so record one reveal per
     // Han char — FSRS grades at the char level (lib/srs), so every char in the word gets the signal.
-    for (const ch of selected.chars) {
-      if (HAN.test(ch)) void recordInteractionAction({ storyId, learnerId, char: ch, type: 'reveal' });
+    // Chrome reveals (title/questions/choices, record:false) are navigation aids — no SRS signal.
+    if (selected.record !== false) {
+      for (const ch of selected.chars) {
+        if (HAN.test(ch)) void recordInteractionAction({ storyId, learnerId, char: ch, type: 'reveal' });
+      }
     }
     void getWordDetailAction(word).then((d) => {
       if (active) setDetail(d);

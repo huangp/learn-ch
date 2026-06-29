@@ -7,6 +7,7 @@ import { getSessionContext } from '@/lib/auth/session';
 import { getPersona } from '@/lib/persona/presets';
 import { getKnownChars } from '@/lib/allowlist/index';
 import { getStory, listStoriesForLearner } from '@/lib/story/persist';
+import { annotate } from '@/lib/annotate/index';
 import { computeStoryStats } from '@/lib/story/stats';
 import { getThreadContext } from '@/lib/story/thread';
 import { Reader } from '@/components/Reader';
@@ -29,6 +30,17 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
 
   const thread = getThreadContext(listStoriesForLearner(db, learnerId), story.id);
   const inSeries = thread != null && (thread.parent != null || thread.children.length > 0);
+
+  // Annotate the title / questions / choices at render time (deterministic pinyin-pro + CC-CEDICT,
+  // no LLM heteronym pass — fine for short chrome text) so they get the same tap-to-reveal as the
+  // body. Works for already-saved stories; no schema/persistence change.
+  const titleSegments = story.title ? annotate(db, story.title) : null;
+  const questions = story.questions.map((q) => ({
+    ...q,
+    qSegments: annotate(db, q.q),
+    optionSegments: q.options.map((o) => annotate(db, o)),
+  }));
+  const choices = story.choices.map((c) => ({ ...c, labelSegments: annotate(db, c.label) }));
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -69,10 +81,10 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
       <Reader
         storyId={story.id}
         learnerId={learnerId}
-        title={story.title}
+        titleSegments={titleSegments}
         segments={story.segments}
-        questions={story.questions}
-        choices={story.choices}
+        questions={questions}
+        choices={choices}
         bootstrap={learner.settings.bootstrap === true}
         persona={persona}
         captureInteractions={ctx.kind === 'child'}

@@ -3,9 +3,10 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { recordDwellAction } from '@/app/actions';
 import type { AnnotatedSegment } from '@/lib/annotate/index';
-import type { Choice, ComprehensionQuestion } from '@/lib/generation/types';
 import type { Persona } from '@/lib/persona/presets';
 import { CharPanel, type SelectedWord } from '@/components/CharPanel';
+import { SegmentView, RevealableText } from '@/components/RevealableText';
+import type { AnnotatedQuestion, AnnotatedChoice } from '@/components/reader-types';
 import { Questions } from '@/components/Questions';
 import { Choices } from '@/components/Choices';
 import { FinishButton } from '@/components/FinishButton';
@@ -142,56 +143,17 @@ function useSegmentDwell(storyId: number, learnerId: number, segments: Annotated
 interface ReaderProps {
   storyId: number;
   learnerId: number;
-  title: string | null;
+  titleSegments: AnnotatedSegment[] | null;
   segments: AnnotatedSegment[];
-  questions: ComprehensionQuestion[];
-  choices: Choice[];
+  questions: AnnotatedQuestion[];
+  choices: AnnotatedChoice[];
   bootstrap: boolean;
   persona?: Pick<Persona, 'emoji' | 'name' | 'nameEn' | 'tagline'> | null;
   /** False for adult preview: no dwell capture, no finish/grade (reading isn't the learner's). */
   captureInteractions: boolean;
 }
 
-function SegmentView({
-  seg,
-  showPinyin,
-  onPick,
-}: {
-  seg: AnnotatedSegment;
-  showPinyin: boolean;
-  onPick: (w: SelectedWord) => void;
-}) {
-  // Segments are either a single non-Han char (punctuation) or a run of Han (a word / single char).
-  const isHan = seg.chars.length > 0 && HAN.test(seg.chars[0]);
-  if (!isHan) {
-    return <span className="self-end pb-1 text-2xl text-muted-foreground">{seg.text}</span>;
-  }
-
-  // Context-aware reveal: the whole word is one tap target → the panel explains the word + each char.
-  // Out-of-vocab (glossed) words always show pinyin and are underlined so the reader spots them; the
-  // English gloss appears only in the tap panel (inline glosses break the wrap layout).
-  const showWordPinyin = showPinyin || seg.oov;
-  return (
-    <button
-      type="button"
-      onClick={() => onPick({ text: seg.text, pinyin: seg.pinyin, gloss: seg.gloss, chars: seg.chars, oov: seg.oov })}
-      className="inline-flex flex-col items-center rounded px-0.5 hover:bg-muted"
-    >
-      <span className="flex items-end">
-        {[...seg.chars].map((ch, i) => (
-          <span key={i} className="inline-flex flex-col items-center">
-            <span className="h-4 text-xs leading-4 text-muted-foreground">
-              {showWordPinyin ? seg.pinyin[i] ?? '' : ''}
-            </span>
-            <span className={`text-2xl leading-snug ${seg.oov ? 'border-b border-dotted border-amber-500' : ''}`}>{ch}</span>
-          </span>
-        ))}
-      </span>
-    </button>
-  );
-}
-
-export function Reader({ storyId, learnerId, title, segments, questions, choices, bootstrap, persona, captureInteractions }: ReaderProps) {
+export function Reader({ storyId, learnerId, titleSegments, segments, questions, choices, bootstrap, persona, captureInteractions }: ReaderProps) {
   const [showPinyin, setShowPinyin] = useState(bootstrap); // off by default; on in bootstrap (§16.4)
   const [selected, setSelected] = useState<SelectedWord | null>(null);
   const { setRef: setDwellRef, flushDwell } = useSegmentDwell(storyId, learnerId, segments, captureInteractions);
@@ -210,7 +172,11 @@ export function Reader({ storyId, learnerId, title, segments, questions, choices
         </div>
       )}
       <div className="mb-4 flex items-center justify-between">
-        {title && <h1 className="text-xl font-semibold">{title}</h1>}
+        {titleSegments && titleSegments.length > 0 && (
+          <h1 className="text-xl font-semibold">
+            <RevealableText segments={titleSegments} showPinyin={showPinyin} onPick={setSelected} charClassName="text-xl" record={false} />
+          </h1>
+        )}
         <label className="flex items-center gap-2 text-sm">
           <Switch checked={showPinyin} onCheckedChange={setShowPinyin} />
           <Label>Pinyin</Label>
@@ -228,13 +194,13 @@ export function Reader({ storyId, learnerId, title, segments, questions, choices
 
       {questions.length > 0 && (
         <div className="mt-10">
-          <Questions storyId={storyId} learnerId={learnerId} questions={questions} />
+          <Questions storyId={storyId} learnerId={learnerId} questions={questions} showPinyin={showPinyin} onPick={setSelected} />
         </div>
       )}
 
       {choices.length > 0 && (
         <div className="mt-10">
-          <Choices storyId={storyId} choices={choices} flushDwell={flushDwell} />
+          <Choices storyId={storyId} choices={choices} flushDwell={flushDwell} showPinyin={showPinyin} onPick={setSelected} />
         </div>
       )}
 

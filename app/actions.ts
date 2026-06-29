@@ -9,6 +9,7 @@ import { updateLearner } from '@/lib/learner/crud';
 import { setChildCredentials, CredentialError } from '@/lib/learner/credentials';
 import { generateAndPersistStory } from '@/lib/story/generate';
 import { markWordsKnown } from '@/lib/learner/mark-known';
+import { selectSlideshowWords, DEFAULT_SLIDE_COUNT, type Slide } from '@/lib/slideshow/select';
 import { getStory, hardDeleteStory, softDeleteStory } from '@/lib/story/persist';
 import { recordCompletion, recordDwell, recordInteraction, type InteractionType } from '@/lib/interactions/record';
 import { gradeStory } from '@/lib/srs/grade';
@@ -65,6 +66,12 @@ export async function generateStoryAction(
   // "Start reading" (the client navigates). Returns the new story id for that navigation.
   revalidatePath(`/learners/${learnerId}`);
   return { storyId: story.id };
+}
+
+/** Next batch of waiting-slideshow words, excluding ones already shown (see lib/slideshow/select). */
+export async function loadMoreSlidesAction(learnerId: number, exclude: string[]): Promise<Slide[]> {
+  assertLearnerAccess(db, await requireSession(), learnerId);
+  return selectSlideshowWords(db, learnerId, DEFAULT_SLIDE_COUNT, exclude);
 }
 
 /** Mark slideshow words as known (additive placement refinement; see lib/learner/mark-known). */
