@@ -38,3 +38,10 @@ export const MAX_UNKNOWN_CHARS = 15;
  * fails the per-sentence floor. Complementary to the small-vocab relaxed char budget above.
  */
 export const MAX_GLOSSED_WORDS = 10;
+
+/**
+ * Cross-learner story reuse (see lib/story/reuse.ts): max DISTINCT new chars a reused story may
+ * introduce to the recipient at once. The generator's default is 3 targets; allow a little slack
+ * so a near-fit story from a sibling on the same account still qualifies. Eval-tunable.
+ */
+export const MAX_REUSE_NEW_CHARS = 4;

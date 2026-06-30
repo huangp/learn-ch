@@ -112,6 +112,12 @@ export interface GenerationMeta {
   belowTarget?: boolean;
   /** Human-readable shortfalls when belowTarget (reuses describeFailures output). */
   shortfalls?: string[];
+  /** Cross-learner reuse (lib/story/reuse.ts): the source story this one was cloned from. */
+  reusedFromStoryId?: number;
+  /** Reuse attribution: the source learner (same parent account) whose story was reused. */
+  reusedFromLearnerId?: number;
+  /** Reuse attribution: the source learner's display name ("this story comes from learner X"). */
+  reusedFromLearnerName?: string;
 }
 
 export interface GenerationResult {

@@ -1,6 +1,6 @@
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNull, ne } from 'drizzle-orm';
 import type { Db } from '../db';
-import { stories } from '../../db/schema';
+import { learners, stories } from '../../db/schema';
 import type { AnnotatedSegment } from '../annotate/index';
 import type { Choice, ComprehensionQuestion, GenerationMeta, GlossaryEntry, StoryJson } from '../generation/types';
 
@@ -108,6 +108,80 @@ function toRecord(row: typeof stories.$inferSelect): StoryRecord {
 export function getStory(db: Db, id: number): StoryRecord | null {
   const row = db.select().from(stories).where(and(eq(stories.id, id), isNull(stories.deletedAt))).get();
   return row ? toRecord(row) : null;
+}
+
+/** A reuse candidate: a story owned by ANOTHER learner under the same account, + its owner's name. */
+export interface ReusableCandidate extends StoryRecord {
+  /** Display name of the source learner (same parent account) — the reuse attribution. */
+  sourceLearnerName: string;
+}
+
+/**
+ * Cross-learner reuse pool (lib/story/reuse.ts): live, non-branch stories owned by OTHER learners
+ * under the **same parent account** (`learners.ownerId`). The same-owner join is the privacy
+ * boundary — siblings on one account share stories; different families never do.
+ */
+export function listReusableCandidates(db: Db, learnerId: number, ownerId: string): ReusableCandidate[] {
+  return db
+    .select({ story: stories, name: learners.displayName })
+    .from(stories)
+    .innerJoin(learners, eq(stories.learnerId, learners.id))
+    .where(
+      and(
+        isNull(stories.deletedAt),
+        isNull(stories.parentStoryId),
+        ne(stories.learnerId, learnerId),
+        eq(learners.ownerId, ownerId),
+      ),
+    )
+    .all()
+    .map((r) => ({ ...toRecord(r.story), sourceLearnerName: r.name }));
+}
+
+export interface ReuseStoryInput {
+  learnerId: number;
+  /** The story being cloned (its body-derived content carries over verbatim). */
+  source: StoryRecord;
+  /** New chars this story teaches the RECIPIENT (their own targets, not the source's). */
+  targetChars: string[];
+  /** Recipient's due chars the body reinforces. */
+  dueChars: string[];
+  /** Reuse-tagged meta (source meta + reusedFrom* attribution). */
+  meta: GenerationMeta;
+  now?: number;
+}
+
+/**
+ * Clone a story for a different learner (same account). Copies the learner-agnostic content
+ * (title/hanzi/annotated segments+questions+choices+glossary) verbatim — no re-annotation, no LLM —
+ * but records the RECIPIENT's targets/due and a fresh `createdAt`. `parentStoryId` is null (a fresh
+ * story in the recipient's tree). Returns the new row id.
+ */
+export function reuseStory(db: Db, input: ReuseStoryInput): { id: number } {
+  const { source } = input;
+  const annotated: AnnotatedPayload = {
+    segments: source.segments,
+    questions: source.questions,
+    choices: source.choices,
+    glossary: source.glossary,
+  };
+  const row = db
+    .insert(stories)
+    .values({
+      learnerId: input.learnerId,
+      title: source.title,
+      hanzi: source.hanzi,
+      annotated: JSON.stringify(annotated),
+      targetChars: JSON.stringify(input.targetChars),
+      dueCharsUsed: JSON.stringify(input.dueChars),
+      theme: source.theme,
+      parentStoryId: null,
+      meta: JSON.stringify(input.meta),
+      createdAt: input.now ?? Date.now(),
+    })
+    .returning({ id: stories.id })
+    .get();
+  return { id: row.id };
 }
 
 /** Stories for a learner, newest first (excludes soft-deleted). */

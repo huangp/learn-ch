@@ -77,7 +77,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
           This story was a best effort — a few characters may be new or harder than usual.
         </div>
       ) : null}
-      <StoryMeta stats={stats} model={story.meta?.model ?? null} />
+      <StoryMeta stats={stats} model={story.meta?.model ?? null} reusedFrom={story.meta?.reusedFromLearnerName ?? null} />
       <Reader
         storyId={story.id}
         learnerId={learnerId}

@@ -290,6 +290,39 @@ actions: `generateStoryAction(learnerId, theme?, genreId?)`, `generateFromSeedAc
 - §12 empirical coverage-band regression (needs accumulated reading data).
 - Phase 9 (verbatim prose adaptation) is **OPTIONAL** — not started.
 
+## Cross-learner story reuse (done)
+
+Generation is slow (~6 serial LLM calls + a heteronym pass), but a persisted story's **content**
+(hanzi body, annotated pinyin/gloss, questions, choices, glossary) is **learner-agnostic** — only
+`learnerId`/`targetChars`/`dueCharsUsed`/`gradedAt` bind it. So a story made for one learner is
+**cloned for a sibling on the same account** when it fits, turning generation into an instant copy.
+
+**Key insight:** "does story S fit learner B?" is the *same two pure, no-LLM gates the generator
+already runs* — `validateChars` (readability) + `checkCoverage` (target ≥K + spread). The check is
+microsecond-cheap, so it runs **on-demand, inline in `generateAndPersistStory` before the LLM** — no
+scheduled job, no index. (A scheduled job would only pay off for large-scale content dedup later.)
+
+- `lib/story/reuse.ts` — `findReusableStory(db, learnerId, {targets, due, bootstrap})`. Scans
+  `listReusableCandidates` (live, non-branch stories from **other learners under the same
+  `learners.ownerId`** — the privacy boundary), and per candidate runs the readability + coverage
+  gates against B's state. **Story-driven match** (not strict): accepts any readable story whose
+  introduced new-chars are all valid frontier next-steps for B (≤ `MAX_REUSE_NEW_CHARS=4`), records
+  *those* as B's targets; ranks by overlap with B's preferred targets, then recency. Source
+  persona/seed proper-noun chars are force-added to B's allowed set so they don't flag.
+- `lib/story/persist.ts` — `listReusableCandidates` (same-`ownerId` join, carries the source
+  learner's `displayName`) + `reuseStory` (clones title/hanzi/annotated **verbatim** — no
+  re-annotation, no LLM — with B's targets/due + reuse-tagged meta, `parentStoryId = null`).
+- `lib/story/generate.ts` — the inline gate runs after catch-up grading, before `generateGradedStory`.
+  Only for a **plain next story** — skipped for branches (`priorStory`/`parentStoryId`) and seed
+  retellings (`seedId`); opt-out via `GenerateStoryOptions.reuse = false`. On a hit, returns the
+  clone; on a miss, the existing generation path is unchanged.
+- **Meta attribution (no schema migration — rides in `meta` JSON):** a reused story carries
+  `meta.model = 'reuse'` + `reusedFromStoryId` / `reusedFromLearnerId` / `reusedFromLearnerName`
+  (= source `learners.displayName`). The reader shows a **"📖 From \<sibling\>" badge** via
+  `StoryMeta` (`components/StoryMeta.tsx`, `reusedFrom` prop) in place of the model chip.
+- Phase 7 SRS grading (`lib/srs/grade.ts`) works on cloned rows **unchanged**. Tests:
+  `lib/story/reuse.test.ts` (owner rows need a `users` insert — FK on `ownerId`).
+
 ## App + tooling (read before touching imports or the build)
 
 - **Imports are extension-less; resolution is `Bundler` everywhere.** The project was migrated OFF the
