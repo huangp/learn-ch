@@ -8,6 +8,7 @@ import { onboardLearner, type OnboardMethod } from '@/lib/learner/onboard';
 import { updateLearner } from '@/lib/learner/crud';
 import { setChildCredentials, CredentialError } from '@/lib/learner/credentials';
 import { generateAndPersistStory } from '@/lib/story/generate';
+import { startJob, getJob, type JobStatus, type StartResult } from '@/lib/story/jobs';
 import { markWordsKnown } from '@/lib/learner/mark-known';
 import { selectSlideshowWords, DEFAULT_SLIDE_COUNT, type Slide } from '@/lib/slideshow/select';
 import { getStory, hardDeleteStory, softDeleteStory } from '@/lib/story/persist';
@@ -51,21 +52,23 @@ export async function onboardLearnerAction(formData: FormData): Promise<void> {
   redirect(`/learners/${learner.id}`);
 }
 
-export async function generateStoryAction(
+// Generation is backgrounded (lib/story/jobs): the action enqueues a job and returns a jobId
+// immediately instead of awaiting the ~6 serial LLM calls inline (which held the HTTP request
+// open and compounded CPU throttling). The client polls getGenerationStatusAction. No redirect —
+// the waiting-modal slideshow stays open until the learner clicks "Start reading" and navigates.
+export async function startGenerationAction(
   learnerId: number,
   theme?: string,
   genreId?: string,
-): Promise<{ storyId: number }> {
+): Promise<StartResult> {
   assertLearnerAccess(db, await requireSession(), learnerId);
   const llm = createLlmProvider();
-  const story = await generateAndPersistStory(db, llm, learnerId, {
-    theme: theme?.trim() || undefined,
-    genreId: genreId || undefined,
-  });
-  // Don't redirect here — the waiting-modal slideshow stays open until the learner clicks
-  // "Start reading" (the client navigates). Returns the new story id for that navigation.
-  revalidatePath(`/learners/${learnerId}`);
-  return { storyId: story.id };
+  return startJob(learnerId, () =>
+    generateAndPersistStory(db, llm, learnerId, {
+      theme: theme?.trim() || undefined,
+      genreId: genreId || undefined,
+    }),
+  );
 }
 
 /** Next batch of waiting-slideshow words, excluding ones already shown (see lib/slideshow/select). */
@@ -82,37 +85,41 @@ export async function markWordsKnownAction(learnerId: number, knownWords: string
   revalidatePath(`/learners/${learnerId}`);
 }
 
-export async function generateFromSeedAction(
+export async function startSeedGenerationAction(
   learnerId: number,
   seedId: string,
-): Promise<{ storyId: number }> {
+): Promise<StartResult> {
   assertLearnerAccess(db, await requireSession(), learnerId);
   const llm = createLlmProvider();
-  const story = await generateAndPersistStory(db, llm, learnerId, { seedId });
-  // Like generateStoryAction — don't redirect; the slideshow modal stays open until the learner
-  // clicks "Start reading" (the client navigates). Returns the new story id for that navigation.
-  revalidatePath(`/learners/${learnerId}`);
-  return { storyId: story.id };
+  return startJob(learnerId, () => generateAndPersistStory(db, llm, learnerId, { seedId }));
 }
 
-export async function chooseBranchAction(storyId: number, seed: string, label: string): Promise<{ storyId: number }> {
+export async function startBranchGenerationAction(storyId: number, seed: string, label: string): Promise<StartResult> {
   const ctx = await requireSession();
   assertStoryAccess(db, ctx, storyId);
   const parent = getStory(db, storyId);
   if (!parent) throw new Error(`story ${storyId} not found`);
   // An adult is previewing/curating, not the learner — don't record their reading as a completion.
-  if (ctx.kind !== 'adult') recordCompletion(db, { storyId, learnerId: parent.learnerId }); // branching concludes the parent reading
+  // Recorded now (at request time), before enqueuing, since branching concludes the parent reading.
+  if (ctx.kind !== 'adult') recordCompletion(db, { storyId, learnerId: parent.learnerId });
   const llm = createLlmProvider();
-  const next = await generateAndPersistStory(db, llm, parent.learnerId, {
-    theme: label,
-    priorStory: parent.hanzi,
-    parentStoryId: parent.id,
-    seed,
-  });
-  // Don't redirect — like generateFromSeedAction, the waiting-modal slideshow stays open until the
-  // learner clicks "Start reading" (the client navigates). Returns the new story id for that.
-  revalidatePath(`/learners/${parent.learnerId}`);
-  return { storyId: next.id };
+  return startJob(parent.learnerId, () =>
+    generateAndPersistStory(db, llm, parent.learnerId, {
+      theme: label,
+      priorStory: parent.hanzi,
+      parentStoryId: parent.id,
+      seed,
+    }),
+  );
+}
+
+/** Poll a backgrounded generation. Unknown id (e.g. after a process restart) → error so the UI retries. */
+export async function getGenerationStatusAction(
+  jobId: string,
+): Promise<{ status: JobStatus; storyId?: number; error?: string }> {
+  const job = getJob(jobId);
+  if (!job) return { status: 'error', error: 'Generation was interrupted. Please try again.' };
+  return { status: job.status, storyId: job.storyId, error: job.error };
 }
 
 // Reading-signal capture is the LEARNER's. An adult session owns/reviews the learner but isn't the

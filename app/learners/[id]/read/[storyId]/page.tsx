@@ -6,7 +6,7 @@ import { canAccessLearner } from '@/lib/auth/access';
 import { getSessionContext } from '@/lib/auth/session';
 import { getPersona } from '@/lib/persona/presets';
 import { getKnownChars } from '@/lib/allowlist/index';
-import { getStory, listStoriesForLearner } from '@/lib/story/persist';
+import { getStory, listStoryThreadMeta } from '@/lib/story/persist';
 import { annotate } from '@/lib/annotate/index';
 import { computeStoryStats } from '@/lib/story/stats';
 import { getThreadContext } from '@/lib/story/thread';
@@ -29,7 +29,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
   const persona = getPersona(learner.settings.personaId) ?? null;
   const stats = computeStoryStats(story.hanzi, getKnownChars(db, learnerId));
 
-  const thread = getThreadContext(listStoriesForLearner(db, learnerId), story.id);
+  const thread = getThreadContext(listStoryThreadMeta(db, learnerId), story.id);
   const inSeries = thread != null && (thread.parent != null || thread.children.length > 0);
 
   // Annotate the title / questions / choices at render time (deterministic pinyin-pro + CC-CEDICT,

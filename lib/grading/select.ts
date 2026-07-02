@@ -10,8 +10,15 @@ import { buildCurriculum, computeFrontier } from './curriculum';
 const KNOWN = ['learning', 'review', 'mastered']; // already introduced — never re-offer as new
 const PREREQ_READY = ['review', 'mastered']; // §6.2: a target's components must be solidly known
 
+// `char_components` is static at runtime (seeded by `pnpm data:build`), so cache the prereq map
+// per db handle instead of re-scanning the edge table on every selectNewChars call. Keyed by db
+// so per-test makeTestDb databases each get their own entry.
+const prereqCache = new WeakMap<Db, Map<number, number[]>>();
+
 /** Map charId → its prerequisite component charIds (distinct). */
 function prereqMap(db: Db): Map<number, number[]> {
+  const cached = prereqCache.get(db);
+  if (cached) return cached;
   const edges = db.select({ charId: charComponents.charId, componentId: charComponents.componentId }).from(charComponents).all();
   const m = new Map<number, number[]>();
   for (const e of edges) {
@@ -20,6 +27,7 @@ function prereqMap(db: Db): Map<number, number[]> {
     if (arr) arr.push(e.componentId);
     else m.set(e.charId, [e.componentId]);
   }
+  prereqCache.set(db, m);
   return m;
 }
 

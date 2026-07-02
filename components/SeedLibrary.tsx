@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { generateFromSeedAction, markWordsKnownAction, loadMoreSlidesAction } from '@/app/actions';
+import { startSeedGenerationAction, markWordsKnownAction, loadMoreSlidesAction } from '@/app/actions';
 import { seedsBySource } from '@/lib/seeds/presets';
 import type { StorySeed } from '@/lib/seeds/types';
+import { useGeneration } from '@/components/use-generation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { StorySlideshow, type Slide, type GenStatus } from '@/components/StorySlideshow';
+import { StorySlideshow, type Slide } from '@/components/StorySlideshow';
 
 // Phase 8 (§17.2) — pick a plot skeleton; the engine retells it in the learner's vocabulary.
 const SECTION_LABELS: Record<StorySeed['source'], string> = {
@@ -21,24 +22,16 @@ const SEEDS_PER_PAGE = 4;
 
 export function SeedLibrary({ learnerId, slides }: { learnerId: number; slides: Slide[] }) {
   const groups = seedsBySource();
-  const [pending, startTransition] = useTransition();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [status, setStatus] = useState<GenStatus>({ kind: 'pending' });
+  const { status, run } = useGeneration();
   const [seedId, setSeedId] = useState<string | null>(null);
+  const pending = open && status.kind === 'pending';
 
   function start(id: string) {
     setSeedId(id);
-    setStatus({ kind: 'pending' });
     setOpen(true);
-    startTransition(async () => {
-      try {
-        const { storyId } = await generateFromSeedAction(learnerId, id);
-        setStatus({ kind: 'ready', storyId });
-      } catch (e) {
-        setStatus({ kind: 'error', message: e instanceof Error ? e.message : 'Generation failed. Please try again.' });
-      }
-    });
+    run(() => startSeedGenerationAction(learnerId, id));
   }
 
   async function persistKnown(knownWords: string[]) {

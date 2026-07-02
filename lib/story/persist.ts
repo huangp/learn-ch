@@ -184,6 +184,28 @@ export function reuseStory(db: Db, input: ReuseStoryInput): { id: number } {
   return { id: row.id };
 }
 
+/** Minimal fields needed to reconstruct the branch forest (lib/story/thread) without the annotated blob. */
+export interface StoryThreadMeta {
+  id: number;
+  title: string | null;
+  parentStoryId: number | null;
+  createdAt: number;
+}
+
+/**
+ * Thread metadata for a learner's stories — id/title/parent/createdAt only, no `annotated` JSON
+ * parse. The reader page needs just this to show a story's series context; parsing every story's
+ * full annotated payload (listStoriesForLearner + toRecord) was wasted read-path work.
+ */
+export function listStoryThreadMeta(db: Db, learnerId: number): StoryThreadMeta[] {
+  return db
+    .select({ id: stories.id, title: stories.title, parentStoryId: stories.parentStoryId, createdAt: stories.createdAt })
+    .from(stories)
+    .where(and(eq(stories.learnerId, learnerId), isNull(stories.deletedAt)))
+    .orderBy(desc(stories.createdAt), desc(stories.id))
+    .all();
+}
+
 /** Stories for a learner, newest first (excludes soft-deleted). */
 export function listStoriesForLearner(db: Db, learnerId: number): StoryRecord[] {
   return db

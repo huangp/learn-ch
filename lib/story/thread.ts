@@ -1,4 +1,4 @@
-import type { StoryRecord } from './persist';
+import type { StoryRecord, StoryThreadMeta } from './persist';
 
 // Branch continuations ("What happens next?") persist `parentStoryId` (see persist.ts /
 // chooseBranchAction), so a learner's stories form a forest: each root (no parent) plus the
@@ -17,7 +17,7 @@ export interface ThreadNode {
   children: ThreadNode[];
 }
 
-const byCreatedAtAsc = (a: StoryRecord, b: StoryRecord): number =>
+const byCreatedAtAsc = <T extends { createdAt: number; id: number }>(a: T, b: T): number =>
   a.createdAt - b.createdAt || a.id - b.id;
 
 /** Build a node and its subtree from the children index. */
@@ -31,13 +31,13 @@ function buildNode(story: StoryRecord, part: number, childrenOf: Map<number, Sto
 }
 
 /** Index stories by id and group children by parent id. */
-function indexStories(stories: StoryRecord[]): {
-  byId: Map<number, StoryRecord>;
-  childrenOf: Map<number, StoryRecord[]>;
+function indexStories<T extends StoryThreadMeta>(stories: T[]): {
+  byId: Map<number, T>;
+  childrenOf: Map<number, T[]>;
 } {
-  const byId = new Map<number, StoryRecord>();
+  const byId = new Map<number, T>();
   for (const s of stories) byId.set(s.id, s);
-  const childrenOf = new Map<number, StoryRecord[]>();
+  const childrenOf = new Map<number, T[]>();
   for (const s of stories) {
     // A story is a root when it has no parent, or its parent isn't in this learner's set
     // (defensive — shouldn't happen, but never orphan a story out of the list).
@@ -50,7 +50,7 @@ function indexStories(stories: StoryRecord[]): {
   return { byId, childrenOf };
 }
 
-function isRoot(s: StoryRecord, byId: Map<number, StoryRecord>): boolean {
+function isRoot<T extends StoryThreadMeta>(s: T, byId: Map<number, T>): boolean {
   return s.parentStoryId == null || !byId.has(s.parentStoryId);
 }
 
@@ -89,10 +89,10 @@ export function flattenThread(node: ThreadNode): ThreadNode[] {
  * Parent + direct sequels + part number for one story, for the reader page. Returns null if the
  * story isn't in the list. `parent`/`children` empty means a standalone story (no series UI).
  */
-export function getThreadContext(
-  stories: StoryRecord[],
+export function getThreadContext<T extends StoryThreadMeta>(
+  stories: T[],
   storyId: number,
-): { parent: StoryRecord | null; children: StoryRecord[]; part: number } | null {
+): { parent: T | null; children: T[]; part: number } | null {
   const { byId, childrenOf } = indexStories(stories);
   const story = byId.get(storyId);
   if (!story) return null;

@@ -1,21 +1,22 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { generateStoryAction, markWordsKnownAction, loadMoreSlidesAction } from '@/app/actions';
+import { startGenerationAction, markWordsKnownAction, loadMoreSlidesAction } from '@/app/actions';
 import { GENRES } from '@/lib/genres/presets';
+import { useGeneration } from '@/components/use-generation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { StorySlideshow, type Slide, type GenStatus } from '@/components/StorySlideshow';
+import { StorySlideshow, type Slide } from '@/components/StorySlideshow';
 
 export function GenerateStoryForm({ learnerId, slides }: { learnerId: number; slides: Slide[] }) {
   const [theme, setTheme] = useState('');
   const [genreId, setGenreId] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [status, setStatus] = useState<GenStatus>({ kind: 'pending' });
+  const { status, run } = useGeneration();
+  const pending = open && status.kind === 'pending';
 
   function pickGenre(id: string) {
     setGenreId((cur) => (cur === id ? null : id)); // toggle
@@ -28,16 +29,8 @@ export function GenerateStoryForm({ learnerId, slides }: { learnerId: number; sl
   }
 
   function generate() {
-    setStatus({ kind: 'pending' });
     setOpen(true);
-    startTransition(async () => {
-      try {
-        const { storyId } = await generateStoryAction(learnerId, theme, genreId ?? undefined);
-        setStatus({ kind: 'ready', storyId });
-      } catch (e) {
-        setStatus({ kind: 'error', message: e instanceof Error ? e.message : 'Generation failed. Please try again.' });
-      }
-    });
+    run(() => startGenerationAction(learnerId, theme, genreId ?? undefined));
   }
 
   async function persistKnown(knownWords: string[]) {

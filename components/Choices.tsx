@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { chooseBranchAction, markWordsKnownAction, loadMoreSlidesAction } from '@/app/actions';
+import { startBranchGenerationAction, markWordsKnownAction, loadMoreSlidesAction } from '@/app/actions';
 import type { AnnotatedChoice } from '@/components/reader-types';
 import type { SelectedWord } from '@/components/CharPanel';
 import { RevealableText } from '@/components/RevealableText';
-import { StorySlideshow, type Slide, type GenStatus } from '@/components/StorySlideshow';
+import { useGeneration } from '@/components/use-generation';
+import { StorySlideshow, type Slide } from '@/components/StorySlideshow';
 import { Button } from '@/components/ui/button';
 
 export function Choices({
@@ -26,26 +27,20 @@ export function Choices({
   showPinyin: boolean;
   onPick: (w: SelectedWord) => void;
 }) {
-  const [pending, startTransition] = useTransition();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [status, setStatus] = useState<GenStatus>({ kind: 'pending' });
+  const { status, run } = useGeneration();
   const [picked, setPicked] = useState<AnnotatedChoice | null>(null);
+  const pending = open && status.kind === 'pending';
 
   function pick(choice: AnnotatedChoice) {
     setPicked(choice);
-    setStatus({ kind: 'pending' });
     setOpen(true);
-    startTransition(async () => {
-      try {
-        // Persist trailing dwell before branching — generating the next story grades this one, and
-        // grading is idempotent, so late dwell writes would otherwise be dropped.
-        await flushDwell();
-        const { storyId: nextId } = await chooseBranchAction(storyId, choice.seed, choice.label);
-        setStatus({ kind: 'ready', storyId: nextId });
-      } catch (e) {
-        setStatus({ kind: 'error', message: e instanceof Error ? e.message : 'Generation failed. Please try again.' });
-      }
+    run(async () => {
+      // Persist trailing dwell before branching — generating the next story grades this one, and
+      // grading is idempotent, so late dwell writes would otherwise be dropped.
+      await flushDwell();
+      return startBranchGenerationAction(storyId, choice.seed, choice.label);
     });
   }
 

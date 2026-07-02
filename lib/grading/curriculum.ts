@@ -74,7 +74,21 @@ export interface Curriculum {
  * IDS data can rarely contain cycles; any char never reaching indegree 0 is
  * appended at the end in frequency order and reported in `cycleCharIds`.
  */
+// The curriculum derives purely from `characters`/`char_components`, which are static at runtime
+// (written only by `pnpm data:build`). Cache per db handle so the full-table scans + topo sort
+// don't re-run on every request (twice per generation). Keyed by db so per-test makeTestDb
+// databases each get their own entry.
+const curriculumCache = new WeakMap<Db, Curriculum>();
+
 export function analyzeCurriculum(db: Db): Curriculum {
+  const cached = curriculumCache.get(db);
+  if (cached) return cached;
+  const curriculum = computeCurriculum(db);
+  curriculumCache.set(db, curriculum);
+  return curriculum;
+}
+
+function computeCurriculum(db: Db): Curriculum {
   const chars = db
     .select({ id: characters.id, freqRank: characters.freqRank })
     .from(characters)
