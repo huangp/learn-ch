@@ -161,58 +161,67 @@ export function Reader({ storyId, learnerId, titleSegments, segments, questions,
   const { setRef: setDwellRef, flushDwell } = useSegmentDwell(storyId, learnerId, segments, captureInteractions);
 
   return (
-    <div className="pb-48">
-      {persona && (
-        <div className="mb-4 flex items-center gap-3 rounded-md border bg-muted/40 p-3">
-          <span className="text-2xl" aria-hidden>
-            {persona.emoji}
-          </span>
-          <div className="text-sm">
-            <span className="font-medium">{persona.name}</span>
-            <span className="text-muted-foreground"> · {persona.tagline}</span>
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-8">
+      <div className="pb-48 lg:pb-8">
+        {persona && (
+          <div className="mb-4 flex items-center gap-3 rounded-md border bg-muted/40 p-3">
+            <span className="text-2xl" aria-hidden>
+              {persona.emoji}
+            </span>
+            <div className="text-sm">
+              <span className="font-medium">{persona.name}</span>
+              <span className="text-muted-foreground"> · {persona.tagline}</span>
+            </div>
           </div>
-        </div>
-      )}
-      <div className="mb-4 flex items-center justify-between">
-        {titleSegments && titleSegments.length > 0 && (
-          <h1 className="text-xl font-semibold">
-            <RevealableText segments={titleSegments} showPinyin={showPinyin} onPick={setSelected} charClassName="text-xl" record={false} />
-          </h1>
         )}
-        <label className="flex items-center gap-2 text-sm">
-          <Switch checked={showPinyin} onCheckedChange={setShowPinyin} />
-          <Label>Pinyin</Label>
-        </label>
+        <div className="mb-4 flex items-center justify-between">
+          {titleSegments && titleSegments.length > 0 && (
+            <h1 className="text-xl font-semibold">
+              <RevealableText segments={titleSegments} showPinyin={showPinyin} onPick={setSelected} charClassName="text-xl" record={false} />
+            </h1>
+          )}
+          <label className="flex items-center gap-2 text-sm">
+            <Switch checked={showPinyin} onCheckedChange={setShowPinyin} />
+            <Label>Pinyin</Label>
+          </label>
+        </div>
+
+        <div className="flex flex-wrap items-end gap-y-1">
+          {segments.map((seg, i) => (
+            <Fragment key={i}>
+              <span ref={setDwellRef(i)} aria-hidden className="inline-block h-px w-px" />
+              <SegmentView seg={seg} showPinyin={showPinyin} onPick={setSelected} />
+            </Fragment>
+          ))}
+        </div>
+
+        {questions.length > 0 && (
+          <div className="mt-10">
+            <Questions storyId={storyId} learnerId={learnerId} questions={questions} showPinyin={showPinyin} onPick={setSelected} />
+          </div>
+        )}
+
+        {choices.length > 0 && (
+          <div className="mt-10">
+            <Choices storyId={storyId} learnerId={learnerId} slides={slides} choices={choices} flushDwell={flushDwell} showPinyin={showPinyin} onPick={setSelected} />
+          </div>
+        )}
+
+        {captureInteractions && (
+          <div className="mt-10">
+            <FinishButton storyId={storyId} learnerId={learnerId} flushDwell={flushDwell} />
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-end gap-y-1">
-        {segments.map((seg, i) => (
-          <Fragment key={i}>
-            <span ref={setDwellRef(i)} aria-hidden className="inline-block h-px w-px" />
-            <SegmentView seg={seg} showPinyin={showPinyin} onPick={setSelected} />
-          </Fragment>
-        ))}
+      <div className="lg:sticky lg:top-8">
+        {!selected && (
+          <div className="hidden rounded-md border bg-muted/30 p-4 text-sm text-muted-foreground lg:block">
+            👆 Tap any character to see its pinyin, meaning, and stroke order.
+          </div>
+        )}
+        <CharPanel selected={selected} storyId={storyId} learnerId={learnerId} onClose={() => setSelected(null)} />
       </div>
-
-      {questions.length > 0 && (
-        <div className="mt-10">
-          <Questions storyId={storyId} learnerId={learnerId} questions={questions} showPinyin={showPinyin} onPick={setSelected} />
-        </div>
-      )}
-
-      {choices.length > 0 && (
-        <div className="mt-10">
-          <Choices storyId={storyId} learnerId={learnerId} slides={slides} choices={choices} flushDwell={flushDwell} showPinyin={showPinyin} onPick={setSelected} />
-        </div>
-      )}
-
-      {captureInteractions && (
-        <div className="mt-10">
-          <FinishButton storyId={storyId} learnerId={learnerId} flushDwell={flushDwell} />
-        </div>
-      )}
-
-      <CharPanel selected={selected} storyId={storyId} learnerId={learnerId} onClose={() => setSelected(null)} />
     </div>
   );
 }

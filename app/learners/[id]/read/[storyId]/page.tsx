@@ -45,7 +45,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
   const slides = selectSlideshowWords(db, learnerId, SLIDESHOW_PRELOAD_COUNT);
 
   return (
-    <main className="mx-auto max-w-2xl p-8">
+    <main className="mx-auto max-w-2xl p-8 lg:max-w-6xl">
       <div className="mb-6">
         <Button variant="ghost" render={<Link href={`/learners/${learnerId}`}>← {learner.displayName}</Link>} />
       </div>

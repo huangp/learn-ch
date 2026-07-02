@@ -157,8 +157,8 @@ export function CharPanel({
   const detailByChar = new Map((detail?.chars ?? []).map((d) => [d.char, d]));
 
   return (
-    <div className="fixed inset-x-0 bottom-0 flex justify-center p-4">
-      <Card className="max-h-[70vh] w-full max-w-md overflow-y-auto shadow-lg">
+    <div className="fixed inset-x-0 bottom-0 flex justify-center p-4 lg:static lg:block lg:p-0">
+      <Card className="max-h-[70vh] w-full max-w-md overflow-y-auto shadow-lg lg:max-h-[calc(100vh-4rem)] lg:max-w-none">
         <CardHeader className="flex flex-row items-start justify-between">
           <div className="flex items-baseline gap-3">
             <CardTitle className="text-4xl">{selected.text}</CardTitle>
