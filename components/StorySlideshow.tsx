@@ -60,11 +60,14 @@ export function StorySlideshow({
 
   const slide = slides[idx];
   const hasSlides = slides.length > 0;
-  const isLast = idx >= slides.length - 1;
 
   // Auto-prefetch the next batch as the learner nears the end, so the waiting experience never
   // dead-ends. Appending grows slides.length → the idx>=length-2 check goes false → loop stops.
   useEffect(() => {
+    // While generation is pending, `loadMore` (a Next server action) would only queue behind the
+    // in-flight generation action and hang. The preloaded deck (SLIDESHOW_PRELOAD_COUNT) is sized to
+    // cover the whole wait, so skip prefetch until generation resolves.
+    if (status.kind === 'pending') return;
     if (!loadMore || loadingMore || exhausted) return;
     if (slides.length === 0 || idx < slides.length - 2) return;
     setLoadingMore(true);
@@ -77,11 +80,15 @@ export function StorySlideshow({
       })
       .catch(() => setExhausted(true))
       .finally(() => setLoadingMore(false));
-  }, [idx, slides, loadMore, loadingMore, exhausted]);
+  }, [idx, slides, loadMore, loadingMore, exhausted, status.kind]);
 
   function next() {
     setRevealed(false);
-    setIdx((i) => Math.min(i + 1, slides.length - 1));
+    // Wrap around at the end so Next is never a dead button: while a story generates, the server
+    // serializes actions, so `loadMore` (another server action) is queued behind generation and
+    // can't append yet. Looping the loaded words keeps the carousel usable; the prefetch still
+    // extends it once fresh slides arrive.
+    setIdx((i) => (slides.length > 0 ? (i + 1) % slides.length : 0));
   }
   function toggleKnown() {
     if (!slide) return;
@@ -158,7 +165,7 @@ export function StorySlideshow({
                 {idx + 1} / {slides.length}
                 {loadingMore && <span className="ml-2 opacity-70">loading more…</span>}
               </span>
-              <Button variant="outline" size="sm" onClick={next} disabled={isLast && (exhausted || !loadMore)}>
+              <Button variant="outline" size="sm" onClick={next} disabled={slides.length <= 1}>
                 Next →
               </Button>
             </div>

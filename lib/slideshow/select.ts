@@ -13,6 +13,10 @@ const KNOWN_STATUSES = ['learning', 'review', 'mastered'] as const;
 // mostly read (the manifest holds ~640 multi-char words, so there's a deep pool to draw from).
 const UPCOMING_HORIZON = 40;
 export const DEFAULT_SLIDE_COUNT = 8;
+// Deck preloaded server-side (before generation starts) so the waiting slideshow has enough distinct
+// words to browse for the whole ~10–20s generation without a runtime loadMore — which, being a Next
+// server action, would only queue behind the in-flight generation. Deep pool (636), so this is cheap.
+export const SLIDESHOW_PRELOAD_COUNT = 48;
 
 export interface Slide {
   word: string;

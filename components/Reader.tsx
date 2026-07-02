@@ -9,6 +9,7 @@ import { SegmentView, RevealableText } from '@/components/RevealableText';
 import type { AnnotatedQuestion, AnnotatedChoice } from '@/components/reader-types';
 import { Questions } from '@/components/Questions';
 import { Choices } from '@/components/Choices';
+import type { Slide } from '@/components/StorySlideshow';
 import { FinishButton } from '@/components/FinishButton';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -147,13 +148,14 @@ interface ReaderProps {
   segments: AnnotatedSegment[];
   questions: AnnotatedQuestion[];
   choices: AnnotatedChoice[];
+  slides: Slide[];
   bootstrap: boolean;
   persona?: Pick<Persona, 'emoji' | 'name' | 'nameEn' | 'tagline'> | null;
   /** False for adult preview: no dwell capture, no finish/grade (reading isn't the learner's). */
   captureInteractions: boolean;
 }
 
-export function Reader({ storyId, learnerId, titleSegments, segments, questions, choices, bootstrap, persona, captureInteractions }: ReaderProps) {
+export function Reader({ storyId, learnerId, titleSegments, segments, questions, choices, slides, bootstrap, persona, captureInteractions }: ReaderProps) {
   const [showPinyin, setShowPinyin] = useState(bootstrap); // off by default; on in bootstrap (§16.4)
   const [selected, setSelected] = useState<SelectedWord | null>(null);
   const { setRef: setDwellRef, flushDwell } = useSegmentDwell(storyId, learnerId, segments, captureInteractions);
@@ -200,7 +202,7 @@ export function Reader({ storyId, learnerId, titleSegments, segments, questions,
 
       {choices.length > 0 && (
         <div className="mt-10">
-          <Choices storyId={storyId} choices={choices} flushDwell={flushDwell} showPinyin={showPinyin} onPick={setSelected} />
+          <Choices storyId={storyId} learnerId={learnerId} slides={slides} choices={choices} flushDwell={flushDwell} showPinyin={showPinyin} onPick={setSelected} />
         </div>
       )}
 

@@ -10,6 +10,7 @@ import { getStory, listStoriesForLearner } from '@/lib/story/persist';
 import { annotate } from '@/lib/annotate/index';
 import { computeStoryStats } from '@/lib/story/stats';
 import { getThreadContext } from '@/lib/story/thread';
+import { selectSlideshowWords, SLIDESHOW_PRELOAD_COUNT } from '@/lib/slideshow/select';
 import { Reader } from '@/components/Reader';
 import { StoryMeta } from '@/components/StoryMeta';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
     optionSegments: q.options.map((o) => annotate(db, o)),
   }));
   const choices = story.choices.map((c) => ({ ...c, labelSegments: annotate(db, c.label) }));
+  const slides = selectSlideshowWords(db, learnerId, SLIDESHOW_PRELOAD_COUNT);
 
   return (
     <main className="mx-auto max-w-2xl p-8">
@@ -85,6 +87,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
         segments={story.segments}
         questions={questions}
         choices={choices}
+        slides={slides}
         bootstrap={learner.settings.bootstrap === true}
         persona={persona}
         captureInteractions={ctx.kind === 'child'}

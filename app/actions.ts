@@ -95,7 +95,7 @@ export async function generateFromSeedAction(
   return { storyId: story.id };
 }
 
-export async function chooseBranchAction(storyId: number, seed: string, label: string): Promise<void> {
+export async function chooseBranchAction(storyId: number, seed: string, label: string): Promise<{ storyId: number }> {
   const ctx = await requireSession();
   assertStoryAccess(db, ctx, storyId);
   const parent = getStory(db, storyId);
@@ -109,8 +109,10 @@ export async function chooseBranchAction(storyId: number, seed: string, label: s
     parentStoryId: parent.id,
     seed,
   });
+  // Don't redirect — like generateFromSeedAction, the waiting-modal slideshow stays open until the
+  // learner clicks "Start reading" (the client navigates). Returns the new story id for that.
   revalidatePath(`/learners/${parent.learnerId}`);
-  redirect(`/learners/${parent.learnerId}/read/${next.id}`);
+  return { storyId: next.id };
 }
 
 // Reading-signal capture is the LEARNER's. An adult session owns/reviews the learner but isn't the
