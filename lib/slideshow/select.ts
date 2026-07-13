@@ -94,7 +94,7 @@ export function selectSlideshowWords(
   const chosen = cands.filter((c) => c.readable && c.teaches).sort(byFreq).slice(0, n);
   if (chosen.length < n) {
     const used = new Set(chosen.map((c) => c.word));
-    chosen.push(...cands.filter((c) => !used.has(c.word)).sort(byFreq).slice(0, n - chosen.length));
+    chosen.push(...cands.filter((c) => !used.has(c.word) && c.teaches).sort(byFreq).slice(0, n - chosen.length));
   }
   return chosen.map(({ word, imagePath, pinyin, gloss, sentence, charIds }) => ({ word, imagePath, pinyin, gloss, sentence, charIds }));
 }

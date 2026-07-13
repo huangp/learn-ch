@@ -15,6 +15,7 @@ import { annotate } from '../annotate/index';
 import { resolveHeteronyms } from '../annotate/llm';
 import { createStory, getStory, reuseStory, type StoryRecord } from './persist';
 import { findReusableStory } from './reuse';
+import { shuffleQuestionOptions } from './shuffle-options';
 
 // Phase 5 — persistent analog of cli/run-profile.ts `generateForProfile`, but against an
 // EXISTING learner and with the two steps the CLI/pure layer omit: the explicit
@@ -189,9 +190,11 @@ export async function generateAndPersistStory(
   }
   console.log(`[gen] done in ${elapsed()}s (model ${meta.model})`);
 
+  // Randomize option order so the correct answer isn't always the LLM's biased index (option A).
+  const persisted = { ...story, comprehensionQuestions: shuffleQuestionOptions(story.comprehensionQuestions) };
   const { id } = createStory(db, {
     learnerId,
-    story,
+    story: persisted,
     meta,
     segments,
     dueChars: resolveChars(db, dueCharIds),

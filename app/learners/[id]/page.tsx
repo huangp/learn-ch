@@ -21,6 +21,11 @@ import { Toaster } from '@/components/ui/toast';
 
 export const dynamic = 'force-dynamic';
 
+// Series indentation: 12px per depth level, capped so a long series never starves the card of
+// width. Beyond the cap parts align; the `Part N` title prefix still conveys depth.
+const INDENT_STEP = 12;
+const MAX_INDENT = 96;
+
 function StoryCard({
   story,
   learnerId,
@@ -34,24 +39,27 @@ function StoryCard({
   readCount: number;
   permanent: boolean;
 }) {
+  // Finished (read) stories collapse to a quiet title-only card so unread ones stand out.
+  const read = readCount > 0;
   return (
     <div className="relative">
       <Link href={`/learners/${learnerId}/read/${story.id}`}>
-        <Card className="transition-colors hover:bg-muted">
+        <Card size={read ? 'sm' : 'default'} className="transition-colors hover:bg-muted">
           <CardHeader>
-            <CardTitle className="pr-16 text-base">
+            <CardTitle className={read ? 'pr-16 text-base text-muted-foreground' : 'pr-16 text-base'}>
               {part != null ? <span className="mr-2 text-muted-foreground">Part {part}</span> : null}
               {story.title ?? 'Untitled'}
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            {readCount > 0 ? `📖 Read${readCount > 1 ? ` · ${readCount}×` : ''} · ` : ''}
-            ~{estimateReadingMinutes(story.hanzi)} min
-            <br />
-            targets: {story.targetChars.join(' ') || '—'}
-            {story.meta ? ` · coverage ${(story.meta.knownCoverage * 100).toFixed(0)}%` : ''}
-            {story.meta?.belowTarget ? ' · draft' : ''}
-          </CardContent>
+          {read ? null : (
+            <CardContent className="text-sm text-muted-foreground">
+              ~{estimateReadingMinutes(story.hanzi)} min
+              <br />
+              targets: {story.targetChars.join(' ') || '—'}
+              {story.meta ? ` · coverage ${(story.meta.knownCoverage * 100).toFixed(0)}%` : ''}
+              {story.meta?.belowTarget ? ' · draft' : ''}
+            </CardContent>
+          )}
         </Card>
       </Link>
       <div className="absolute right-2 top-2">
@@ -120,7 +128,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
                 </p>
                 <ul className="grid gap-3">
                   {nodes.map((node) => (
-                    <li key={node.story.id} style={{ marginLeft: (node.part - 1) * 16 }}>
+                    <li key={node.story.id} style={{ marginLeft: Math.min((node.part - 1) * INDENT_STEP, MAX_INDENT) }}>
                       <StoryCard
                         story={node.story}
                         learnerId={learnerId}
