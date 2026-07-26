@@ -22,6 +22,7 @@ export default async function Home() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Your readers</h1>
         <div className="flex items-center gap-1">
+          <Button variant="outline" render={<Link href="/documents/new">Upload a document</Link>} />
           <Button render={<Link href="/learners/new">New learner</Link>} />
           <SignOutButton />
         </div>

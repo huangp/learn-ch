@@ -16,8 +16,11 @@ import { recordCompletion, recordDwell, recordInteraction, type InteractionType 
 import { gradeStory } from '@/lib/srs/grade';
 import { getCharDetail, getWordDetail, type CharDetail, type WordDetail } from '@/lib/char/detail';
 import { getStrokeData, type StrokeData } from '@/lib/char/strokes';
-import { assertLearnerAccess, assertStoryAccess } from '@/lib/auth/access';
+import { assertLearnerAccess, assertStoryAccess, canAccessLearner, listAccessibleLearners, AccessError } from '@/lib/auth/access';
 import { requireAdult, requireSession } from '@/lib/auth/session';
+import { parseDocument, normalizeText } from '@/lib/document/parse';
+import { documentStats, coverageForLearners, type LearnerCoverage } from '@/lib/document/analyze';
+import { createDocumentStories } from '@/lib/document/persist';
 
 // Phase 5 server actions — thin wrappers over the lib service layer. All DB/LLM access
 // is server-side only (better-sqlite3 + the Anthropic key never reach the client).
@@ -218,4 +221,80 @@ export async function getWordDetailAction(word: string): Promise<WordDetail> {
 
 export async function getStrokeDataAction(char: string): Promise<StrokeData | null> {
   return getStrokeData(db, char);
+}
+
+// ---- Parent document upload (upload → preview → assign as a verbatim story) ----
+
+export interface DocumentPreview {
+  title: string;
+  /** Extracted, normalized text — held by the client and re-sent to assignDocumentAction. */
+  text: string;
+  totalChars: number;
+  uniqueHanCount: number;
+  coverage: LearnerCoverage[];
+  /** Non-fatal note (e.g. no Han chars) — the UI shows it and blocks confirm. */
+  warning?: string;
+  /** Fatal read error — the UI shows it; no preview produced. */
+  error?: string;
+}
+
+function emptyPreview(error: string): DocumentPreview {
+  return { title: '', text: '', totalChars: 0, uniqueHanCount: 0, coverage: [], error };
+}
+
+/**
+ * Parse an uploaded file (or pasted text) and return a readability preview: character count
+ * plus, for each child under this parent, the % of the document's distinct Han chars they
+ * already know / are learning / haven't met.
+ */
+export async function parseDocumentAction(formData: FormData): Promise<DocumentPreview> {
+  const ctx = await requireAdult();
+  const file = formData.get('file');
+  const pasteRaw = formData.get('text');
+  let title = String(formData.get('title') ?? '').trim();
+
+  let text: string;
+  try {
+    if (file instanceof File && file.size > 0) {
+      const parsed = await parseDocument(await file.arrayBuffer(), file.name, file.type || undefined);
+      text = parsed.text;
+      if (!title) title = file.name.replace(/\.[^.]+$/, '');
+    } else if (typeof pasteRaw === 'string' && pasteRaw.trim() !== '') {
+      text = normalizeText(pasteRaw);
+    } else {
+      return emptyPreview('Choose a file or paste some text first.');
+    }
+  } catch (e) {
+    return emptyPreview(e instanceof Error ? `Could not read the document: ${e.message}` : 'Could not read the document.');
+  }
+
+  const { totalChars, uniqueHanCount, hanChars } = documentStats(text);
+  const learners = listAccessibleLearners(db, ctx).map((l) => ({ id: l.id, displayName: l.displayName }));
+  const coverage = coverageForLearners(db, learners, hanChars);
+  const warning = uniqueHanCount === 0 ? 'No Chinese characters found in this document.' : undefined;
+
+  return { title, text, totalChars, uniqueHanCount, coverage, warning };
+}
+
+/**
+ * Publish the previewed document verbatim to the chosen children — one story row per child.
+ * Returns the number of readers it reached, or an error string for the UI to surface.
+ */
+export async function assignDocumentAction(
+  learnerIds: number[],
+  title: string,
+  text: string,
+): Promise<{ count: number } | { error: string }> {
+  const ctx = await requireAdult();
+  if (title.trim() === '') return { error: 'Please add a title.' };
+  if (learnerIds.length === 0) return { error: 'Select at least one reader.' };
+  if (text.trim() === '') return { error: 'The document is empty.' };
+  for (const id of learnerIds) {
+    if (!canAccessLearner(db, ctx, id)) throw new AccessError();
+  }
+
+  const results = createDocumentStories(db, learnerIds, title.trim(), text);
+  revalidatePath('/');
+  for (const r of results) revalidatePath(`/learners/${r.learnerId}`);
+  return { count: results.length };
 }

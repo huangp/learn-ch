@@ -32,36 +32,57 @@ function StoryCard({
   part,
   readCount,
   permanent,
+  isAdult,
 }: {
   story: StoryRecord;
   learnerId: number;
   part?: number;
   readCount: number;
   permanent: boolean;
+  isAdult: boolean;
 }) {
   // Finished (read) stories collapse to a quiet title-only card so unread ones stand out.
   const read = readCount > 0;
+  // Parent-uploaded stories get a subtle labeled frame (a friendly nudge that a human picked this).
+  const uploaded = story.meta?.model === 'upload';
+
+  const cardInner = (
+    <Link href={`/learners/${learnerId}/read/${story.id}`}>
+      <Card
+        size={read ? 'sm' : 'default'}
+        className={uploaded ? 'rounded-lg ring-0 transition-colors hover:bg-muted' : 'transition-colors hover:bg-muted'}
+      >
+        <CardHeader>
+          <CardTitle className={read ? 'pr-16 text-base text-muted-foreground' : 'pr-16 text-base'}>
+            {part != null ? <span className="mr-2 text-muted-foreground">Part {part}</span> : null}
+            {story.title ?? 'Untitled'}
+          </CardTitle>
+        </CardHeader>
+        {read ? null : (
+          <CardContent className="text-sm text-muted-foreground">
+            ~{estimateReadingMinutes(story.hanzi)} min
+            <br />
+            targets: {story.targetChars.join(' ') || '—'}
+            {story.meta ? ` · coverage ${(story.meta.knownCoverage * 100).toFixed(0)}%` : ''}
+            {story.meta?.belowTarget ? ' · draft' : ''}
+          </CardContent>
+        )}
+      </Card>
+    </Link>
+  );
+
   return (
     <div className="relative">
-      <Link href={`/learners/${learnerId}/read/${story.id}`}>
-        <Card size={read ? 'sm' : 'default'} className="transition-colors hover:bg-muted">
-          <CardHeader>
-            <CardTitle className={read ? 'pr-16 text-base text-muted-foreground' : 'pr-16 text-base'}>
-              {part != null ? <span className="mr-2 text-muted-foreground">Part {part}</span> : null}
-              {story.title ?? 'Untitled'}
-            </CardTitle>
-          </CardHeader>
-          {read ? null : (
-            <CardContent className="text-sm text-muted-foreground">
-              ~{estimateReadingMinutes(story.hanzi)} min
-              <br />
-              targets: {story.targetChars.join(' ') || '—'}
-              {story.meta ? ` · coverage ${(story.meta.knownCoverage * 100).toFixed(0)}%` : ''}
-              {story.meta?.belowTarget ? ' · draft' : ''}
-            </CardContent>
-          )}
-        </Card>
-      </Link>
+      {uploaded ? (
+        <fieldset className="rounded-xl border border-primary/40 px-1 pb-1">
+          <legend className="ml-3 px-1.5 text-xs font-medium text-primary">
+            {isAdult ? 'Shared by you' : 'Recommended by your parent'}
+          </legend>
+          {cardInner}
+        </fieldset>
+      ) : (
+        cardInner
+      )}
       <div className="absolute right-2 top-2">
         <DeleteStoryButton storyId={story.id} learnerId={learnerId} permanent={permanent} />
       </div>
@@ -135,6 +156,7 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
                         part={node.part}
                         readCount={readCounts.get(node.story.id) ?? 0}
                         permanent={ctx.kind === 'adult'}
+                        isAdult={ctx.kind === 'adult'}
                       />
                     </li>
                   ))}
@@ -146,7 +168,13 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
             <ul className="grid gap-3">
               {singletons.map((s) => (
                 <li key={s.id}>
-                  <StoryCard story={s} learnerId={learnerId} readCount={readCounts.get(s.id) ?? 0} permanent={ctx.kind === 'adult'} />
+                  <StoryCard
+                    story={s}
+                    learnerId={learnerId}
+                    readCount={readCounts.get(s.id) ?? 0}
+                    permanent={ctx.kind === 'adult'}
+                    isAdult={ctx.kind === 'adult'}
+                  />
                 </li>
               ))}
             </ul>

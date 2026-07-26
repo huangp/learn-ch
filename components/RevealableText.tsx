@@ -23,6 +23,10 @@ export function SegmentView({
   charClassName?: string;
   record?: boolean;
 }) {
+  // A newline segment is a hard line break: force a wrap in the flex-wrap body (an inline
+  // whitespace span would collapse to a space). Uploaded documents keep their paragraph breaks.
+  if (seg.text === '\n') return <span aria-hidden className="basis-full h-2" />;
+
   // Segments are either a single non-Han char (punctuation) or a run of Han (a word / single char).
   const isHan = seg.chars.length > 0 && HAN.test(seg.chars[0]);
   if (!isHan) {

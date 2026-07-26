@@ -323,6 +323,53 @@ scheduled job, no index. (A scheduled job would only pay off for large-scale con
 - Phase 7 SRS grading (`lib/srs/grade.ts`) works on cloned rows **unchanged**. Tests:
   `lib/story/reuse.test.ts` (owner rows need a `users` insert — FK on `ownerId`).
 
+## Parent document upload (done)
+
+A parent (adult owner) can upload their **own** Chinese text — a book chapter, article, handout —
+preview how readable it is for each child, and publish it **verbatim** as a reading-only story to
+all children or a chosen subset. Presentation is deliberately **no-LLM**: the content is annotated
+deterministically and persisted as-is; the coverage preview is what tells the parent whether a text
+fits a given child (no generation, no comprehension questions). The body + base annotation are
+learner-agnostic (annotate **once**), but what the story *teaches* (targets) and *scaffolds*
+(glossed unknowns) plus its coverage % are **per-child**, computed as a cheap overlay — so an
+upload behaves like a real graded story (SRS advances) rather than a static clone.
+
+- `lib/document/parse.ts` — `parseDocument(bytes, filename, mime?)`: **server-only** text
+  extraction. `.txt` (UTF-8), `.docx` (**mammoth**), `.pdf` (**pdfjs-dist**,
+  `legacy/build/pdf.mjs`, no worker — text extraction needs no canvas). Both deps are **pure-JS**
+  (no `allowBuilds` entry) and listed in `next.config.ts` `serverExternalPackages`. `normalizeText`
+  (collapse whitespace, keep paragraph newlines) is exported and also applied to pasted text. No-Han
+  extraction → a `warning` the UI surfaces (and blocks confirm on).
+- `lib/document/analyze.ts` — `documentStats(text)` (`totalChars` + distinct `hanChars` via `isHan`)
+  and `coverageForLearners(db, learners, hanChars)`. The split is **finer than the app's
+  `KNOWN_STATUSES`** (which lumps `learning` in with known): **known** = `review`+`mastered`,
+  **learning** = `learning`, **new** = status `new` or absent (incl. Traditional / off-curriculum).
+  Percentages over distinct Han count; each row also carries `targets` (what the doc would teach —
+  same helper as persist, so preview == persisted). Pure DB read, unit-tested (`analyze.test.ts`).
+- `lib/document/targets.ts` — `pickTargetsFromDoc(db, learnerId, docHanChars, max?)`: from the doc's
+  **unknown** chars (∉ `getKnownChars`), prefer curriculum **frontier-ready** ones (`selectNewChars`
+  order, component prereqs met), then top up with the **most-frequent** remaining unknowns
+  (`characters.freqRank`); off-curriculum chars can't be targets. Capped at `MAX_UPLOAD_TARGETS`
+  (default 8, tunable). The `lib/story/reuse.ts` "story-driven target" precedent. Unit-tested.
+- `lib/document/persist.ts` — `createDocumentStories(db, learnerIds, title, text)`: `annotate()`
+  **once** (no `resolveHeteronyms` — stays LLM-free), then **per child**: `pickTargetsFromDoc` →
+  `targetCharsUsed`; the other unknown chars → segments flagged `oov: true` (always-on pinyin +
+  amber underline, gloss-on-tap — the §8.5 soft-gloss mechanic, mirroring the `generate.ts:181`
+  post-pass) + a parity `glossary`; `meta.knownCoverage` = the child's honest readable fraction
+  (`checkCoverage(text, {known, targets: []})`, glossary help **not** folded in). `meta.model =
+  'upload'`. So the story card shows real `targets:` + `coverage %`, and Phase-7 grading promotes
+  the targets `new→learning`; glossed unknowns are **not** introduced (only focus-set chars are).
+- **Actions** (`app/actions.ts`): `parseDocumentAction(formData) → DocumentPreview` (reads the
+  uploaded `File` or a `text` paste field; both `requireAdult`) and `assignDocumentAction(learnerIds,
+  title, text) → {count}|{error}` (re-checks `canAccessLearner` per id, then `revalidatePath`). The
+  extracted `text` **round-trips to the client and back** on confirm — no temp persistence.
+- **UI:** `app/documents/new/page.tsx` (adult-only, mirrors `app/learners/new`) + client
+  `components/DocumentUploadForm.tsx` — two-step upload/paste → preview (char count + per-child
+  known/learning/new bars + a **"teaches N new: …"** line) with a **checkbox learner selector** (the
+  app's first multi-learner picker; no shadcn `Checkbox`/`Table` primitive — plain
+  `<input type="checkbox">`). Entry link on the `app/page.tsx` dashboard. Persisted upload stories
+  flow through the normal reader + Phase 7 grading unchanged.
+
 ## App + tooling (read before touching imports or the build)
 
 - **Imports are extension-less; resolution is `Bundler` everywhere.** The project was migrated OFF the
