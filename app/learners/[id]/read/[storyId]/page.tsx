@@ -11,6 +11,8 @@ import { annotate } from '@/lib/annotate/index';
 import { computeStoryStats } from '@/lib/story/stats';
 import { getThreadContext } from '@/lib/story/thread';
 import { selectSlideshowWords, SLIDESHOW_PRELOAD_COUNT } from '@/lib/slideshow/select';
+import { CREDIT_MINUTES_PER_STORY } from '@/lib/screentime/code';
+import { parseKidList } from '@/lib/screentime/claim';
 import { Reader } from '@/components/Reader';
 import { StoryMeta } from '@/components/StoryMeta';
 import { Button } from '@/components/ui/button';
@@ -91,6 +93,16 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
         bootstrap={learner.settings.bootstrap === true}
         persona={persona}
         captureInteractions={ctx.kind === 'child'}
+        credit={
+          process.env.SCREENTIME_CODE_SECRET
+            ? {
+                minutes: CREDIT_MINUTES_PER_STORY,
+                claim: story.meta?.creditClaim ?? null,
+                kids: parseKidList(process.env.SCREENTIME_KIDS),
+                defaultKid: learner.settings.screentimeKid ?? null,
+              }
+            : null
+        }
       />
     </main>
   );

@@ -387,3 +387,22 @@ upload behaves like a real graded story (SRS advances) rather than a static clon
 - **pnpm 11 build-script approval lives in `pnpm-workspace.yaml` `allowBuilds:`** (NOT package.json). A
   new native dep that lands there as `name: set this to true or false` will hard-fail every
   `pnpm install`/`pnpm <script>` with `ERR_PNPM_IGNORED_BUILDS` until set to `true`/`false`.
+
+## Screentime credit (done)
+
+A child earns **10 min** (`CREDIT_MINUTES_PER_STORY`) of home screen time per finished story,
+redeemed at `http://screentime.lan` (home-network-ctrl). **Done** = a `complete` interaction **and**
+every comprehension question answered; `gradedAt` is NOT used (catch-up grading sets it on unread
+stories). Question rows carry the question index in `interactions.value` (`components/Questions.tsx`).
+
+- `lib/screentime/code.ts` — HMAC code minting, ported verbatim from
+  `home-network-ctrl/codegen/screentimeCode.ts` (shared test vector in `code.test.ts`). Server-only.
+- `lib/screentime/claim.ts` — `getCreditStatus` / `claimStoryCredit`: one claim per story, stored in
+  `stories.meta.creditClaim` (no migration); re-claims return the same code.
+- `app/api/learners/[id]/stories/[storyId]/screentime-claim/route.ts` — the minting endpoint
+  (child sessions only; needs `SCREENTIME_CODE_SECRET`).
+- `public/screentime-claim.js` — the drop-in `<screentime-claim>` widget. **Canonical copy lives in
+  `home-network-ctrl/codegen/`** — edit there and re-copy. Wrapped by `components/ScreentimeClaim.tsx`.
+  It hands off by **link** (navigation), never fetch: an HTTPS page can't fetch the plain-http LAN host.
+- Name picker: `SCREENTIME_KIDS` (comma list, `parseKidList`) → dropdown + "Other…" text fallback; the
+  last claimed name is saved to `learners.settings.screentimeKid` (by the route) and preselected.

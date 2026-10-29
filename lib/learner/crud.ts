@@ -14,6 +14,8 @@ export interface LearnerSettings {
   personaId?: string;
   /** Default story genre (§17.1) — see lib/genres/presets.ts; overridable per story. */
   genreId?: string;
+  /** Screentime pool name of the last credit claim (lib/screentime) — preselected next time. */
+  screentimeKid?: string;
   [key: string]: unknown;
 }
 

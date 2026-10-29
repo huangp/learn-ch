@@ -10,6 +10,8 @@ import type { AnnotatedQuestion, AnnotatedChoice } from '@/components/reader-typ
 import { Questions } from '@/components/Questions';
 import { Choices } from '@/components/Choices';
 import type { Slide } from '@/components/StorySlideshow';
+import { ScreentimeClaim } from '@/components/ScreentimeClaim';
+import type { CreditClaim } from '@/lib/generation/types';
 import { FinishButton } from '@/components/FinishButton';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -153,9 +155,11 @@ interface ReaderProps {
   persona?: Pick<Persona, 'emoji' | 'name' | 'nameEn' | 'tagline'> | null;
   /** False for adult preview: no dwell capture, no finish/grade (reading isn't the learner's). */
   captureInteractions: boolean;
+  /** Screentime credit (lib/screentime): null when not configured; else minutes + any earlier claim. */
+  credit?: { minutes: number; claim: CreditClaim | null; kids: string[]; defaultKid: string | null } | null;
 }
 
-export function Reader({ storyId, learnerId, titleSegments, segments, questions, choices, slides, bootstrap, persona, captureInteractions }: ReaderProps) {
+export function Reader({ storyId, learnerId, titleSegments, segments, questions, choices, slides, bootstrap, persona, captureInteractions, credit }: ReaderProps) {
   const [showPinyin, setShowPinyin] = useState(bootstrap); // off by default; on in bootstrap (§16.4)
   const [selected, setSelected] = useState<SelectedWord | null>(null);
   const { setRef: setDwellRef, flushDwell } = useSegmentDwell(storyId, learnerId, segments, captureInteractions);
@@ -210,6 +214,12 @@ export function Reader({ storyId, learnerId, titleSegments, segments, questions,
         {captureInteractions && (
           <div className="mt-10">
             <FinishButton storyId={storyId} learnerId={learnerId} flushDwell={flushDwell} />
+          </div>
+        )}
+
+        {captureInteractions && credit && (
+          <div className="mt-6">
+            <ScreentimeClaim storyId={storyId} learnerId={learnerId} {...credit} />
           </div>
         )}
       </div>

@@ -118,6 +118,17 @@ export interface GenerationMeta {
   reusedFromLearnerId?: number;
   /** Reuse attribution: the source learner's display name ("this story comes from learner X"). */
   reusedFromLearnerName?: string;
+  /** Screentime credit claimed for this story (lib/screentime/claim.ts) — one per story. */
+  creditClaim?: CreditClaim;
+}
+
+/** A minted screentime code for one finished story (redeemed at screentime.lan). */
+export interface CreditClaim {
+  kid: string;
+  minutes: number;
+  code: string;
+  url: string;
+  claimedAt: number;
 }
 
 export interface GenerationResult {

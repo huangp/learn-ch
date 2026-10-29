@@ -29,10 +29,12 @@ export function Questions({
     setAnswers((a) => ({ ...a, [qi]: oi }));
     const correct = oi === q.answer;
     const type = correct ? 'question_correct' : 'question_wrong';
+    // value = question index, so the screentime credit check (lib/screentime/claim.ts) can tell
+    // every question was answered; FSRS grading ignores it.
     if (q.testsChars.length === 0) {
-      void recordInteractionAction({ storyId, learnerId, type });
+      void recordInteractionAction({ storyId, learnerId, type, value: qi });
     } else {
-      for (const char of q.testsChars) void recordInteractionAction({ storyId, learnerId, char, type });
+      for (const char of q.testsChars) void recordInteractionAction({ storyId, learnerId, char, type, value: qi });
     }
   }
 

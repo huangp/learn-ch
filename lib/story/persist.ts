@@ -2,7 +2,7 @@ import { and, desc, eq, isNull, ne } from 'drizzle-orm';
 import type { Db } from '../db';
 import { learners, stories } from '../../db/schema';
 import type { AnnotatedSegment } from '../annotate/index';
-import type { Choice, ComprehensionQuestion, GenerationMeta, GlossaryEntry, StoryJson } from '../generation/types';
+import type { Choice, ComprehensionQuestion, CreditClaim, GenerationMeta, GlossaryEntry, StoryJson } from '../generation/types';
 
 // Phase 5 — story persistence. The generation engine (Phase 3) and annotation layer
 // (Phase 4) are both pure and write nothing; this module is the first writer of the
@@ -182,6 +182,14 @@ export function reuseStory(db: Db, input: ReuseStoryInput): { id: number } {
     .returning({ id: stories.id })
     .get();
   return { id: row.id };
+}
+
+/** Record a screentime credit claim on the story's meta JSON (no schema change). */
+export function setStoryCreditClaim(db: Db, storyId: number, claim: CreditClaim): void {
+  const row = db.select({ meta: stories.meta }).from(stories).where(eq(stories.id, storyId)).get();
+  if (!row) throw new Error(`story ${storyId} not found`);
+  const meta = { ...parseJson<Partial<GenerationMeta>>(row.meta, {}), creditClaim: claim };
+  db.update(stories).set({ meta: JSON.stringify(meta) }).where(eq(stories.id, storyId)).run();
 }
 
 /** Minimal fields needed to reconstruct the branch forest (lib/story/thread) without the annotated blob. */
