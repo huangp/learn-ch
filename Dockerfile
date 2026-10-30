@@ -1,10 +1,11 @@
 # Multi-stage build for the Next.js app (standalone output). Single long-running container;
 # the SQLite DB lives on a mounted volume (DB_PATH), NOT in the image.
 
-FROM node:22-slim AS base
+FROM node:26-slim AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
-RUN corepack enable
+# corepack is no longer bundled with Node 25+, so install pnpm directly.
+RUN npm install -g pnpm@11
 WORKDIR /app
 
 # --- deps: install with build tools available for better-sqlite3's native addon ---
