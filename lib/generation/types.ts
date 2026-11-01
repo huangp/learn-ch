@@ -150,7 +150,28 @@ export interface AttemptDiagnostics {
   targetCoverage?: number;
   perSentenceMin?: number;
   body?: string;
+  /** Wall time of the llm.generate call. */
+  llmMs: number;
+  /** Parse + validateChars + checkCoverage time. */
+  checkMs: number;
+  /** Stable ids of the gates this attempt failed (empty when passed) — for aggregation. */
+  failedGates: GateId[];
+  inputTokens: number;
+  outputTokens: number;
 }
+
+/** One id per gate in describeFailures (lib/generation/generate.ts). */
+export type GateId =
+  | 'parse'
+  | 'oov'
+  | 'evasion'
+  | 'gloss_budget'
+  | 'targets_k'
+  | 'due'
+  | 'clustered'
+  | 'sentence_floor'
+  | 'known_floor'
+  | 'unknown_budget';
 
 /** Thrown when no attempt (including fallbacks) produces a passing story. */
 export class GenerationFailed extends Error {

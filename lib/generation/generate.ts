@@ -8,7 +8,7 @@ import { DEFAULT_LENGTH_BAND, K as DEFAULT_K, KNOWN_COVERAGE_FLOOR, MAX_GLOSSED_
 import { checkCoverage, type CoverageResult } from './coverage';
 import { buildRepairPrompt, buildSystemPrompt, buildUserPrompt } from './prompt';
 import { parseStoryJson, StoryParseError } from './parse';
-import { GenerationFailed, type GenerationConfig, type GenerationMeta, type GenerationResult, type StoryJson } from './types';
+import { GenerationFailed, type GateId, type GenerationConfig, type GenerationMeta, type GenerationResult, type StoryJson } from './types';
 import { validateChars, type ValidationResult } from './validate';
 
 // §8.1 the heart — generate → validate → repair. Pure functions do the checking;
@@ -29,41 +29,53 @@ const HAN = /\p{Script=Han}/u;
 
 const uniq = (hits: { char: string }[]): string => [...new Set(hits.map((h) => h.char))].join('、');
 
-/** Human-readable reasons an attempt failed its gates (empty = passed). */
-function describeFailures(a: Attempt, k: number, bootstrap: boolean, maxUnknown?: number, maxGlossed = MAX_GLOSSED_WORDS): string[] {
+interface GateFailure {
+  gate: GateId;
+  msg: string;
+}
+
+/** The gates an attempt failed, each with a human-readable reason (empty = passed). */
+function failures(a: Attempt, k: number, bootstrap: boolean, maxUnknown?: number, maxGlossed = MAX_GLOSSED_WORDS): GateFailure[] {
   const relaxed = maxUnknown != null;
-  const reasons: string[] = [];
-  if (a.parseError) reasons.push(`bad JSON: ${a.parseError}`);
+  const reasons: GateFailure[] = [];
+  const fail = (gate: GateId, msg: string) => reasons.push({ gate, msg });
+  if (a.parseError) fail('parse', `bad JSON: ${a.parseError}`);
   const v = a.validation;
   if (v) {
     // Remaining violations are UNDECLARED out-of-vocab chars (glossed ones aren't violations).
     // Permitted in relaxed mode (bounded by the unknown-char budget below).
-    if (v.violations.length && !relaxed) reasons.push(`undeclared out-of-vocab chars: 「${uniq(v.violations)}」`);
-    if (v.evasions.length) reasons.push(`evasions (latin/pinyin): 「${uniq(v.evasions)}」`);
+    if (v.violations.length && !relaxed) fail('oov', `undeclared out-of-vocab chars: 「${uniq(v.violations)}」`);
+    if (v.evasions.length) fail('evasion', `evasions (latin/pinyin): 「${uniq(v.evasions)}」`);
   }
-  if (a.glossOver) reasons.push(`too many glossary words (max ${maxGlossed}): ${a.story?.glossary.length ?? 0}`);
+  if (a.glossOver) fail('gloss_budget', `too many glossary words (max ${maxGlossed}): ${a.story?.glossary.length ?? 0}`);
   const c = a.coverage;
   if (c) {
-    if (c.targetsMissing.length) reasons.push(`targets below ${k}×: 「${c.targetsMissing.join('、')}」`);
-    if (c.dueMissing.length) reasons.push(`due chars absent: 「${c.dueMissing.join('、')}」`);
+    if (c.targetsMissing.length) fail('targets_k', `targets below ${k}×: 「${c.targetsMissing.join('、')}」`);
+    if (c.dueMissing.length) fail('due', `due chars absent: 「${c.dueMissing.join('、')}」`);
     if (relaxed) {
       if (c.unknownChars.length > maxUnknown) {
-        reasons.push(`${c.unknownChars.length} unknown chars (max ${maxUnknown}): 「${c.unknownChars.join('、')}」`);
+        fail('unknown_budget', `${c.unknownChars.length} unknown chars (max ${maxUnknown}): 「${c.unknownChars.join('、')}」`);
       }
     } else {
-      if (c.clusteredTargets.length) reasons.push(`targets clustered in one sentence: 「${c.clusteredTargets.join('、')}」`);
+      if (c.clusteredTargets.length) fail('clustered', `targets clustered in one sentence: 「${c.clusteredTargets.join('、')}」`);
       if (c.lowCoverageSentences.length) {
         const worst = c.lowCoverageSentences.reduce((a, b) => (b.coverage < a.coverage ? b : a));
-        reasons.push(
+        fail(
+          'sentence_floor',
           `${c.lowCoverageSentences.length} sentence(s) below the per-sentence floor (worst ${worst.coverage.toFixed(2)}: 「${worst.text}」)`,
         );
       }
       if (!bootstrap && c.knownCoverage < KNOWN_COVERAGE_FLOOR) {
-        reasons.push(`global knownCoverage ${c.knownCoverage.toFixed(3)} below floor ${KNOWN_COVERAGE_FLOOR}`);
+        fail('known_floor', `global knownCoverage ${c.knownCoverage.toFixed(3)} below floor ${KNOWN_COVERAGE_FLOOR}`);
       }
     }
   }
   return reasons;
+}
+
+/** Human-readable reasons an attempt failed its gates (empty = passed). */
+function describeFailures(a: Attempt, k: number, bootstrap: boolean, maxUnknown?: number, maxGlossed = MAX_GLOSSED_WORDS): string[] {
+  return failures(a, k, bootstrap, maxUnknown, maxGlossed).map((f) => f.msg);
 }
 
 /** Resolve charIds → their char strings, preserving caller order. */
@@ -135,13 +147,16 @@ export async function generateGradedStory(
     // Cache the stable prefix (system + first user msg) on the multi-turn main thread, where
     // repair turns reuse it. The fallback is a single fresh-thread shot — caching it only adds
     // a cache-write surcharge with no read, so leave it off.
+    const llmStart = Date.now();
     const res = await llm.generate({ system, messages, model: config.model, cache: phase !== 'fallback' });
+    const llmMs = Date.now() - llmStart;
     usage.inputTokens += res.usage.inputTokens;
     usage.outputTokens += res.usage.outputTokens;
     usage.cacheReadTokens = (usage.cacheReadTokens ?? 0) + (res.usage.cacheReadTokens ?? 0);
     usage.cacheWriteTokens = (usage.cacheWriteTokens ?? 0) + (res.usage.cacheWriteTokens ?? 0);
     model = res.model;
 
+    const checkStart = Date.now();
     let a: Attempt;
     try {
       const story = parseStoryJson(res.text);
@@ -167,12 +182,19 @@ export async function generateGradedStory(
       if (e instanceof StoryParseError) a = { raw: res.text, parseError: e.message, passed: false };
       else throw e;
     }
+    const checkMs = Date.now() - checkStart;
 
+    const failed = a.passed ? [] : failures(a, k, config.bootstrap ?? false, maxUnknown, maxGlossed);
     config.onAttempt?.({
       phase,
       attempt: attemptIndex++,
       passed: a.passed,
-      reasons: a.passed ? [] : describeFailures(a, k, config.bootstrap ?? false, maxUnknown, maxGlossed),
+      reasons: failed.map((f) => f.msg),
+      failedGates: failed.map((f) => f.gate),
+      llmMs,
+      checkMs,
+      inputTokens: res.usage.inputTokens,
+      outputTokens: res.usage.outputTokens,
       parseError: a.parseError,
       stopReason: res.stopReason,
       knownCoverage: a.coverage?.knownCoverage,

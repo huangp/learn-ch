@@ -8,7 +8,7 @@ import { buildAllowlist } from '../allowlist/index';
 import { MockLlmProvider } from '../llm/mock';
 import { PERSONAS } from '../persona/presets';
 import { generateGradedStory } from './generate';
-import { GenerationFailed } from './types';
+import { GenerationFailed, type AttemptDiagnostics } from './types';
 
 const NOW = 1_750_000_000_000;
 
@@ -54,6 +54,17 @@ describe('generateGradedStory — generate → validate → repair (§8.1)', () 
     expect(res.meta.fallbackUsed).toBe(false);
     expect(llm.calls.length).toBe(2);
     expect(res.story.targetCharsUsed.length).toBe(1);
+  });
+
+  test('onAttempt reports failed gate ids + per-call timings', async () => {
+    const infos: AttemptDiagnostics[] = [];
+    const llm = new MockLlmProvider([dirtyJson, cleanJson]);
+    await generateGradedStory(t.db, llm, learnerId, { targetCharIds, onAttempt: (i) => infos.push(i) });
+    expect(infos.map((i) => i.failedGates)).toEqual([['oov'], []]);
+    for (const i of infos) {
+      expect(i.llmMs).toBeGreaterThanOrEqual(0);
+      expect(i.checkMs).toBeGreaterThanOrEqual(0);
+    }
   });
 
   test('returns on a clean first pass with zero repairs', async () => {

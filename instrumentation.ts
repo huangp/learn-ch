@@ -5,17 +5,8 @@
 // resumes intact; this covers the stop / deploy / host-migration paths, where the process is killed.)
 // On the next request the machine cold-starts and lib/db reopens the DB at /data/hanzi.db.
 export async function register() {
-  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
-  const { closeDb } = await import('@/lib/db');
-
-  let done = false;
-  const shutdown = () => {
-    if (done) return; // guard against SIGTERM+SIGINT both firing
-    done = true;
-    closeDb();
-    process.exit(0);
-  };
-  // Handle both: Fly's kill_signal may be SIGTERM or SIGINT, so we don't depend on which is sent.
-  process.once('SIGTERM', shutdown);
-  process.once('SIGINT', shutdown);
+  // NEXT_RUNTIME is inlined at build time, so the Edge bundle drops this import entirely.
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('./instrumentation-node');
+  }
 }
