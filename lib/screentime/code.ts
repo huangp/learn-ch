@@ -14,6 +14,14 @@ import { createHmac, randomInt } from 'node:crypto';
 /** Credit a finished story earns (lib/screentime/claim.ts). */
 export const CREDIT_MINUTES_PER_STORY = 10;
 
+/** Weekly bonus (lib/screentime/bonus.ts): finished a story on all 5 weekdays → 60 min, else ≥3 → 30. */
+export const BONUS_MINUTES_STREAK = 60;
+export const BONUS_MINUTES_PARTIAL = 30;
+export const BONUS_STREAK_DAYS = 5;
+export const BONUS_PARTIAL_DAYS = 3;
+/** makeCode's ceiling — one code can't carry more than this. */
+export const MAX_CODE_MINUTES = 240;
+
 const B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 const CLAIM_BASE = 'http://screentime.lan/claim';
 
@@ -38,7 +46,7 @@ export function sign(secret: string, kid: string, minutes: number, nonce: string
 }
 
 export function makeCode(secret: string, kid: string, minutes: number, nonce?: string): string {
-  if (!Number.isInteger(minutes) || minutes < 1 || minutes > 240) {
+  if (!Number.isInteger(minutes) || minutes < 1 || minutes > MAX_CODE_MINUTES) {
     throw new RangeError('minutes must be an integer 1-240');
   }
   const n = nonce ?? Array.from({ length: 6 }, () => B32[randomInt(32)]).join('');

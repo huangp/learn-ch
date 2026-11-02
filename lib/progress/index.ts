@@ -57,7 +57,7 @@ export interface DailyActivity {
 
 // Local 'YYYY-MM-DD' for an epoch-ms instant. Bucketing uses server-local time — fine for a
 // single-family app; if multi-tz ever matters, pass a tz/offset in and format against it.
-function localDay(ms: number): string {
+export function localDay(ms: number): string {
   const d = new Date(ms);
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, '0');

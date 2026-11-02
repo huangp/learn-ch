@@ -2,7 +2,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import type { Db } from '../db';
 import { interactions } from '../../db/schema';
 import type { CreditClaim } from '../generation/types';
-import { getStory, setStoryCreditClaim } from '../story/persist';
+import { getStory, setStoryCreditClaim, type StoryRecord } from '../story/persist';
 import { claimUrl, CREDIT_MINUTES_PER_STORY, makeCode } from './code';
 
 // Screentime credit: a finished story earns CREDIT_MINUTES_PER_STORY, once. "Finished" = the
@@ -12,7 +12,7 @@ import { claimUrl, CREDIT_MINUTES_PER_STORY, makeCode } from './code';
 // The claim (incl. its code) rides in `stories.meta.creditClaim`, so a reload re-shows it.
 
 // Screentime pool names (config.yaml): letters/digits/underscore only.
-const KID_NAME = /^[a-z0-9_]{1,32}$/;
+export const KID_NAME = /^[a-z0-9_]{1,32}$/;
 
 /** Parse the SCREENTIME_KIDS env list ("amelia, jayden") into valid pool names for the widget. */
 export function parseKidList(raw: string | undefined): string[] {
@@ -41,15 +41,20 @@ export function getCreditStatus(db: Db, learnerId: number, storyId: number): Cre
       ),
     )
     .all();
+  return { claimed: story.meta?.creditClaim ?? null, ...creditProgress(rows), total: questionTotal(story) };
+}
+
+/** Every question a story asks — comprehension + recognition. */
+export function questionTotal(story: Pick<StoryRecord, 'questions' | 'recognition'>): number {
+  // Recognition questions record value = questions.length + index (components/RecognitionQuestions.tsx).
+  return story.questions.length + story.recognition.length;
+}
+
+/** Whether a story's interaction rows include a `complete`, and how many distinct questions were answered. */
+export function creditProgress(rows: { type: string; value: number | null }[]): { completed: boolean; answered: number } {
   const answered = new Set<number>();
   for (const r of rows) if (r.type !== 'complete' && r.value != null) answered.add(r.value);
-  return {
-    claimed: story.meta?.creditClaim ?? null,
-    completed: rows.some((r) => r.type === 'complete'),
-    answered: answered.size,
-    // Recognition questions record value = questions.length + index (components/RecognitionQuestions.tsx).
-    total: story.questions.length + story.recognition.length,
-  };
+  return { completed: rows.some((r) => r.type === 'complete'), answered: answered.size };
 }
 
 /**

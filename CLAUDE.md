@@ -406,6 +406,13 @@ stories). Question rows carry the question index in `interactions.value` (`compo
   It hands off by **link** (navigation), never fetch: an HTTPS page can't fetch the plain-http LAN host.
 - Name picker: `SCREENTIME_KIDS` (comma list, `parseKidList`) → dropdown + "Other…" text fallback; the
   last claimed name is saved to `learners.settings.screentimeKid` (by the route) and preselected.
+- **Weekly streak bonus** — `lib/screentime/bonus.ts`: a week (keyed by its Monday, server-local)
+  earns **60 min** for a finished story (same "done" rule, dated by first `complete`; deleted stories
+  still count) on all 5 weekdays, else **30 min** for ≥3 (no stacking; weekend reading ignored).
+  Claimable **only Sat/Sun**; unclaimed weeks carry over and combine into one code (≤240 min, rest
+  next claim). Claims live in `learners.settings.bonusClaims` (no migration). Route
+  `app/api/learners/[id]/screentime-bonus`; card `components/WeeklyBonus.tsx` on the learner home
+  (child sessions only), reusing the same widget via `ScreentimeClaim`'s `endpoint` prop.
 
 ## Character-recognition questions (done)
 

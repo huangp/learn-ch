@@ -6,7 +6,7 @@ import type { CreditClaim } from '@/lib/generation/types';
 
 // React wrapper for the drop-in <screentime-claim> widget (public/screentime-claim.js, canonical
 // copy in home-network-ctrl/codegen). The widget POSTs the kid's name to the minting route, which
-// checks the story is done (lib/screentime/claim.ts) and returns a code + screentime.lan link.
+// checks eligibility (lib/screentime/claim.ts or bonus.ts) and returns a code + screentime.lan link.
 
 declare module 'react' {
   namespace JSX {
@@ -24,15 +24,14 @@ declare module 'react' {
 }
 
 export function ScreentimeClaim({
-  storyId,
-  learnerId,
+  endpoint,
   minutes,
   claim,
   kids,
   defaultKid,
 }: {
-  storyId: number;
-  learnerId: number;
+  /** Minting route: per-story (…/stories/[storyId]/screentime-claim) or weekly (…/screentime-bonus). */
+  endpoint: string;
   minutes: number;
   claim: CreditClaim | null;
   /** Pool names for the dropdown (SCREENTIME_KIDS); empty ⇒ text input only. */
@@ -44,7 +43,7 @@ export function ScreentimeClaim({
     <>
       <Script src="/screentime-claim.js" type="module" strategy="afterInteractive" />
       <screentime-claim
-        endpoint={`/api/learners/${learnerId}/stories/${storyId}/screentime-claim`}
+        endpoint={endpoint}
         minutes={String(minutes)}
         kids={kids.join(',') || undefined}
         default-kid={defaultKid ?? undefined}

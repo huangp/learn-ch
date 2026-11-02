@@ -150,6 +150,11 @@ export interface CreditClaim {
   claimedAt: number;
 }
 
+/** A minted weekly streak-bonus code (lib/screentime/bonus.ts); `weeks` = the Monday keys it covers. */
+export interface BonusClaim extends CreditClaim {
+  weeks: string[];
+}
+
 export interface GenerationResult {
   story: StoryJson;
   meta: GenerationMeta;

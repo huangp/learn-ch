@@ -89,7 +89,7 @@ function parseJson<T>(raw: string | null, fallback: T): T {
   }
 }
 
-function toRecord(row: typeof stories.$inferSelect): StoryRecord {
+export function toRecord(row: typeof stories.$inferSelect): StoryRecord {
   const annotated = parseJson<Partial<AnnotatedPayload>>(row.annotated, {});
   return {
     id: row.id,

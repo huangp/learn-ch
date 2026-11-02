@@ -227,7 +227,7 @@ export function Reader({ storyId, learnerId, titleSegments, segments, questions,
 
         {captureInteractions && credit && (
           <div className="mt-6">
-            <ScreentimeClaim storyId={storyId} learnerId={learnerId} {...credit} />
+            <ScreentimeClaim endpoint={`/api/learners/${learnerId}/stories/${storyId}/screentime-claim`} {...credit} />
           </div>
         )}
       </div>

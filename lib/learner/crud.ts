@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import type { Db } from '../db';
 import { learners } from '../../db/schema';
+import type { BonusClaim } from '../generation/types';
 
 // Learner CRUD. A typical onboard is: createLearner → placement resolver → seedLearner.
 // Placement is re-runnable; the no-downgrade guarantee for already-promoted chars
@@ -16,6 +17,8 @@ export interface LearnerSettings {
   genreId?: string;
   /** Screentime pool name of the last credit claim (lib/screentime) — preselected next time. */
   screentimeKid?: string;
+  /** Weekly streak-bonus codes minted so far (lib/screentime/bonus.ts), oldest first. */
+  bonusClaims?: BonusClaim[];
   [key: string]: unknown;
 }
 

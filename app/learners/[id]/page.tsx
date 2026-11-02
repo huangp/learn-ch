@@ -18,6 +18,9 @@ import { SignOutButton } from '@/components/SignOutButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Toaster } from '@/components/ui/toast';
+import { WeeklyBonus } from '@/components/WeeklyBonus';
+import { getBonusStatus } from '@/lib/screentime/bonus';
+import { parseKidList } from '@/lib/screentime/claim';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,6 +107,8 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
   const persona = getPersona(learner.settings.personaId);
   const genre = getGenre(learner.settings.genreId);
   const slides = selectSlideshowWords(db, learnerId, SLIDESHOW_PRELOAD_COUNT);
+  // Weekly streak bonus — the reader's to claim, so only on a child session with credit set up.
+  const bonus = ctx.kind === 'child' && process.env.SCREENTIME_CODE_SECRET ? getBonusStatus(db, learnerId) : null;
 
   return (
     <Toaster>
@@ -131,6 +136,14 @@ export default async function LearnerPage({ params }: { params: Promise<{ id: st
       </div>
 
       <div className="mb-8 grid gap-8">
+        {bonus && (
+          <WeeklyBonus
+            learnerId={learnerId}
+            status={bonus}
+            kids={parseKidList(process.env.SCREENTIME_KIDS)}
+            defaultKid={learner.settings.screentimeKid ?? null}
+          />
+        )}
         <GenerateStoryForm learnerId={learnerId} slides={slides} />
         <SeedLibrary learnerId={learnerId} slides={slides} />
       </div>
