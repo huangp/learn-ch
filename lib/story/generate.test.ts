@@ -59,6 +59,10 @@ describe('generateAndPersistStory', () => {
     expect(rec.segments.map((s) => s.text).join('')).toBe(body);
     // it was actually written
     expect(getStory(t.db, rec.id)).not.toBeNull();
+    // one recognition question per target; the mock's reply to the refine call isn't valid → draft kept
+    expect(rec.recognition.map((r) => r.char)).toEqual([target]);
+    expect(rec.recognition[0]).toMatchObject({ source: 'deterministic' });
+    expect(rec.recognition[0].sentence).toContain(target);
   });
 
   test('per-story genre: directive reaches the prompt, genreId persists in meta (§17.1)', async () => {

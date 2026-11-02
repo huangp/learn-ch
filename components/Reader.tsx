@@ -8,10 +8,11 @@ import { CharPanel, type SelectedWord } from '@/components/CharPanel';
 import { SegmentView, RevealableText } from '@/components/RevealableText';
 import type { AnnotatedQuestion, AnnotatedChoice } from '@/components/reader-types';
 import { Questions } from '@/components/Questions';
+import { RecognitionQuestions } from '@/components/RecognitionQuestions';
 import { Choices } from '@/components/Choices';
 import type { Slide } from '@/components/StorySlideshow';
 import { ScreentimeClaim } from '@/components/ScreentimeClaim';
-import type { CreditClaim } from '@/lib/generation/types';
+import type { CreditClaim, RecognitionItem } from '@/lib/generation/types';
 import { FinishButton } from '@/components/FinishButton';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -149,6 +150,7 @@ interface ReaderProps {
   titleSegments: AnnotatedSegment[] | null;
   segments: AnnotatedSegment[];
   questions: AnnotatedQuestion[];
+  recognition: RecognitionItem[];
   choices: AnnotatedChoice[];
   slides: Slide[];
   bootstrap: boolean;
@@ -159,7 +161,7 @@ interface ReaderProps {
   credit?: { minutes: number; claim: CreditClaim | null; kids: string[]; defaultKid: string | null } | null;
 }
 
-export function Reader({ storyId, learnerId, titleSegments, segments, questions, choices, slides, bootstrap, persona, captureInteractions, credit }: ReaderProps) {
+export function Reader({ storyId, learnerId, titleSegments, segments, questions, recognition, choices, slides, bootstrap, persona, captureInteractions, credit }: ReaderProps) {
   const [showPinyin, setShowPinyin] = useState(bootstrap); // off by default; on in bootstrap (§16.4)
   const [selected, setSelected] = useState<SelectedWord | null>(null);
   const { setRef: setDwellRef, flushDwell } = useSegmentDwell(storyId, learnerId, segments, captureInteractions);
@@ -202,6 +204,12 @@ export function Reader({ storyId, learnerId, titleSegments, segments, questions,
         {questions.length > 0 && (
           <div className="mt-10">
             <Questions storyId={storyId} learnerId={learnerId} questions={questions} showPinyin={showPinyin} onPick={setSelected} />
+          </div>
+        )}
+
+        {recognition.length > 0 && (
+          <div className="mt-10">
+            <RecognitionQuestions storyId={storyId} learnerId={learnerId} items={recognition} valueOffset={questions.length} />
           </div>
         )}
 

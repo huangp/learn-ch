@@ -64,6 +64,7 @@ describe('cross-learner story reuse', () => {
 
     expect(bStory.hanzi).toBe(body); // identical body, copied verbatim
     expect(bStory.targetChars).toEqual([target]); // recorded as B's own target
+    expect(bStory.recognition.map((r) => r.char)).toEqual([target]); // recognition follows B's targets
     expect(bStory.meta?.reusedFromStoryId).toBe(aStory.id);
     expect(bStory.meta?.reusedFromLearnerId).toBe(a);
     expect(bStory.meta?.reusedFromLearnerName).toBe('sibling-a'); // "comes from learner X" attribution

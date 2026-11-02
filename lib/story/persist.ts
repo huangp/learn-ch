@@ -2,7 +2,7 @@ import { and, desc, eq, isNull, ne } from 'drizzle-orm';
 import type { Db } from '../db';
 import { learners, stories } from '../../db/schema';
 import type { AnnotatedSegment } from '../annotate/index';
-import type { Choice, ComprehensionQuestion, CreditClaim, GenerationMeta, GlossaryEntry, StoryJson } from '../generation/types';
+import type { Choice, ComprehensionQuestion, CreditClaim, GenerationMeta, GlossaryEntry, RecognitionItem, StoryJson } from '../generation/types';
 
 // Phase 5 — story persistence. The generation engine (Phase 3) and annotation layer
 // (Phase 4) are both pure and write nothing; this module is the first writer of the
@@ -15,6 +15,8 @@ interface AnnotatedPayload {
   choices: Choice[];
   /** §8.5 soft-gloss: the out-of-vocab words declared for this story (also flagged on segments). */
   glossary: GlossaryEntry[];
+  /** End-of-story character-recognition questions (lib/recognition); absent on older stories. */
+  recognition: RecognitionItem[];
 }
 
 export interface StoryRecord {
@@ -26,6 +28,7 @@ export interface StoryRecord {
   questions: ComprehensionQuestion[];
   choices: Choice[];
   glossary: GlossaryEntry[];
+  recognition: RecognitionItem[];
   targetChars: string[];
   dueCharsUsed: string[];
   theme: string | null;
@@ -39,6 +42,8 @@ export interface CreateStoryInput {
   story: StoryJson;
   meta: GenerationMeta;
   segments: AnnotatedSegment[];
+  /** Character-recognition questions for the story's targets (lib/recognition). */
+  recognition?: RecognitionItem[];
   /** Resolved due-char strings actually woven into this story (for §5.3 dueCharsUsed). */
   dueChars?: string[];
   theme?: string;
@@ -54,6 +59,7 @@ export function createStory(db: Db, input: CreateStoryInput): { id: number } {
     questions: story.comprehensionQuestions,
     choices: story.choices,
     glossary: story.glossary,
+    recognition: input.recognition ?? [],
   };
   const row = db
     .insert(stories)
@@ -94,6 +100,7 @@ function toRecord(row: typeof stories.$inferSelect): StoryRecord {
     questions: annotated.questions ?? [],
     choices: annotated.choices ?? [],
     glossary: annotated.glossary ?? [],
+    recognition: annotated.recognition ?? [],
     targetChars: parseJson<string[]>(row.targetChars, []),
     dueCharsUsed: parseJson<string[]>(row.dueCharsUsed, []),
     theme: row.theme,
@@ -146,6 +153,8 @@ export interface ReuseStoryInput {
   targetChars: string[];
   /** Recipient's due chars the body reinforces. */
   dueChars: string[];
+  /** Recognition questions for the RECIPIENT's targets (the source's are for its own targets). */
+  recognition: RecognitionItem[];
   /** Reuse-tagged meta (source meta + reusedFrom* attribution). */
   meta: GenerationMeta;
   now?: number;
@@ -164,6 +173,7 @@ export function reuseStory(db: Db, input: ReuseStoryInput): { id: number } {
     questions: source.questions,
     choices: source.choices,
     glossary: source.glossary,
+    recognition: input.recognition,
   };
   const row = db
     .insert(stories)

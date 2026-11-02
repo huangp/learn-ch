@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { makeTestDb, type TestDb } from '../test-utils';
 import { createLearner } from '../learner/crud';
-import type { GenerationMeta, StoryJson } from '../generation/types';
+import type { GenerationMeta, RecognitionItem, StoryJson } from '../generation/types';
 import { createStory, getStory } from '../story/persist';
 import { recordCompletion, recordInteraction } from '../interactions/record';
 import { claimStoryCredit, getCreditStatus, parseKidList } from './claim';
@@ -10,11 +10,11 @@ import { sign } from './code';
 const NOW = 1_750_000_000_000;
 const SECRET = 'test-secret';
 
-function makeStory(t: TestDb, learnerId: number, questions: number): number {
+function makeStory(t: TestDb, learnerId: number, questions: number, recognition: RecognitionItem[] = []): number {
   const comprehensionQuestions = Array.from({ length: questions }, () => ({ q: '好吗', options: ['好', '不'], answer: 0, testsChars: ['好'] }));
   const story: StoryJson = { title: 't', body: '好', targetCharsUsed: [], comprehensionQuestions, choices: [], glossary: [] };
   const meta = { model: 'm', repairIterations: 0, knownCoverage: 1, targetCoverage: 1, perSentenceMin: 1, fallbackUsed: false, usage: { inputTokens: 0, outputTokens: 0 }, costUsd: 0, latencyMs: 0 } satisfies GenerationMeta;
-  return createStory(t.db, { learnerId, story, meta, segments: [], now: NOW }).id;
+  return createStory(t.db, { learnerId, story, meta, segments: [], recognition, now: NOW }).id;
 }
 
 function answer(t: TestDb, learnerId: number, storyId: number, qi: number) {
@@ -63,6 +63,16 @@ describe('claimStoryCredit', () => {
     expect(claimStoryCredit(t.db, learnerId, storyId, 'amelia', SECRET, NOW + 1)).toEqual(claim);
     expect(getStory(t.db, storyId)?.meta?.creditClaim).toEqual(claim);
     expect(getStory(t.db, storyId)?.meta?.model).toBe('m'); // rest of meta kept
+  });
+
+  test('recognition questions count toward the total (value = questions.length + index)', () => {
+    const item: RecognitionItem = { char: '好', word: '好看', sentence: '好看。', pinyinOptions: ['hǎo', 'hào'], pinyinAnswer: 0, meaningOptions: ['good', 'bad'], meaningAnswer: 0, source: 'deterministic' };
+    const storyId = makeStory(t, learnerId, 1, [item]);
+    recordCompletion(t.db, { storyId, learnerId, now: NOW });
+    answer(t, learnerId, storyId, 0);
+    expect(getCreditStatus(t.db, learnerId, storyId)).toMatchObject({ answered: 1, total: 2 });
+    answer(t, learnerId, storyId, 1);
+    expect(claimStoryCredit(t.db, learnerId, storyId, 'jayden', SECRET, NOW)).toMatchObject({ minutes: 10 });
   });
 
   test('a story without questions needs only the completion', () => {

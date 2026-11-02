@@ -16,6 +16,9 @@ import { resolveHeteronyms } from '../annotate/llm';
 import { createStory, getStory, reuseStory, type StoryRecord } from './persist';
 import { findReusableStory } from './reuse';
 import { shuffleQuestionOptions } from './shuffle-options';
+import { buildAllowlist, getKnownChars } from '../allowlist/index';
+import { buildRecognitionItems, draftRecognition, finalizeRecognition } from '../recognition/build';
+import { refineRecognition } from '../recognition/refine';
 
 // Phase 5 — persistent analog of cli/run-profile.ts `generateForProfile`, but against an
 // EXISTING learner and with the two steps the CLI/pure layer omit: the explicit
@@ -180,12 +183,22 @@ export async function generateAndPersistStory(
         reusedFromLearnerId: hit.source.learnerId,
         reusedFromLearnerName: hit.source.sourceLearnerName,
       };
+      // Recognition questions follow the RECIPIENT's targets: keep the source's (LLM-refined) items
+      // for shared targets, build the rest deterministically — reuse stays instant, no LLM.
+      const recognition = time('recognition', () => {
+        const fromSource = new Map(hit.source.recognition.map((r) => [r.char, r]));
+        const missing = hit.targetChars.filter((c) => !fromSource.has(c));
+        const allowed = new Set([...getKnownChars(db, learnerId), ...hit.targetChars]);
+        const built = new Map(buildRecognitionItems(db, missing, hit.source.hanzi, allowed).map((r) => [r.char, r]));
+        return hit.targetChars.map((c) => fromSource.get(c) ?? built.get(c)).filter((r) => r != null);
+      });
       const { id } = time('persist', () =>
         reuseStory(db, {
           learnerId,
           source: hit.source,
           targetChars: hit.targetChars,
           dueChars: hit.dueCharsUsed,
+          recognition,
           meta: reuseMeta,
           now: opts.now,
         }),
@@ -266,6 +279,19 @@ export async function generateAndPersistStory(
     });
   }
 
+  // Character-recognition questions (组词造句) for the story's targets: deterministic drafts, then one
+  // LLM judge pass that may improve the word/sentence (validated; drafts kept on any failure).
+  // Allowed = the same set generation used: known ∪ targets ∪ persona/seed names ∪ glossary chars.
+  const recognition = await time('recognition', async () => {
+    const allowed = buildAllowlist(db, learnerId, targetCharIds).allowedChars;
+    for (const name of [persona?.name ?? '', ...(storySeed?.allowNames ?? []), ...story.glossary.map((g) => g.word)]) {
+      for (const c of name) allowed.add(c);
+    }
+    const drafts = draftRecognition(db, story.targetCharsUsed, story.body, allowed);
+    const refined = await refineRecognition(db, llm, drafts, allowed, { model: opts.model });
+    return finalizeRecognition(db, refined, story.body);
+  });
+
   // Randomize option order so the correct answer isn't always the LLM's biased index (option A).
   const persisted = { ...story, comprehensionQuestions: shuffleQuestionOptions(story.comprehensionQuestions) };
   const { id } = time('persist', () =>
@@ -274,6 +300,7 @@ export async function generateAndPersistStory(
       story: persisted,
       meta,
       segments,
+      recognition,
       dueChars: resolveChars(db, dueCharIds),
       theme: opts.theme ?? genre?.label,
       parentStoryId: opts.parentStoryId,

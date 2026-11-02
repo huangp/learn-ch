@@ -5,6 +5,7 @@ import { getKnownChars } from '../allowlist/index';
 import { checkCoverage } from '../generation/coverage';
 import { isHan } from '../../data/pipeline/lib';
 import { pickTargetsFromDoc } from './targets';
+import { buildRecognitionItems } from '../recognition/build';
 import type { GenerationMeta, GlossaryEntry, StoryJson } from '../generation/types';
 
 // Parent document upload — publish an uploaded text verbatim as a readable story to one or more
@@ -86,6 +87,8 @@ export function createDocumentStories(
       story,
       meta: uploadMeta(knownCoverage),
       segments,
+      // Recognition questions for this child's targets — deterministic only (uploads stay LLM-free).
+      recognition: buildRecognitionItems(db, targets, text, new Set([...known, ...targets])),
       dueChars: [],
       theme: 'upload',
       now,

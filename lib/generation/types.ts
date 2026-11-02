@@ -49,6 +49,25 @@ export type Choice = z.infer<typeof ChoiceSchema>;
 export type GlossaryEntry = z.infer<typeof GlossaryEntrySchema>;
 export type StoryJson = z.infer<typeof StoryJsonSchema>;
 
+/**
+ * End-of-story character-recognition question (lib/recognition): one per target char — a 组词 +
+ * 造句 showing the char in context, then pick its pronunciation and meaning. Built deterministically
+ * (optionally refined by an LLM for word/sentence only); pinyin + gloss come from annotate/the DB.
+ */
+export interface RecognitionItem {
+  char: string;
+  /** 组词 — a word containing `char`. */
+  word: string;
+  /** 造句 — a sentence containing `word`. */
+  sentence: string;
+  pinyinOptions: string[];
+  pinyinAnswer: number;
+  meaningOptions: string[];
+  meaningAnswer: number;
+  /** Whether the LLM refine pass changed the word/sentence. */
+  source: 'deterministic' | 'llm';
+}
+
 /** A story-length range in characters (§15 #4) — the model is asked to land between min and max. */
 export interface LengthBand {
   min: number;

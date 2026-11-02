@@ -88,6 +88,7 @@ export default async function ReadPage({ params }: { params: Promise<{ id: strin
         titleSegments={titleSegments}
         segments={story.segments}
         questions={questions}
+        recognition={story.recognition}
         choices={choices}
         slides={slides}
         bootstrap={learner.settings.bootstrap === true}

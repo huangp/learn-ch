@@ -406,3 +406,22 @@ stories). Question rows carry the question index in `interactions.value` (`compo
   It hands off by **link** (navigation), never fetch: an HTTPS page can't fetch the plain-http LAN host.
 - Name picker: `SCREENTIME_KIDS` (comma list, `parseKidList`) → dropdown + "Other…" text fallback; the
   last claimed name is saved to `learners.settings.screentimeKid` (by the route) and preselected.
+
+## Character-recognition questions (done)
+
+After the comprehension questions, each story asks one **组词造句** item per **target char**: the char
+in a word + a sentence, then pick its **pronunciation** (4 pinyin) and **meaning** (4 glosses).
+Stored as `recognition: RecognitionItem[]` in the `annotated` JSON (no migration; old stories → `[]`).
+
+- `lib/recognition/build.ts` — deterministic: sentence = a body sentence holding the char, preferring
+  its **default reading** (`characters.pinyin[0]`, so the first gloss sense fits); word = the story's
+  own segmented word there, else the top readable lexicon word. Options: pinyin from `annotate()` of
+  the final sentence (other readings + tone variants as distractors), meaning from `characters.gloss`.
+- `lib/recognition/refine.ts` + `prompts/recognition.system.md` — one batched LLM judge pass that may
+  improve word/sentence. Validated (word ∋ char and ∈ lexicon, sentence ∋ word, `validateChars`,
+  **same reading as the draft**); any failure keeps the draft. Never supplies pinyin/gloss.
+- Wiring: fresh generation = build → refine (`lib/story/generate.ts`); reuse clones keep the source's
+  items for shared targets + build the rest deterministically; uploads are deterministic only.
+- UI `components/RecognitionQuestions.tsx` (no pinyin/tap-reveal on the card). It records both picks
+  once **both** are made, with `value = questions.length + index`; screentime credit counts them
+  (`getCreditStatus` total), and FSRS grades them like comprehension (`question_correct|wrong`).

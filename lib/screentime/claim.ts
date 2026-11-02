@@ -47,7 +47,8 @@ export function getCreditStatus(db: Db, learnerId: number, storyId: number): Cre
     claimed: story.meta?.creditClaim ?? null,
     completed: rows.some((r) => r.type === 'complete'),
     answered: answered.size,
-    total: story.questions.length,
+    // Recognition questions record value = questions.length + index (components/RecognitionQuestions.tsx).
+    total: story.questions.length + story.recognition.length,
   };
 }
 
